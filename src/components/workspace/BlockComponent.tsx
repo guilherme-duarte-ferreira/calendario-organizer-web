@@ -151,12 +151,13 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   return (
     <>
       <div 
-        className={`calendario-block flex flex-col ${
-          isDraggedOver ? "calendario-drag-over" : ""
+        className={`calendario-block flex flex-col bg-white/95 shadow-md rounded-md border w-72 min-w-72 mx-2 p-3 ${
+          isDraggedOver ? "calendario-drag-over border-primary border-dashed" : ""
         }`}
         onDragOver={handlers.handleDragOver}
         onDragLeave={handlers.handleDragLeave}
         onDrop={(e) => handlers.handleDrop(e, block.id)}
+        style={{ maxHeight: 'none' }} // Removemos a altura máxima fixa
       >
         <div className="mb-3">
           {isEditing ? (
@@ -228,7 +229,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
           )}
         </div>
         
-        <div className="flex-1 min-h-[100px] overflow-y-auto space-y-2">
+        <div className="space-y-2">
           {sortedItems.map((item) => {
             switch (item.type) {
               case "card":
@@ -329,8 +330,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
             </Button>
             <Button 
               onClick={() => {
-                createMarkdownNote(block.id, markdownContent);
-                setMarkdownContent("");
+                handleCreateMarkdownNote();
                 setShowDialog(null);
               }}
             >
