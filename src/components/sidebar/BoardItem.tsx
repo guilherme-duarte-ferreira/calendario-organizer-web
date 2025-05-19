@@ -53,7 +53,7 @@ export default function BoardItem({ board, isActive, onClick }: BoardItemProps) 
   return (
     <>
       <div 
-        className={`flex items-center justify-between py-1 px-2 rounded text-sm ${
+        className={`group flex items-center justify-between py-1 px-2 rounded text-sm ${
           isActive ? "bg-primary/10 text-primary font-medium" : "hover:bg-secondary"
         }`}
       >

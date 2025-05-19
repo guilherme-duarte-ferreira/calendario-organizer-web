@@ -37,6 +37,7 @@ import SpreadsheetItem from "./SpreadsheetItem";
 import MarkdownItem from "./MarkdownItem";
 import FileItemComponent from "./FileItemComponent";
 import { markdownToTable } from "@/utils/markdown";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface BlockComponentProps {
   block: Block;
@@ -97,9 +98,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const handleCreateMarkdownTable = () => {
     try {
       const { columns, rows } = markdownToTable(markdownContent);
-      
-      createSpreadsheet(block.id, "Tabela de Markdown");
-      
+      createSpreadsheet(block.id, "Tabela de Markdown", columns, rows);
       setMarkdownContent("");
       setShowDialog(null);
     } catch (error) {
@@ -127,7 +126,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   return (
     <>
       <div 
-        className={`calendario-block bg-white/95 shadow-md rounded-md border min-w-[16rem] w-auto mx-2 flex flex-col ${
+        className={`calendario-block bg-white/95 shadow-md rounded-md border w-[272px] flex flex-col ${
           isDraggedOver ? "calendario-drag-over border-primary border-dashed" : ""
         }`}
         onDragOver={handlers.handleDragOver}
@@ -204,7 +203,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
           )}
         </div>
         
-        <div className="px-3 space-y-2 flex-grow overflow-y-auto" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+        <div className="px-3 space-y-2 flex-grow">
           {sortedItems.map((item) => {
             switch (item.type) {
               case "card":

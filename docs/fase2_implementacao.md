@@ -8,6 +8,11 @@
 #### Cabeçalho
 - Botão "Criar Quadro" agora cria quadros vazios, sem blocos pré-definidos
 
+#### Barra Lateral
+- Funcionalidade de hover para quadros com feedback visual
+- Ícone de três pontos para cada quadro com opções de "Renomear", "Arquivar", "Deletar"
+- Implementação visual inicial da estrutura para pastas
+
 #### Área de Trabalho
 - Blocos têm tamanho dinâmico que se adapta ao conteúdo
 - Funcionalidade de inserção de texto Markdown com renderização correta
@@ -17,20 +22,24 @@
 
 ### Correções Realizadas
 1. **Blocos adaptáveis:**
-   - Os blocos agora têm largura mínima (`min-w-[16rem]`) e largura automática (`w-auto`)
-   - A altura se ajusta ao conteúdo, mas com um limite máximo para evitar blocos muito altos
-   - Rolagem vertical no conteúdo interno quando necessário
+   - Os blocos agora têm largura fixa inicial (`w-[272px]`) similar ao Trello
+   - O conteúdo se adapta verticalmente dentro do bloco
+   - Cada bloco cresce verticalmente conforme o conteúdo é adicionado
 
 2. **Renderização de Markdown:**
    - Implementada usando a biblioteca `react-markdown`
    - Aplicação de estilos adequados com a classe `prose`
+   - Conteúdo Markdown agora é formatado corretamente quando exibido
 
 3. **Sistema de navegação:**
    - Implementada rolagem vertical/horizontal conforme configuração
-   - A área de trabalho agora se adapta adequadamente
+   - A área de trabalho se adapta adequadamente quando há muitos blocos
 
 4. **Criação de quadros:**
    - Novos quadros agora são criados vazios, sem blocos pré-definidos
+
+5. **Visualização de quadros na barra lateral:**
+   - Botões dos três pontos agora ficam visíveis quando o mouse passa por cima do quadro
 
 ### Funcionalidades Pendentes
 1. **Barra Lateral:**

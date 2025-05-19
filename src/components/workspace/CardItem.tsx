@@ -26,7 +26,7 @@ interface CardItemProps {
 }
 
 export default function CardItem({ card }: CardItemProps) {
-  const { updateCardInBlock, deleteCardFromBlock } = useCalendario();
+  const { updateItem, deleteItem } = useCalendario();
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [title, setTitle] = useState(card.title);
@@ -44,7 +44,7 @@ export default function CardItem({ card }: CardItemProps) {
       updatedAt: new Date().toISOString()
     };
 
-    updateCardInBlock(updatedCard);
+    updateItem(updatedCard);
     setIsEditing(false);
   };
 
@@ -58,11 +58,11 @@ export default function CardItem({ card }: CardItemProps) {
       updatedAt: new Date().toISOString()
     };
 
-    updateCardInBlock(updatedCard);
+    updateItem(updatedCard);
   };
 
   const handleDelete = () => {
-    deleteCardFromBlock(card.id, card.blockId);
+    deleteItem(card.id, "card");
     setShowDeleteDialog(false);
   };
 

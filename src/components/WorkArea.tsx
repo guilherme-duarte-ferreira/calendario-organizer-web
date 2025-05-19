@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle 
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 import BlockComponent from "./workspace/BlockComponent";
 
@@ -48,13 +49,6 @@ export default function WorkArea() {
       setBlockName("Novo bloco");
     }
   };
-  
-  // Estilo baseado na orientação de rolagem
-  const workspaceStyle = {
-    flexDirection: settings.scrollOrientation === 'vertical' ? 'column' : 'row',
-    overflowX: settings.scrollOrientation === 'vertical' ? 'hidden' : 'auto',
-    overflowY: settings.scrollOrientation === 'vertical' ? 'auto' : 'hidden',
-  } as React.CSSProperties;
   
   // Estilo do fundo baseado no wallpaper do quadro
   const wallpaperStyle = {
@@ -99,28 +93,31 @@ export default function WorkArea() {
               </Button>
             </div>
           </div>
-          
-          <div 
-            className="flex flex-1 p-4 gap-4 overflow-auto"
-            style={workspaceStyle}
-          >
-            {sortedBlocks.map(block => (
-              <BlockComponent key={block.id} block={block} />
-            ))}
-            
-            {sortedBlocks.length === 0 && (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <p className="text-muted-foreground mb-4">
-                    Nenhum bloco neste quadro ainda.
-                  </p>
-                  <Button onClick={() => setNewBlockDialogOpen(true)}>
-                    <Plus size={18} className="mr-1" />
-                    Adicionar Bloco
-                  </Button>
+
+          <div className="flex-1 overflow-auto p-4">
+            <div className="flex gap-4" style={{
+              flexDirection: settings.scrollOrientation === 'vertical' ? 'column' : 'row',
+              minHeight: settings.scrollOrientation === 'vertical' ? 'fit-content' : '100%',
+              minWidth: settings.scrollOrientation === 'horizontal' ? 'fit-content' : '100%',
+            }}>
+              {sortedBlocks.map(block => (
+                <BlockComponent key={block.id} block={block} />
+              ))}
+              
+              {sortedBlocks.length === 0 && (
+                <div className="flex items-center justify-center p-10 bg-white/30 backdrop-blur-sm rounded-lg">
+                  <div className="text-center">
+                    <p className="text-muted-foreground mb-4">
+                      Nenhum bloco neste quadro ainda.
+                    </p>
+                    <Button onClick={() => setNewBlockDialogOpen(true)}>
+                      <Plus size={18} className="mr-1" />
+                      Adicionar Bloco
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       )}
