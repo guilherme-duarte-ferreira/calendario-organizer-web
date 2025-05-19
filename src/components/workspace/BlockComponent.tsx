@@ -81,15 +81,15 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   };
   
   const handleCreateCard = () => {
-    createCard(block.id);
+    createCard(block.id, "Novo Cartão");
   };
   
   const handleCreateSpreadsheet = () => {
-    createSpreadsheet(block.id);
+    createSpreadsheet(block.id, "Nova Planilha");
   };
   
   const handleCreateMarkdownNote = () => {
-    createMarkdownNote(block.id);
+    createMarkdownNote(block.id, markdownContent);
   };
   
   const handleCreateMarkdownTable = () => {
@@ -110,7 +110,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
         updatedAt: ""   // Será definido pelo createSpreadsheet
       };
       
-      const createdSpreadsheet = createSpreadsheet(block.id);
+      const createdSpreadsheet = createSpreadsheet(block.id, "Tabela de Markdown");
       
       // Atualizar com os dados da tabela markdown
       if (createdSpreadsheet) {

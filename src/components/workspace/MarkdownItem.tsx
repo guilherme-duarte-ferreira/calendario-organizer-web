@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MarkdownNote } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -32,9 +31,6 @@ import ReactMarkdown from 'react-markdown';
 interface MarkdownItemProps {
   markdownNote: MarkdownNote;
 }
-
-// Instalando markdown
-<lov-add-dependency>react-markdown@8.0.7</lov-add-dependency>
 
 export default function MarkdownItem({ markdownNote }: MarkdownItemProps) {
   const { updateItem, archiveItem, deleteItem } = useCalendario();
