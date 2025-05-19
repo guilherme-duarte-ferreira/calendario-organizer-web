@@ -27,24 +27,38 @@ interface MarkdownItemProps {
 }
 
 export default function MarkdownItem({ markdownNote }: MarkdownItemProps) {
-  const { updateMarkdownNote, deleteMarkdownNote } = useCalendario();
+  // Acesso ao contexto e métodos para atualizar/excluir notas
+  const { updateBlock } = useCalendario();
+  
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [content, setContent] = useState(markdownNote.content);
 
+  // Função para atualizar a nota Markdown
   const handleSave = () => {
-    const updatedNote: MarkdownNote = {
+    const updatedNote = {
       ...markdownNote,
       content,
       updatedAt: new Date().toISOString()
     };
 
-    updateMarkdownNote(updatedNote);
+    // Atualizar o bloco que contém esta nota
+    updateBlock({
+      id: markdownNote.blockId,
+      items: [updatedNote]
+    });
+    
     setIsEditing(false);
   };
 
+  // Função para excluir a nota Markdown
   const handleDelete = () => {
-    deleteMarkdownNote(markdownNote.id, markdownNote.blockId);
+    // Buscar o bloco que contém esta nota e atualizar removendo-a
+    updateBlock({
+      id: markdownNote.blockId,
+      items: [] // Vamos filtrar os itens para remover esta nota
+    }, true); // O segundo parâmetro indica para remover o item
+    
     setShowDeleteDialog(false);
   };
 
