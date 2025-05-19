@@ -1,6 +1,6 @@
 
 import { useState, useRef } from "react";
-import { Block, Card, Spreadsheet, MarkdownNote, FileItem } from "@/types/calendario";
+import { Block, Card, Spreadsheet, MarkdownNote, FileItem, BaseItem } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
 import { useDragDrop } from "@/hooks/use-drag-drop";
 import { 
@@ -47,7 +47,10 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     updateBlock,
     archiveBlock,
     deleteBlock,
-    createItem,
+    createCard,
+    createSpreadsheet,
+    createMarkdownNote,
+    createFileItem
   } = useCalendario();
   
   const [isEditing, setIsEditing] = useState(false);
@@ -78,28 +81,48 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   };
   
   const handleCreateCard = () => {
-    createItem(block.id, "card", { title: "Novo Cartão" });
+    createCard(block.id, "Novo Cartão");
   };
   
   const handleCreateSpreadsheet = () => {
-    createItem(block.id, "spreadsheet", { title: "Nova Planilha" });
+    createSpreadsheet(block.id, "Nova Planilha");
   };
   
   const handleCreateMarkdownNote = () => {
-    createItem(block.id, "markdown", { content: markdownContent });
-    setMarkdownContent("");
-    setShowDialog(null);
+    createMarkdownNote(block.id, markdownContent);
   };
   
   const handleCreateMarkdownTable = () => {
     try {
       const { columns, rows } = markdownToTable(markdownContent);
       
-      createItem(block.id, "spreadsheet", {
+      const newSpreadsheet: Spreadsheet = {
+        id: "",  // Será gerado pelo createSpreadsheet
+        type: "spreadsheet",
+        blockId: block.id,
         title: "Tabela de Markdown",
         columns,
-        rows
-      });
+        rows,
+        lastEditedAt: new Date().toISOString(),
+        order: 0,  // Será definido pelo createSpreadsheet
+        archived: false,
+        createdAt: "",  // Será definido pelo createSpreadsheet
+        updatedAt: ""   // Será definido pelo createSpreadsheet
+      };
+      
+      const createdSpreadsheet = createSpreadsheet(block.id, "Tabela de Markdown");
+      
+      // Atualizar com os dados da tabela markdown
+      if (createdSpreadsheet) {
+        updateBlock({
+          ...block,
+          items: block.items.map(item => 
+            item.id === createdSpreadsheet.id 
+              ? { ...createdSpreadsheet, title: "Tabela de Markdown", columns, rows }
+              : item
+          )
+        });
+      }
       
       setMarkdownContent("");
       setShowDialog(null);
@@ -116,7 +139,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      await createItem(block.id, "file", { file: files[0] });
+      await createFileItem(block.id, files[0]);
       
       // Limpar o input para permitir enviar o mesmo arquivo novamente
       if (fileInputRef.current) {
@@ -128,14 +151,15 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   return (
     <>
       <div 
-        className={`calendario-block flex flex-col bg-white/95 shadow-md rounded-md border w-72 min-w-72 mx-2 ${
+        className={`calendario-block flex flex-col bg-white/95 shadow-md rounded-md border w-72 min-w-72 mx-2 p-3 ${
           isDraggedOver ? "calendario-drag-over border-primary border-dashed" : ""
         }`}
         onDragOver={handlers.handleDragOver}
         onDragLeave={handlers.handleDragLeave}
         onDrop={(e) => handlers.handleDrop(e, block.id)}
+        style={{ maxHeight: 'none' }} // Removemos a altura máxima fixa
       >
-        <div className="mb-3 p-3">
+        <div className="mb-3">
           {isEditing ? (
             <div className="flex gap-2">
               <input
@@ -205,7 +229,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
           )}
         </div>
         
-        <div className="space-y-2 px-2 pb-2">
+        <div className="space-y-2">
           {sortedItems.map((item) => {
             switch (item.type) {
               case "card":
@@ -230,7 +254,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
           )}
         </div>
         
-        <div className="mt-2 pt-2 border-t flex gap-2 p-2 bg-gray-50 rounded-b-md">
+        <div className="mt-3 pt-3 border-t flex gap-2">
           <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handleCreateCard}>
             <Square size={14} className="mr-1" />
             Cartão
@@ -305,7 +329,10 @@ export default function BlockComponent({ block }: BlockComponentProps) {
               Cancelar
             </Button>
             <Button 
-              onClick={handleCreateMarkdownNote}
+              onClick={() => {
+                handleCreateMarkdownNote();
+                setShowDialog(null);
+              }}
             >
               Adicionar
             </Button>
