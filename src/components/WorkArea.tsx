@@ -70,7 +70,7 @@ export default function WorkArea() {
 
   return (
     <div 
-      className={`flex-1 h-screen overflow-hidden ${
+      className={`flex-1 h-screen ${
         isDraggedOver ? 'calendario-drag-over' : ''
       }`}
       style={wallpaperStyle}

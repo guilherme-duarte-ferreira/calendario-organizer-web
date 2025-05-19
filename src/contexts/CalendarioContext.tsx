@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { Board, Block, Card, Spreadsheet, MarkdownNote, FileItem, BoardFolder, CalendarioSettings, ItemType, BaseItem } from "@/types/calendario";
 import { 
@@ -168,18 +167,11 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     const newBoard: Board = {
       id: generateId(),
       name,
-      blocks: [],
+      blocks: [], // Não criar blocos padrão
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       archived: false
     };
-    
-    // Adicionar três blocos padrão
-    const block1: Block = createBlock(newBoard.id, "Para fazer");
-    const block2: Block = createBlock(newBoard.id, "Em andamento");
-    const block3: Block = createBlock(newBoard.id, "Concluído");
-    
-    newBoard.blocks = [block1, block2, block3];
     
     const updatedBoards = [...boards, newBoard];
     setBoards(updatedBoards);

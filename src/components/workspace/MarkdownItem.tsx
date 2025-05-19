@@ -27,7 +27,7 @@ interface MarkdownItemProps {
 }
 
 export default function MarkdownItem({ markdownNote }: MarkdownItemProps) {
-  const { updateMarkdownNote, deleteMarkdownNote } = useCalendario();
+  const { updateItem, deleteItem } = useCalendario();
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [content, setContent] = useState(markdownNote.content);
@@ -39,12 +39,12 @@ export default function MarkdownItem({ markdownNote }: MarkdownItemProps) {
       updatedAt: new Date().toISOString()
     };
 
-    updateMarkdownNote(updatedNote);
+    updateItem(updatedNote);
     setIsEditing(false);
   };
 
   const handleDelete = () => {
-    deleteMarkdownNote(markdownNote.id, markdownNote.blockId);
+    deleteItem(markdownNote.id, "markdown");
     setShowDeleteDialog(false);
   };
 
