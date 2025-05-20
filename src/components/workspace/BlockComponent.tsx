@@ -130,7 +130,14 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const handleCreateMarkdownTable = () => {
     try {
       const { columns, rows } = markdownToTable(markdownContent);
-      createSpreadsheet(block.id, "Tabela de Markdown", columns, rows);
+      // Modificando esta linha para atender à assinatura correta do método
+      // Vamos construir um objeto que representa a estrutura da planilha
+      const spreadsheetData = {
+        title: "Tabela de Markdown",
+        columns,
+        rows
+      };
+      createSpreadsheet(block.id, spreadsheetData);
       setMarkdownContent("");
       setShowDialog(null);
     } catch (error) {
