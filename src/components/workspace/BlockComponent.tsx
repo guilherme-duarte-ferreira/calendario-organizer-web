@@ -39,11 +39,27 @@ import FileItemComponent from "./FileItemComponent";
 import { markdownToTable } from "@/utils/markdown";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+/**
+ * Props para o componente de bloco
+ * @interface BlockComponentProps
+ * @property {Block} block - Objeto do bloco a ser renderizado
+ */
 interface BlockComponentProps {
   block: Block;
 }
 
+/**
+ * Componente para renderizar um bloco na área de trabalho
+ * 
+ * Permite gerenciar um bloco e seus itens internos, como cartões, planilhas,
+ * notas de markdown e arquivos. Oferece funcionalidades para editar o nome,
+ * adicionar novos itens e manipular o bloco.
+ * 
+ * @param {BlockComponentProps} props - Propriedades do componente
+ * @returns {JSX.Element} Componente de bloco renderizado
+ */
 export default function BlockComponent({ block }: BlockComponentProps) {
+  // Contexto e gerenciamento de estado
   const { 
     updateBlock,
     archiveBlock,
@@ -64,6 +80,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const sortedItems = [...block.items].filter(item => !item.archived);
   sortedItems.sort((a, b) => a.order - b.order);
   
+  // Hook para lidar com arrastar e soltar
   const { isDraggedOver, handlers } = useDragDrop({
     onDrop: (e, targetId) => {
       // Implementaremos a lógica de drop no futuro
@@ -71,6 +88,9 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     }
   });
   
+  /**
+   * Atualiza o nome do bloco quando o usuário confirma a edição
+   */
   const handleNameChange = () => {
     if (blockName.trim()) {
       updateBlock({
@@ -81,20 +101,32 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     setIsEditing(false);
   };
   
+  /**
+   * Cria um novo cartão no bloco
+   */
   const handleCreateCard = () => {
     createCard(block.id, "Novo Cartão");
   };
   
+  /**
+   * Cria uma nova planilha no bloco
+   */
   const handleCreateSpreadsheet = () => {
     createSpreadsheet(block.id, "Nova Planilha");
   };
   
+  /**
+   * Cria uma nova nota Markdown no bloco
+   */
   const handleCreateMarkdownNote = () => {
     createMarkdownNote(block.id, markdownContent);
     setMarkdownContent("");
     setShowDialog(null);
   };
   
+  /**
+   * Converte texto Markdown em tabela e cria uma planilha
+   */
   const handleCreateMarkdownTable = () => {
     try {
       const { columns, rows } = markdownToTable(markdownContent);
@@ -107,10 +139,16 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     }
   };
   
+  /**
+   * Abre o seletor de arquivos do sistema
+   */
   const handleFileUpload = () => {
     fileInputRef.current?.click();
   };
   
+  /**
+   * Processa o arquivo selecionado pelo usuário
+   */
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -126,7 +164,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   return (
     <>
       <div 
-        className={`calendario-block bg-white/95 shadow-md rounded-md border w-[272px] flex flex-col ${
+        className={`calendario-block bg-white/95 shadow-md rounded-md border flex flex-col min-h-[100px] max-w-[272px] ${
           isDraggedOver ? "calendario-drag-over border-primary border-dashed" : ""
         }`}
         onDragOver={handlers.handleDragOver}
@@ -203,7 +241,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
           )}
         </div>
         
-        <div className="px-3 space-y-2 flex-grow">
+        <div className="px-3 space-y-2 flex-grow overflow-y-auto max-h-[400px]">
           {sortedItems.map((item) => {
             switch (item.type) {
               case "card":
@@ -295,6 +333,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
               placeholder="# Título\nParágrafo com **negrito** e *itálico*\n\n* Item 1\n* Item 2"
               className="font-mono text-sm"
               rows={8}
+              autoFocus
             />
           </div>
           
@@ -328,6 +367,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
               placeholder="| Coluna 1 | Coluna 2 | Coluna 3 |\n| --- | --- | --- |\n| Valor 1 | Valor 2 | Valor 3 |"
               className="font-mono text-sm"
               rows={8}
+              autoFocus
             />
             
             <p className="text-xs text-muted-foreground mt-2">
