@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Block, Card, Spreadsheet, MarkdownNote, FileItem } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -67,7 +66,8 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     createCard,
     createSpreadsheet,
     createMarkdownNote,
-    createFileItem
+    createFileItem,
+    updateItem
   } = useCalendario();
   
   const [isEditing, setIsEditing] = useState(false);
@@ -130,14 +130,20 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const handleCreateMarkdownTable = () => {
     try {
       const { columns, rows } = markdownToTable(markdownContent);
-      // Modificando esta linha para atender à assinatura correta do método
-      // Vamos construir um objeto que representa a estrutura da planilha
-      const spreadsheetData = {
-        title: "Tabela de Markdown",
-        columns,
-        rows
-      };
-      createSpreadsheet(block.id, spreadsheetData);
+      // Vamos chamar createSpreadsheet apenas com o blockId e o título
+      // Depois, podemos atualizar a planilha recém-criada com os dados
+      const spreadsheet = createSpreadsheet(block.id, "Tabela de Markdown");
+      
+      // Se necessário, atualizar a planilha criada com as colunas e linhas
+      if (spreadsheet) {
+        const updatedSpreadsheet = {
+          ...spreadsheet,
+          columns: columns,
+          rows: rows
+        };
+        updateItem(updatedSpreadsheet);
+      }
+      
       setMarkdownContent("");
       setShowDialog(null);
     } catch (error) {
