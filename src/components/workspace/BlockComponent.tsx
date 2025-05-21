@@ -61,12 +61,12 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: isDragging ? transition : "none", // Only animate when dragging, otherwise instant
+    transition: "transform 0.2s ease", // Only transform gets animation, not size
     zIndex: isDragging ? 10 : 0,
     opacity: isDragging ? 0.8 : 1,
   };
   
-  // Function to recalculate block height based on content - instantly without animation
+  // Function to recalculate block height based on content - without animation
   const recalculateHeight = () => {
     if (contentRef.current && blockRef.current) {
       const headerHeight = 40; // Approx. header height
@@ -82,9 +82,9 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     }
   };
   
-  // Recalculate height when content changes - instantaneously without animation
+  // Recalculate height when content changes - without animation
   useEffect(() => {
-    // Disable animation completely
+    // Disable animation and apply height immediately
     if (blockRef.current) {
       blockRef.current.style.transition = "none";
     }
@@ -108,7 +108,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     };
   }, [block.items]);
   
-  // Recalculate height on component mount and window resize - instantaneously
+  // Recalculate height on component mount and window resize
   useEffect(() => {
     if (blockRef.current) {
       blockRef.current.style.transition = "none";
@@ -211,7 +211,6 @@ export default function BlockComponent({ block }: BlockComponentProps) {
       style={{ 
         ...style,
         minHeight: '200px', 
-        transition: "none", // Force no transition for height changes
       }}
     >
       <div className="flex items-center justify-between mb-3">
@@ -275,7 +274,6 @@ export default function BlockComponent({ block }: BlockComponentProps) {
       <div 
         ref={contentRef}
         className="flex-1 overflow-visible"
-        style={{ transition: "none" }} // Ensure content height changes are instant
       >
         {block.items.length === 0 && (
           <div className="flex items-center justify-center h-20">

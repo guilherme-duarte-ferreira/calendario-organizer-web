@@ -37,12 +37,12 @@ export default function CardItem({ card, onResize }: CardItemProps) {
   const [originalDescription, setOriginalDescription] = useState(card.description);
   const [wasModified, setWasModified] = useState(false);
   
-  // References for input fields
+  // Referências para os campos de input
   const titleInputRef = useRef<HTMLInputElement>(null);
   const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   
-  // Auto-adjust textarea height - no animation
+  // Ajustar altura do textarea automaticamente - sem animação
   const adjustTextareaHeight = () => {
     const textarea = descriptionTextareaRef.current;
     if (textarea) {
@@ -50,40 +50,32 @@ export default function CardItem({ card, onResize }: CardItemProps) {
       textarea.style.height = "auto";
       textarea.style.height = `${Math.max(80, textarea.scrollHeight)}px`;
       
-      // Notify parent about size change
+      // Notificar componente pai sobre mudança de tamanho
       if (onResize) {
         onResize();
       }
     }
   };
   
-  // Only start editing for new cards (based on their default title)
-  useEffect(() => {
-    const isNewCard = card.title === "Novo cartão";
-    if (isNewCard) {
-      setIsEditing(true);
-    }
-  }, [card.id]); // Only run when the card ID changes - prevents refocusing when switching boards
-  
-  // Focus and setup when entering edit mode
+  // Configurar foco e estado original ao iniciar edição
   useEffect(() => {
     if (isEditing) {
-      // Focus on title first
+      // Foco no título primeiro
       if (titleInputRef.current) {
         titleInputRef.current.focus();
       }
       
-      // Adjust description textarea height without animation
+      // Ajustar altura do textarea de descrição sem animação
       if (descriptionTextareaRef.current) {
         descriptionTextareaRef.current.style.transition = "none";
       }
       adjustTextareaHeight();
       
-      // Save original state for possible cancellation
+      // Salvar estado original para possível cancelamento
       setOriginalTitle(title);
       setOriginalDescription(description);
       
-      // Control flag for new items
+      // Flag de controle para novos itens
       if (title === "Novo cartão" && !description) {
         setTitle("");
         setWasModified(false);
@@ -91,7 +83,7 @@ export default function CardItem({ card, onResize }: CardItemProps) {
     }
   }, [isEditing]);
   
-  // Monitor content changes
+  // Monitorar mudanças no conteúdo
   useEffect(() => {
     if ((title !== originalTitle && title !== "Novo cartão") || 
         (description !== originalDescription && description.trim() !== "")) {
@@ -99,24 +91,24 @@ export default function CardItem({ card, onResize }: CardItemProps) {
     }
   }, [title, description, originalTitle, originalDescription]);
   
-  // Adjust height when description changes - without animation
+  // Ajustar altura quando a descrição mudar - sem animação
   useEffect(() => {
     if (isEditing) {
       adjustTextareaHeight();
     }
   }, [description]);
 
-  // Handle clicks outside the card to save or cancel
+  // Tratar cliques fora do cartão para salvar ou cancelar
   useEffect(() => {
     if (!isEditing) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
-        // If modified or has title, save
+        // Se foi modificado ou tem título, salva
         if (wasModified || (title !== "Novo cartão" && title.trim() !== "")) {
           handleSave();
         } else {
-          // If not modified and is a new card or empty, discard
+          // Se não foi modificado e é um novo cartão ou está vazio, descarta
           if (card.title === "Novo cartão" && !description) {
             deleteItem(card.id, "card");
           } else {
@@ -133,16 +125,16 @@ export default function CardItem({ card, onResize }: CardItemProps) {
   }, [isEditing, title, description, wasModified]);
 
   const handleSave = () => {
-    // Don't save if it's default text and not modified
+    // Não salvar se for o texto padrão e não foi modificado
     if (title === "Novo cartão" && description === "" && !wasModified) {
       handleCancel();
       return;
     }
 
-    // Don't save if title is empty
+    // Não salvar se título estiver vazio
     if (title.trim() === "") {
       if (card.title === "Novo cartão" && !wasModified) {
-        // If new and empty, delete
+        // Se for novo e vazio, exclui
         deleteItem(card.id, "card");
       } else {
         handleCancel();
@@ -161,7 +153,7 @@ export default function CardItem({ card, onResize }: CardItemProps) {
     setIsEditing(false);
     setWasModified(false);
     
-    // Notify parent about size change - without animation
+    // Notificar o componente pai sobre a alteração de tamanho - sem animação
     if (onResize) {
       setTimeout(onResize, 0);
     }
@@ -188,6 +180,13 @@ export default function CardItem({ card, onResize }: CardItemProps) {
 
     updateItem(updatedCard);
   };
+  
+  // Iniciar edição automaticamente apenas para cartões novos
+  useEffect(() => {
+    if (card.title === "Novo cartão") {
+      setIsEditing(true);
+    }
+  }, []);
   
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -258,7 +257,7 @@ export default function CardItem({ card, onResize }: CardItemProps) {
               size="icon"
               className="h-6 w-6 text-muted-foreground"
               onClick={(e) => {
-                e.stopPropagation(); // Prevent click propagation to the card
+                e.stopPropagation(); // Evitar propagação do clique para o cartão
                 handleStatusToggle();
               }}
             >
@@ -270,7 +269,7 @@ export default function CardItem({ card, onResize }: CardItemProps) {
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6 text-muted-foreground"
-                  onClick={(e) => e.stopPropagation()} // Prevent click propagation
+                  onClick={(e) => e.stopPropagation()} // Evitar propagação do clique
                 >
                   <MoreVertical size={14} />
                 </Button>
@@ -284,7 +283,7 @@ export default function CardItem({ card, onResize }: CardItemProps) {
                 <DropdownMenuItem
                   className="text-red-500 focus:text-red-500"
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent click propagation
+                    e.stopPropagation(); // Evitar propagação do clique
                     setShowDeleteDialog(true);
                   }}
                 >
