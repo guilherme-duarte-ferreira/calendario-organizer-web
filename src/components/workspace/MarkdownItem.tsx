@@ -45,7 +45,7 @@ export default function MarkdownItem({ markdownNote, onResize }: MarkdownItemPro
     if (textarea) {
       // Reset height temporarily to get the correct scrollHeight
       textarea.style.height = "auto";
-      textarea.style.transition = "none";
+      textarea.style.transition = "none"; // Disable any transition
       // Set the height to match the content
       textarea.style.height = `${Math.max(100, textarea.scrollHeight)}px`;
       
@@ -56,7 +56,16 @@ export default function MarkdownItem({ markdownNote, onResize }: MarkdownItemPro
     }
   };
   
-  // Set up initial state and focus when editing starts
+  // Set up initial state and focus ONLY when this is a new note
+  useEffect(() => {
+    // Only start editing if this is a new markdown note (determined by the default content)
+    const isNewNote = markdownNote.content === "Novo texto markdown";
+    if (isNewNote) {
+      setIsEditing(true);
+    }
+  }, [markdownNote.id]); // Only run when the note ID changes - prevents refocusing when switching boards
+
+  // Focus and setup when entering edit mode
   useEffect(() => {
     if (isEditing && textareaRef.current) {
       textareaRef.current.focus();
@@ -64,7 +73,7 @@ export default function MarkdownItem({ markdownNote, onResize }: MarkdownItemPro
       adjustTextareaHeight();
       setOriginalContent(content);
       
-      // Control flag for new items
+      // Clear default text for new items
       if (content === "Novo texto markdown") {
         setContent("");
         setWasModified(false);
@@ -156,13 +165,6 @@ export default function MarkdownItem({ markdownNote, onResize }: MarkdownItemPro
     deleteItem(markdownNote.id, "markdown");
     setShowDeleteDialog(false);
   };
-
-  // Start editing when created with empty or default content, only on initial creation
-  useEffect(() => {
-    if (markdownNote.content === "Novo texto markdown") {
-      setIsEditing(true);
-    }
-  }, []);
   
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);

@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useCalendario } from "@/contexts/CalendarioContext";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -24,7 +24,9 @@ import {
   useSensor,
   useSensors,
   DragStartEvent,
-  DragEndEvent
+  DragEndEvent,
+  DragOverEvent,
+  UniqueIdentifier
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -47,19 +49,21 @@ export default function WorkArea() {
   const [newBlockDialogOpen, setNewBlockDialogOpen] = useState(false);
   const [blockName, setBlockName] = useState("Novo bloco");
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [draggingOverId, setDraggingOverId] = useState<UniqueIdentifier | null>(null);
   
-  // Encontrar o quadro atual
+  // Find the current board
   const currentBoard = boards.find(board => board.id === currentBoardId);
   
-  // Ordenar os blocos pelo campo order
+  // Sort blocks by order field
   const sortedBlocks = currentBoard?.blocks.filter(b => !b.archived) || [];
   sortedBlocks.sort((a, b) => a.order - b.order);
 
   // Configure sensors for drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor, {
+      // Reduce activation distance to make it more responsive
       activationConstraint: {
-        distance: 8, // Minimum distance required before activation
+        distance: 5, 
       },
     }),
     useSensor(KeyboardSensor, {
@@ -73,9 +77,19 @@ export default function WorkArea() {
     console.log("Started dragging block:", active.id);
   };
 
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+    if (over) {
+      setDraggingOverId(over.id);
+    } else {
+      setDraggingOverId(null);
+    }
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
+    setDraggingOverId(null);
     
     if (!over || active.id === over.id) return;
     
@@ -135,7 +149,7 @@ export default function WorkArea() {
     }
   };
 
-  // Estilo do fundo baseado no wallpaper do quadro
+  // Background style based on board wallpaper
   const wallpaperStyle = {
     backgroundColor: currentBoard?.wallpaper && currentBoard.wallpaper.startsWith('#') 
       ? currentBoard.wallpaper 
@@ -180,6 +194,7 @@ export default function WorkArea() {
               sensors={sensors}
               collisionDetection={closestCenter}
               onDragStart={handleDragStart}
+              onDragOver={handleDragOver}
               onDragEnd={handleDragEnd}
             >
               <SortableContext 
@@ -213,12 +228,21 @@ export default function WorkArea() {
                   )}
                 </div>
               </SortableContext>
+              
+              {/* Drag overlay for visual feedback */}
+              <DragOverlay adjustScale={false}>
+                {activeId ? (
+                  <div className="bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-lg border-2 border-blue-500 min-w-[280px] max-w-[280px] min-h-[200px] opacity-80">
+                    {sortedBlocks.find(block => block.id === activeId)?.name || 'Movendo bloco...'}
+                  </div>
+                ) : null}
+              </DragOverlay>
             </DndContext>
           </div>
         </div>
       )}
       
-      {/* Diálogo para criar novo bloco */}
+      {/* Dialog to create new block */}
       <Dialog open={newBlockDialogOpen} onOpenChange={setNewBlockDialogOpen}>
         <DialogContent>
           <DialogHeader>
