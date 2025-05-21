@@ -39,7 +39,7 @@ export default function MarkdownItem({ markdownNote, onResize }: MarkdownItemPro
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Function to adjust textarea height automatically without animation
+  // Function to adjust textarea height immediately without animation
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
     if (textarea) {
@@ -49,28 +49,36 @@ export default function MarkdownItem({ markdownNote, onResize }: MarkdownItemPro
       // Set the height to match the content
       textarea.style.height = `${Math.max(100, textarea.scrollHeight)}px`;
       
-      // Notify parent block about size change
+      // Notify parent block about size change immediately
       if (onResize) {
         onResize();
       }
     }
   };
   
-  // Set up initial state and focus when editing starts
+  // Check if this is a new markdown note that should be focused
+  const isNewNote = markdownNote.content === "Novo texto markdown";
+  
+  // Set up initial state and focus only for new items
   useEffect(() => {
+    // Only auto-focus and enter edit mode if this is a new note
+    if (isNewNote && !isEditing) {
+      setIsEditing(true);
+    }
+    
     if (isEditing && textareaRef.current) {
       textareaRef.current.focus();
       textareaRef.current.style.transition = "none";
       adjustTextareaHeight();
       setOriginalContent(content);
       
-      // Control flag for new items
-      if (content === "Novo texto markdown") {
+      // For new items, clear the default text
+      if (isNewNote) {
         setContent("");
         setWasModified(false);
       }
     }
-  }, [isEditing]);
+  }, [isEditing, isNewNote]);
   
   // Monitor content changes
   useEffect(() => {
@@ -79,7 +87,7 @@ export default function MarkdownItem({ markdownNote, onResize }: MarkdownItemPro
     }
   }, [content, originalContent]);
   
-  // Adjust textarea height when content changes, without animation
+  // Adjust textarea height immediately when content changes
   useEffect(() => {
     if (isEditing) {
       adjustTextareaHeight();
@@ -140,9 +148,9 @@ export default function MarkdownItem({ markdownNote, onResize }: MarkdownItemPro
     setIsEditing(false);
     setWasModified(false);
     
-    // Notify parent component about size change
+    // Notify parent component about size change immediately
     if (onResize) {
-      setTimeout(onResize, 0);
+      onResize(); // Removed setTimeout to make it instant
     }
   };
 
@@ -156,13 +164,6 @@ export default function MarkdownItem({ markdownNote, onResize }: MarkdownItemPro
     deleteItem(markdownNote.id, "markdown");
     setShowDeleteDialog(false);
   };
-
-  // Start editing when created with empty or default content, only on initial creation
-  useEffect(() => {
-    if (markdownNote.content === "Novo texto markdown") {
-      setIsEditing(true);
-    }
-  }, []);
   
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);

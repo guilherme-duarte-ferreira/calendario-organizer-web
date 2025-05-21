@@ -61,7 +61,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: "transform 0.2s ease", // Only transform gets animation, not size
+    transition: isDragging ? transition : "none", // Only apply transition during drag, not for resizing
     zIndex: isDragging ? 10 : 0,
     opacity: isDragging ? 0.8 : 1,
   };
@@ -84,7 +84,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   
   // Recalculate height when content changes - without animation
   useEffect(() => {
-    // Disable animation and apply height immediately
+    // Disable any animation when calculating height
     if (blockRef.current) {
       blockRef.current.style.transition = "none";
     }
@@ -108,7 +108,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     };
   }, [block.items]);
   
-  // Recalculate height on component mount and window resize
+  // Recalculate height on component mount and window resize - without animation
   useEffect(() => {
     if (blockRef.current) {
       blockRef.current.style.transition = "none";
@@ -147,52 +147,44 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const handleCreateMarkdown = () => {
     if (currentBoardId) {
       createMarkdownNote(block.id, "Novo texto markdown");
-      // Recalculate height without animation
-      setTimeout(() => {
-        if (blockRef.current) {
-          blockRef.current.style.transition = "none";
-        }
-        recalculateHeight();
-      }, 0);
+      // Recalculate height immediately without animation
+      if (blockRef.current) {
+        blockRef.current.style.transition = "none";
+      }
+      recalculateHeight();
     }
   };
 
   const handleCreateCard = () => {
     if (currentBoardId) {
       createCard(block.id, "Novo cartão");
-      // Recalculate height without animation
-      setTimeout(() => {
-        if (blockRef.current) {
-          blockRef.current.style.transition = "none";
-        }
-        recalculateHeight();
-      }, 0);
+      // Recalculate height immediately without animation
+      if (blockRef.current) {
+        blockRef.current.style.transition = "none";
+      }
+      recalculateHeight();
     }
   };
 
   const handleCreateSpreadsheet = () => {
     if (currentBoardId) {
       createSpreadsheet(block.id, "Nova planilha");
-      // Recalculate height without animation
-      setTimeout(() => {
-        if (blockRef.current) {
-          blockRef.current.style.transition = "none";
-        }
-        recalculateHeight();
-      }, 0);
+      // Recalculate height immediately without animation
+      if (blockRef.current) {
+        blockRef.current.style.transition = "none";
+      }
+      recalculateHeight();
     }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       createFileItem(block.id, e.target.files[0]);
-      // Recalculate height without animation
-      setTimeout(() => {
-        if (blockRef.current) {
-          blockRef.current.style.transition = "none";
-        }
-        recalculateHeight();
-      }, 0);
+      // Recalculate height immediately without animation
+      if (blockRef.current) {
+        blockRef.current.style.transition = "none";
+      }
+      recalculateHeight();
     }
   };
   
@@ -202,6 +194,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
         setNodeRef(node);
         if (node) {
           blockRef.current = node as HTMLDivElement;
+          node.style.transition = "none"; // Ensure no transitions on the node itself
         }
       }}
       id={`block-${block.id}`}
@@ -211,6 +204,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
       style={{ 
         ...style,
         minHeight: '200px', 
+        transition: "none", // Ensure no transitions at all times
       }}
     >
       <div className="flex items-center justify-between mb-3">
@@ -274,6 +268,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
       <div 
         ref={contentRef}
         className="flex-1 overflow-visible"
+        style={{ transition: "none" }} // Ensure no transitions on content container
       >
         {block.items.length === 0 && (
           <div className="flex items-center justify-center h-20">
@@ -281,7 +276,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
           </div>
         )}
         
-        <div className="space-y-2">
+        <div className="space-y-2" style={{ transition: "none" }}>
           {block.items.map((item) => {
             switch (item.type) {
               case 'markdown':

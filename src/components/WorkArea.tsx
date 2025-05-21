@@ -48,18 +48,20 @@ export default function WorkArea() {
   const [blockName, setBlockName] = useState("Novo bloco");
   const [activeId, setActiveId] = useState<string | null>(null);
   
-  // Encontrar o quadro atual
+  // Find the current board
   const currentBoard = boards.find(board => board.id === currentBoardId);
   
-  // Ordenar os blocos pelo campo order
+  // Sort blocks by the order field
   const sortedBlocks = currentBoard?.blocks.filter(b => !b.archived) || [];
   sortedBlocks.sort((a, b) => a.order - b.order);
 
-  // Configure sensors for drag and drop
+  // Configure enhanced sensors for drag and drop with better constraints
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // Minimum distance required before activation
+        distance: 5, // Reduced distance required for activation
+        tolerance: 5, // Tolerance for movement
+        delay: 0, // No delay for immediate response
       },
     }),
     useSensor(KeyboardSensor, {
@@ -135,7 +137,7 @@ export default function WorkArea() {
     }
   };
 
-  // Estilo do fundo baseado no wallpaper do quadro
+  // Background style based on board wallpaper
   const wallpaperStyle = {
     backgroundColor: currentBoard?.wallpaper && currentBoard.wallpaper.startsWith('#') 
       ? currentBoard.wallpaper 
@@ -147,11 +149,24 @@ export default function WorkArea() {
     backgroundPosition: 'center',
   };
 
+  // Ensure no transitions are applied to the workspace or blocks container
+  const workspaceStyle = {
+    ...wallpaperStyle,
+    transition: "none",
+  };
+
+  const blocksContainerStyle = {
+    transition: "none",
+    flexDirection: settings.scrollOrientation === 'vertical' ? 'column' : 'row',
+    minHeight: settings.scrollOrientation === 'vertical' ? 'fit-content' : '100%',
+    minWidth: settings.scrollOrientation === 'horizontal' ? 'fit-content' : '100%',
+  };
+
   return (
     <div 
       id="workspace"
       className="flex-1 h-screen overflow-auto p-4"
-      style={wallpaperStyle}
+      style={workspaceStyle}
     >
       {!currentBoard && (
         <div className="h-full flex flex-col items-center justify-center">
@@ -161,7 +176,7 @@ export default function WorkArea() {
       )}
       
       {currentBoard && (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full" style={{ transition: "none" }}>
           <div className="p-4 mb-4 bg-white/90 backdrop-blur-sm border-b shadow-sm flex items-center rounded-lg">
             <h1 className="text-xl font-bold">{currentBoard.name}</h1>
             <div className="ml-auto">
@@ -175,7 +190,7 @@ export default function WorkArea() {
             </div>
           </div>
 
-          <div className="flex-1">
+          <div className="flex-1" style={{ transition: "none" }}>
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -186,11 +201,10 @@ export default function WorkArea() {
                 items={sortedBlocks.map(block => block.id)}
                 strategy={settings.scrollOrientation === 'vertical' ? verticalListSortingStrategy : horizontalListSortingStrategy}
               >
-                <div className="flex gap-4" style={{
-                  flexDirection: settings.scrollOrientation === 'vertical' ? 'column' : 'row',
-                  minHeight: settings.scrollOrientation === 'vertical' ? 'fit-content' : '100%',
-                  minWidth: settings.scrollOrientation === 'horizontal' ? 'fit-content' : '100%',
-                }}>
+                <div 
+                  className="flex gap-4" 
+                  style={blocksContainerStyle}
+                >
                   {sortedBlocks.map(block => (
                     <BlockComponent 
                       key={block.id} 
@@ -218,7 +232,7 @@ export default function WorkArea() {
         </div>
       )}
       
-      {/* Diálogo para criar novo bloco */}
+      {/* Dialog for creating new block */}
       <Dialog open={newBlockDialogOpen} onOpenChange={setNewBlockDialogOpen}>
         <DialogContent>
           <DialogHeader>
