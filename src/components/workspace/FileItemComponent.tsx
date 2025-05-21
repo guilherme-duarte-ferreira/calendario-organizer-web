@@ -1,8 +1,15 @@
-
-import { useState } from "react";
+import React, { useState } from "react";
 import { FileItem } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
-import { useDragDrop } from "@/hooks/use-drag-drop";
+import { Button } from "@/components/ui/button";
+import { FileIcon, Image, FileText, Trash2, MoreVertical, Download } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { 
   Dialog, 
   DialogContent,
@@ -11,206 +18,157 @@ import {
   DialogHeader,
   DialogTitle 
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { 
-  Archive,
-  ExternalLink,
-  File,
-  FileImage,
-  FileText,
-  MoreVertical,
-  Trash2,
-  Download
-} from "lucide-react";
 
 interface FileItemComponentProps {
   fileItem: FileItem;
 }
 
 export default function FileItemComponent({ fileItem }: FileItemComponentProps) {
-  const { archiveItem, deleteItem } = useCalendario();
-  
-  const [showMenu, setShowMenu] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  
-  const { isDragging, handlers } = useDragDrop({
-    onDragStart: (e, id) => {
-      e.dataTransfer.setData("text/plain", id);
-      e.dataTransfer.setData("application/calendario-file", JSON.stringify(fileItem));
-    },
-  });
-  
-  const getFileIcon = () => {
-    if (fileItem.fileType.startsWith("image/")) {
-      return <FileImage size={16} className="mr-2 text-primary" />;
-    }
-    if (fileItem.fileType === "application/pdf") {
-      return <FileText size={16} className="mr-2 text-red-500" />;
-    }
-    return <File size={16} className="mr-2 text-blue-500" />;
+  const { deleteItem } = useCalendario();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const handleDelete = () => {
+    deleteItem(fileItem.id, "file");
+    setShowDeleteDialog(false);
   };
-  
-  const isPreviewable = () => {
-    return fileItem.fileType.startsWith("image/") || fileItem.fileType === "application/pdf";
+
+  const getFileIcon = () => {
+    if (fileItem.fileType.startsWith('image/')) {
+      return <Image size={16} className="text-purple-500" />;
+    } else if (fileItem.fileType === 'application/pdf') {
+      return <FileIcon size={16} className="text-red-500" />;
+    } else if (fileItem.fileType.includes('text/')) {
+      return <FileText size={16} className="text-blue-500" />;
+    } else {
+      return <FileIcon size={16} className="text-gray-500" />;
+    }
+  };
+
+  const handleDownload = () => {
+    const link = document.createElement('a');
+    link.href = fileItem.url;
+    link.download = fileItem.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
     <>
-      <div
-        className={`calendario-card select-none ${isDragging ? "opacity-50" : ""}`}
-        draggable
-        onDragStart={(e) => handlers.handleDragStart(e, fileItem.id)}
-        onDragEnd={handlers.handleDragEnd}
-        onClick={() => isPreviewable() && setPreviewOpen(true)}
-      >
-        <div className="flex justify-between items-start">
-          <div className="flex items-center">
+      <div className="calendario-file bg-white border rounded-md p-3 shadow-sm hover:bg-gray-50 transition-colors">
+        <div className="flex justify-between items-start mb-2">
+          <div className="flex items-center gap-2">
             {getFileIcon()}
-            <div className="font-medium truncate">{fileItem.name}</div>
+            <h4 className="font-medium truncate" title={fileItem.name}>
+              {fileItem.name}
+            </h4>
           </div>
-          <DropdownMenu open={showMenu} onOpenChange={setShowMenu}>
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 text-muted-foreground"
               >
-                <MoreVertical size={16} />
+                <MoreVertical size={14} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {isPreviewable() && (
-                <DropdownMenuItem onClick={(e) => {
-                  e.stopPropagation();
-                  setPreviewOpen(true);
-                  setShowMenu(false);
-                }}>
-                  <ExternalLink size={16} className="mr-2" />
-                  <span>Abrir</span>
+              {fileItem.fileType.startsWith('image/') && (
+                <DropdownMenuItem onClick={() => setShowPreview(true)}>
+                  <Image size={14} className="mr-2" />
+                  <span>Visualizar</span>
                 </DropdownMenuItem>
               )}
-              
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation();
-                setShowMenu(false);
-                
-                // Criar um link para download
-                const a = document.createElement('a');
-                a.href = fileItem.url;
-                a.download = fileItem.name;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-              }}>
-                <Download size={16} className="mr-2" />
+              <DropdownMenuItem onClick={handleDownload}>
+                <Download size={14} className="mr-2" />
                 <span>Download</span>
               </DropdownMenuItem>
-
               <DropdownMenuSeparator />
-
-              <DropdownMenuItem onClick={(e) => {
-                e.stopPropagation();
-                archiveItem(fileItem.id, "file");
-                setShowMenu(false);
-              }}>
-                <Archive size={16} className="mr-2" />
-                <span>Arquivar</span>
-              </DropdownMenuItem>
-
               <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDeleteDialogOpen(true);
-                  setShowMenu(false);
-                }}
+                className="text-red-500 focus:text-red-500"
+                onClick={() => setShowDeleteDialog(true)}
               >
-                <Trash2 size={16} className="mr-2" />
+                <Trash2 size={14} className="mr-2" />
                 <span>Excluir</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
-        {fileItem.thumbnail && (
-          <div className="mt-2">
+        {fileItem.fileType.startsWith('image/') && fileItem.thumbnail && (
+          <div 
+            className="mt-1 rounded border overflow-hidden cursor-pointer" 
+            onClick={() => setShowPreview(true)}
+          >
             <img 
               src={fileItem.thumbnail} 
-              alt={fileItem.name} 
-              className="w-full h-auto max-h-32 object-cover rounded"
+              alt={fileItem.name}
+              className="w-full h-auto max-h-32 object-cover"
             />
           </div>
         )}
+        
+        <div className="text-xs text-muted-foreground mt-2">
+          {fileItem.fileType}
+        </div>
       </div>
 
-      {/* Diálogo de visualização */}
-      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh]">
+      <Dialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+      >
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>{fileItem.name}</DialogTitle>
+            <DialogTitle>Excluir arquivo</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir este arquivo? Esta ação não pode ser desfeita.
+            </DialogDescription>
           </DialogHeader>
-
-          <div className="py-4 flex justify-center items-center h-full">
-            {fileItem.fileType.startsWith("image/") ? (
-              <img 
-                src={fileItem.url} 
-                alt={fileItem.name} 
-                className="max-w-full max-h-[60vh] object-contain"
-              />
-            ) : fileItem.fileType === "application/pdf" ? (
-              <iframe 
-                src={fileItem.url} 
-                title={fileItem.name}
-                className="w-full h-[60vh] border"
-              />
-            ) : (
-              <div className="text-center">
-                <File size={64} className="mx-auto mb-4 text-blue-500" />
-                <p>Este tipo de arquivo não pode ser visualizado diretamente.</p>
-              </div>
-            )}
-          </div>
-
           <DialogFooter>
-            <Button asChild>
-              <a href={fileItem.url} download={fileItem.name} target="_blank" rel="noopener noreferrer">
-                <Download size={16} className="mr-2" /> Download
-              </a>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+            >
+              Excluir permanentemente
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Diálogo de exclusão */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
+      {/* Preview Dialog for Images */}
+      <Dialog
+        open={showPreview}
+        onOpenChange={setShowPreview}
+      >
+        <DialogContent className="sm:max-w-[800px]">
           <DialogHeader>
-            <DialogTitle>Excluir arquivo</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja excluir o arquivo "{fileItem.name}"? Esta ação não pode ser desfeita.
-            </DialogDescription>
+            <DialogTitle>{fileItem.name}</DialogTitle>
           </DialogHeader>
-          
+          <div className="flex items-center justify-center p-2">
+            <img 
+              src={fileItem.url} 
+              alt={fileItem.name}
+              className="max-w-full max-h-[60vh] object-contain"
+            />
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={() => {
-                deleteItem(fileItem.id, "file");
-                setDeleteDialogOpen(false);
-              }}
+            <Button
+              variant="outline"
+              onClick={() => setShowPreview(false)}
             >
-              Excluir permanentemente
+              Fechar
+            </Button>
+            <Button onClick={handleDownload}>
+              <Download size={16} className="mr-2" />
+              Download
             </Button>
           </DialogFooter>
         </DialogContent>

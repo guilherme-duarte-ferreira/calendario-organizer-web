@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useCalendario } from "@/contexts/CalendarioContext";
 import { Button } from "@/components/ui/button";
@@ -62,6 +61,14 @@ export default function Sidebar() {
   // Filtra apenas boards não arquivados
   const activeBoards = boards.filter(board => !board.archived);
   const activeFolders = folders.filter(folder => !folder.archived);
+  
+  // Separar quadros fixados
+  const pinnedBoards = activeBoards.filter(board => board.pinned === true);
+  const regularBoards = activeBoards.filter(board => board.pinned !== true);
+  
+  // Separar pastas fixadas
+  const pinnedFolders = activeFolders.filter(folder => folder.pinned === true);
+  const regularFolders = activeFolders.filter(folder => folder.pinned !== true);
   
   const handleCreateBoard = () => {
     createBoard(newBoardName);
@@ -175,7 +182,23 @@ export default function Sidebar() {
                 
                 {showBoards && (
                   <div className="pl-2 space-y-1">
-                    {activeBoards.map((board) => (
+                    {/* Mostrar quadros fixados primeiro */}
+                    {pinnedBoards.length > 0 && (
+                      <div className="mb-2">
+                        <div className="text-xs text-muted-foreground px-2 py-1">Fixados</div>
+                        {pinnedBoards.map((board) => (
+                          <BoardItem 
+                            key={board.id}
+                            board={board}
+                            isActive={board.id === currentBoardId}
+                            onClick={() => setCurrentBoard(board.id)} 
+                          />
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Mostrar quadros não fixados */}
+                    {regularBoards.map((board) => (
                       <BoardItem 
                         key={board.id}
                         board={board}
@@ -217,7 +240,21 @@ export default function Sidebar() {
                 
                 {showFolders && (
                   <div className="pl-2 space-y-1">
-                    {activeFolders.map((folder) => (
+                    {/* Mostrar pastas fixadas primeiro */}
+                    {pinnedFolders.length > 0 && (
+                      <div className="mb-2">
+                        <div className="text-xs text-muted-foreground px-2 py-1">Fixadas</div>
+                        {pinnedFolders.map((folder) => (
+                          <FolderItem 
+                            key={folder.id} 
+                            folder={folder} 
+                          />
+                        ))}
+                      </div>
+                    )}
+                    
+                    {/* Mostrar pastas não fixadas */}
+                    {regularFolders.map((folder) => (
                       <FolderItem 
                         key={folder.id} 
                         folder={folder} 

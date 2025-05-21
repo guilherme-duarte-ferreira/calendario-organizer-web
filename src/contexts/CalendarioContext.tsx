@@ -39,6 +39,7 @@ interface CalendarioContextType {
   archiveBlock: (blockId: string) => void;
   restoreBlock: (blockId: string) => void;
   deleteBlock: (blockId: string) => void;
+  updateBlocksOrder: (updatedBoards: Board[]) => void;
   
   // Funções para manipulação de itens
   createCard: (blockId: string, title: string) => Card;
@@ -69,9 +70,7 @@ interface CalendarioContextType {
 const CalendarioContext = createContext<CalendarioContextType | undefined>(undefined);
 
 export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
-  const [boards, setBoards] = useState<Board[]>([]);
-  const [folders, setFolders] = useState<BoardFolder[]>([]);
-  const [settings, setSettings] = useState<CalendarioSettings>({
+  const initialSettings: CalendarioSettings = {
     theme: 'light',
     scrollOrientation: 'horizontal',
     blockAutoAdjustToSpreadsheet: false,
@@ -80,7 +79,11 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     defaultBlockHeight: 400,
     autoSaveInterval: 30,
     horizontalBlockAlignment: true
-  });
+  };
+
+  const [boards, setBoards] = useState<Board[]>([]);
+  const [folders, setFolders] = useState<BoardFolder[]>([]);
+  const [settings, setSettings] = useState<CalendarioSettings>(initialSettings);
   const [archived, setArchived] = useState<any>({
     boards: [],
     blocks: [],
@@ -127,10 +130,10 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       
       setBoards(loadedBoards);
       setFolders(loadedFolders);
-      setSettings(loadedSettings);
+      const validTheme = loadedSettings.theme === 'dark' ? 'dark' : 'light';
+      setSettings({...loadedSettings, theme: validTheme});
       setArchived(loadedArchived);
       
-      // Definir o quadro atual como o primeiro, se existir
       if (loadedBoards.length > 0 && !currentBoardId) {
         setCurrentBoardId(loadedBoards[0].id);
       }
@@ -162,12 +165,11 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Funções para manipulação de quadros
   const createBoard = (name: string): Board => {
     const newBoard: Board = {
       id: generateId(),
       name,
-      blocks: [], // Não criar blocos padrão
+      blocks: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       archived: false
@@ -201,16 +203,13 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const archiveBoard = (boardId: string) => {
-    // Buscar o quadro
     const board = boards.find(b => b.id === boardId);
     if (!board) return;
     
-    // Marcar como arquivado
     const updatedBoards = boards.map(b => b.id === boardId ? { ...b, archived: true } : b);
     setBoards(updatedBoards);
     saveBoards(updatedBoards);
     
-    // Adicionar à lista de arquivos
     const updatedArchived = {
       ...archived,
       boards: [...archived.boards, { ...board, archived: true }]
@@ -218,7 +217,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setArchived(updatedArchived);
     saveArchived(updatedArchived);
     
-    // Se este for o quadro atual, mudar para outro
     if (currentBoardId === boardId) {
       const activeBoards = updatedBoards.filter(b => !b.archived);
       if (activeBoards.length > 0) {
@@ -237,11 +235,9 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const restoreBoard = (boardId: string) => {
-    // Buscar o quadro nos arquivados
     const board = archived.boards.find((b: Board) => b.id === boardId);
     if (!board) return;
     
-    // Remover da lista de arquivados
     const updatedArchived = {
       ...archived,
       boards: archived.boards.filter((b: Board) => b.id !== boardId)
@@ -249,7 +245,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setArchived(updatedArchived);
     saveArchived(updatedArchived);
     
-    // Restaurar para a lista ativa
     const restoredBoard = { ...board, archived: false };
     const boardExists = boards.some(b => b.id === boardId);
     
@@ -263,8 +258,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setBoards(updatedBoards);
     saveBoards(updatedBoards);
     
-    saveCurrentStateAsVersion(`Restauração do quadro "${board.name}"`);
-    
     toast({
       title: "Quadro restaurado",
       description: `O quadro "${board.name}" foi restaurado.`
@@ -272,18 +265,15 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const deleteBoard = (boardId: string) => {
-    // Buscar o nome do quadro para a mensagem
     const board = boards.find(b => b.id === boardId) || 
                  archived.boards.find((b: Board) => b.id === boardId);
     
     if (!board) return;
     
-    // Remover da lista ativa
     const updatedBoards = boards.filter(b => b.id !== boardId);
     setBoards(updatedBoards);
     saveBoards(updatedBoards);
     
-    // Remover da lista de arquivados
     const updatedArchived = {
       ...archived,
       boards: archived.boards.filter((b: Board) => b.id !== boardId)
@@ -291,7 +281,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setArchived(updatedArchived);
     saveArchived(updatedArchived);
     
-    // Se este for o quadro atual, mudar para outro
     if (currentBoardId === boardId) {
       if (updatedBoards.length > 0) {
         setCurrentBoardId(updatedBoards[0].id);
@@ -312,9 +301,7 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setCurrentBoardId(boardId);
   };
 
-  // Funções para manipulação de blocos
   const createBlock = (boardId: string, name: string): Block => {
-    // Encontrar ordem máxima dos blocos existentes no quadro
     const boardBlocks = boards.find(b => b.id === boardId)?.blocks || [];
     const maxOrder = boardBlocks.length > 0 
       ? Math.max(...boardBlocks.map(block => block.order))
@@ -331,7 +318,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       updatedAt: new Date().toISOString()
     };
     
-    // Adicionar o bloco ao quadro
     const updatedBoards = boards.map(board => {
       if (board.id === boardId) {
         return {
@@ -374,7 +360,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const archiveBlock = (blockId: string) => {
-    // Encontrar o bloco
     let blockToArchive: Block | undefined;
     let boardId: string = "";
     
@@ -389,7 +374,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     
     if (!blockToArchive) return;
     
-    // Atualizar o bloco para arquivado
     const updatedBoards = boards.map(board => {
       if (board.id === boardId) {
         const updatedBlocks = board.blocks.map(block => 
@@ -407,7 +391,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setBoards(updatedBoards);
     saveBoards(updatedBoards);
     
-    // Adicionar à lista de arquivos
     const updatedArchived = {
       ...archived,
       blocks: [...archived.blocks, { ...blockToArchive, archived: true }]
@@ -422,11 +405,9 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const restoreBlock = (blockId: string) => {
-    // Buscar o bloco nos arquivados
     const block = archived.blocks.find((b: Block) => b.id === blockId);
     if (!block) return;
     
-    // Verificar se o quadro do bloco ainda existe
     const boardExists = boards.some(b => b.id === block.boardId);
     if (!boardExists) {
       toast({
@@ -437,7 +418,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Remover da lista de arquivados
     const updatedArchived = {
       ...archived,
       blocks: archived.blocks.filter((b: Block) => b.id !== blockId)
@@ -445,7 +425,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setArchived(updatedArchived);
     saveArchived(updatedArchived);
     
-    // Restaurar para o quadro
     const updatedBoards = boards.map(board => {
       if (board.id === block.boardId) {
         const blockExists = board.blocks.some(b => b.id === blockId);
@@ -478,11 +457,9 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const deleteBlock = (blockId: string) => {
-    // Buscar o bloco
     let blockName = "";
     let boardId = "";
     
-    // Verificar nos quadros ativos
     for (const board of boards) {
       const block = board.blocks.find(b => b.id === blockId);
       if (block) {
@@ -492,7 +469,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       }
     }
     
-    // Verificar nos arquivados se não encontrou nos ativos
     if (!blockName) {
       const archivedBlock = archived.blocks.find((b: Block) => b.id === blockId);
       if (archivedBlock) {
@@ -503,7 +479,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     
     if (!blockName) return;
     
-    // Remover da lista de blocos ativos
     if (boardId) {
       const updatedBoards = boards.map(board => {
         if (board.id === boardId) {
@@ -520,7 +495,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       saveBoards(updatedBoards);
     }
     
-    // Remover da lista de arquivados
     const updatedArchived = {
       ...archived,
       blocks: archived.blocks.filter((b: Block) => b.id !== blockId)
@@ -534,9 +508,20 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  // Funções para manipulação de itens
+  const updateBlocksOrder = (updatedBoards: Board[]) => {
+    setBoards(updatedBoards);
+    saveBoards(updatedBoards);
+    
+    // Find and update the currentBoardId if needed
+    if (currentBoardId) {
+      const updatedCurrentBoard = updatedBoards.find(board => board.id === currentBoardId);
+      if (updatedCurrentBoard) {
+        console.log("Current board updated with new block order");
+      }
+    }
+  };
+
   const createCard = (blockId: string): Card => {
-    // Encontrar o bloco e o quadro
     let targetBlock: Block | undefined;
     let boardId = "";
     
@@ -553,7 +538,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       throw new Error("Bloco não encontrado");
     }
     
-    // Definir a ordem do novo cartão
     const maxOrder = targetBlock.items.length > 0 
       ? Math.max(...targetBlock.items.map(item => item.order))
       : -1;
@@ -571,7 +555,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       updatedAt: new Date().toISOString()
     };
     
-    // Adicionar o cartão ao bloco
     const updatedBoards = boards.map(board => {
       if (board.id === boardId) {
         const updatedBlocks = board.blocks.map(block => {
@@ -606,7 +589,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const createSpreadsheet = (blockId: string): Spreadsheet => {
-    // Encontrar o bloco e o quadro
     let targetBlock: Block | undefined;
     let boardId = "";
     
@@ -623,7 +605,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       throw new Error("Bloco não encontrado");
     }
     
-    // Definir a ordem da nova planilha
     const maxOrder = targetBlock.items.length > 0 
       ? Math.max(...targetBlock.items.map(item => item.order))
       : -1;
@@ -647,7 +628,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       updatedAt: new Date().toISOString()
     };
     
-    // Adicionar a planilha ao bloco
     const updatedBoards = boards.map(board => {
       if (board.id === boardId) {
         const updatedBlocks = board.blocks.map(block => {
@@ -682,7 +662,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const createMarkdownNote = (blockId: string, content: string = ""): MarkdownNote => {
-    // Encontrar o bloco e o quadro
     let targetBlock: Block | undefined;
     let boardId = "";
     
@@ -699,7 +678,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       throw new Error("Bloco não encontrado");
     }
     
-    // Definir a ordem da nova nota
     const maxOrder = targetBlock.items.length > 0 
       ? Math.max(...targetBlock.items.map(item => item.order))
       : -1;
@@ -715,7 +693,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       updatedAt: new Date().toISOString()
     };
     
-    // Adicionar a nota ao bloco
     const updatedBoards = boards.map(board => {
       if (board.id === boardId) {
         const updatedBlocks = board.blocks.map(block => {
@@ -750,7 +727,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const createFileItem = async (blockId: string, file: File): Promise<FileItem | null> => {
-    // Encontrar o bloco e o quadro
     let targetBlock: Block | undefined;
     let boardId = "";
     
@@ -772,21 +748,14 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       return null;
     }
     
-    // Definir a ordem do novo arquivo
     const maxOrder = targetBlock.items.length > 0 
       ? Math.max(...targetBlock.items.map(item => item.order))
       : -1;
     
     try {
-      // Para um projeto real, aqui seria feito upload para um servidor
-      // Como estamos usando localStorage, vamos converter o arquivo para base64
-      // Nota: Isso não é recomendado para arquivos grandes em produção
-      
-      // Simular URL para o arquivo
       const fileUrl = URL.createObjectURL(file);
       let thumbnail = "";
       
-      // Se for imagem, criar thumbnail
       if (file.type.startsWith("image/")) {
         thumbnail = fileUrl;
       }
@@ -805,7 +774,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
         updatedAt: new Date().toISOString()
       };
       
-      // Adicionar o arquivo ao bloco
       const updatedBoards = boards.map(board => {
         if (board.id === boardId) {
           const updatedBlocks = board.blocks.map(block => {
@@ -849,7 +817,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const updateItem = (item: Card | Spreadsheet | MarkdownNote | FileItem) => {
-    // Encontrar o bloco e o quadro
     let targetBlock: Block | undefined;
     let boardId = "";
     
@@ -871,7 +838,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Atualizar o item
     const updatedBoards = boards.map(board => {
       if (board.id === boardId) {
         const updatedBlocks = board.blocks.map(block => {
@@ -901,7 +867,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setBoards(updatedBoards);
     saveBoards(updatedBoards);
     
-    // Se for uma planilha, atualizar lastEditedAt
     if (item.type === "spreadsheet") {
       const spreadsheet = item as Spreadsheet;
       const updatedSpreadsheet = {
@@ -909,13 +874,11 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
         lastEditedAt: new Date().toISOString()
       };
       
-      // Recursivamente chamar updateItem com o spreadsheet atualizado
       updateItem(updatedSpreadsheet);
     }
   };
   
   const archiveItem = (itemId: string, type: ItemType) => {
-    // Encontrar o item
     let itemToArchive: BaseItem | undefined;
     let blockId = "";
     let boardId = "";
@@ -942,7 +905,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Atualizar o item para arquivado
     const updatedBoards = boards.map(board => {
       if (board.id === boardId) {
         const updatedBlocks = board.blocks.map(block => {
@@ -972,7 +934,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setBoards(updatedBoards);
     saveBoards(updatedBoards);
     
-    // Adicionar à lista de arquivos
     const updatedArchived = {
       ...archived,
       [type + "s"]: [...(archived[type + "s"] || []), { ...itemToArchive, archived: true }]
@@ -987,7 +948,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const restoreItem = (itemId: string, type: ItemType) => {
-    // Buscar o item nos arquivados
     const archivedItems = archived[type + "s"] || [];
     const item = archivedItems.find((i: BaseItem) => i.id === itemId);
     
@@ -1000,7 +960,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Verificar se o bloco do item ainda existe
     let blockExists = false;
     let boardId = "";
     
@@ -1022,7 +981,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     
-    // Remover da lista de arquivados
     const updatedArchived = {
       ...archived,
       [type + "s"]: archivedItems.filter((i: BaseItem) => i.id !== itemId)
@@ -1030,7 +988,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setArchived(updatedArchived);
     saveArchived(updatedArchived);
     
-    // Restaurar para o bloco
     const restoredItem = { ...item, archived: false };
     
     const updatedBoards = boards.map(board => {
@@ -1076,7 +1033,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const deleteItem = (itemId: string, type: ItemType) => {
-    // Verificar se o item está nos quadros ativos
     let found = false;
     const updatedBoards = boards.map(board => {
       const updatedBlocks = board.blocks.map(block => {
@@ -1104,7 +1060,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
       saveBoards(updatedBoards);
     }
     
-    // Remover da lista de arquivados
     const archivedItems = archived[type + "s"] || [];
     const updatedArchived = {
       ...archived,
@@ -1120,7 +1075,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  // Funções para manipulação de pastas
   const createFolder = (name: string): BoardFolder => {
     const newFolder: BoardFolder = {
       id: generateId(),
@@ -1150,16 +1104,13 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const archiveFolder = (folderId: string) => {
-    // Buscar a pasta
     const folder = folders.find(f => f.id === folderId);
     if (!folder) return;
     
-    // Marcar como arquivado
     const updatedFolders = folders.map(f => f.id === folderId ? { ...f, archived: true } : f);
     setFolders(updatedFolders);
     saveFolders(updatedFolders);
     
-    // Adicionar à lista de arquivos
     const updatedArchived = {
       ...archived,
       folders: [...archived.folders, { ...folder, archived: true }]
@@ -1174,11 +1125,9 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const restoreFolder = (folderId: string) => {
-    // Buscar a pasta nos arquivados
     const folder = archived.folders.find((f: BoardFolder) => f.id === folderId);
     if (!folder) return;
     
-    // Remover da lista de arquivados
     const updatedArchived = {
       ...archived,
       folders: archived.folders.filter((f: BoardFolder) => f.id !== folderId)
@@ -1186,7 +1135,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     setArchived(updatedArchived);
     saveArchived(updatedArchived);
     
-    // Restaurar para a lista ativa
     const restoredFolder = { ...folder, archived: false };
     const folderExists = folders.some(f => f.id === folderId);
     
@@ -1207,18 +1155,15 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   };
   
   const deleteFolder = (folderId: string) => {
-    // Buscar o nome da pasta para a mensagem
     const folder = folders.find(f => f.id === folderId) || 
                  archived.folders.find((f: BoardFolder) => f.id === folderId);
     
     if (!folder) return;
     
-    // Remover da lista ativa
     const updatedFolders = folders.filter(f => f.id !== folderId);
     setFolders(updatedFolders);
     saveFolders(updatedFolders);
     
-    // Remover da lista de arquivados
     const updatedArchived = {
       ...archived,
       folders: archived.folders.filter((f: BoardFolder) => f.id !== folderId)
@@ -1232,14 +1177,16 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  // Funções para configurações
   const updateSettings = (newSettings: Partial<CalendarioSettings>) => {
+    if (newSettings.theme && newSettings.theme !== 'light' && newSettings.theme !== 'dark') {
+      newSettings.theme = 'light';
+    }
+    
     const updatedSettings = { ...settings, ...newSettings };
     setSettings(updatedSettings);
     saveSettings(updatedSettings);
   };
 
-  // Utilitários
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -1271,14 +1218,12 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     try {
       const data = JSON.parse(jsonData);
       
-      // Validar a estrutura básica
       if (!data.boards || !Array.isArray(data.boards) ||
           !data.folders || !Array.isArray(data.folders) ||
           !data.settings || typeof data.settings !== 'object') {
         throw new Error("Formato de dados inválido");
       }
       
-      // Salvar o estado atual como backup antes de importar
       saveCurrentStateAsVersion("Backup antes da importação");
       
       setBoards(data.boards);
@@ -1295,7 +1240,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
         saveArchived(data.archived);
       }
       
-      // Definir o quadro atual como o primeiro, se existir
       if (data.boards.length > 0) {
         setCurrentBoardId(data.boards[0].id);
       }
@@ -1305,7 +1249,6 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
         description: "Os dados foram importados com sucesso."
       });
       
-      // Criar uma versão para a importação
       saveCurrentStateAsVersion("Importação de dados");
       
       return true;
@@ -1341,6 +1284,7 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     archiveBlock,
     restoreBlock,
     deleteBlock,
+    updateBlocksOrder,
     
     createCard,
     createSpreadsheet,

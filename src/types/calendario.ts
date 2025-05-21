@@ -1,4 +1,3 @@
-
 // Tipos e interfaces para o sistema Calendario
 
 export type ThemeMode = 'light' | 'dark';
@@ -12,6 +11,7 @@ export interface Board {
   createdAt: string;
   updatedAt: string;
   archived: boolean;
+  pinned?: boolean;
   pinnedOrder?: number; // Se pinado, qual a ordem
 }
 
@@ -22,6 +22,7 @@ export interface BoardFolder {
   subfolders: string[]; // IDs de subpastas
   expanded: boolean;
   archived: boolean;
+  pinned?: boolean;
   pinnedOrder?: number; // Se pinado, qual a ordem
 }
 

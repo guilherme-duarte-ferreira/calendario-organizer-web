@@ -1,64 +1,148 @@
 
-# Documentação da Implementação - Fase 2
+# Fase 2: Gerenciamento de Quadros, Pastas e Blocos - Documentação da Implementação
 
-## Gerenciamento de Quadros, Pastas e Blocos
+## Visão Geral
 
-### Funcionalidades Implementadas
+Esta fase focou na implementação de funcionalidades completas para criação, organização e manipulação dos elementos fundamentais da aplicação: quadros, pastas e blocos. O objetivo foi estabelecer a infraestrutura básica que permitirá a adição de conteúdo mais elaborado nas fases seguintes.
 
-#### Cabeçalho
-- Botão "Criar Quadro" agora cria quadros vazios, sem blocos pré-definidos
+## Funcionalidades Implementadas
 
-#### Barra Lateral
-- Funcionalidade de hover para quadros com feedback visual
-- Ícone de três pontos para cada quadro com opções de "Renomear", "Arquivar", "Deletar"
-- Implementação visual inicial da estrutura para pastas
+### 1. Gerenciamento de Blocos na Área de Trabalho
 
-#### Área de Trabalho
-- Blocos têm tamanho dinâmico que se adapta ao conteúdo
-- Funcionalidade de inserção de texto Markdown com renderização correta
-- Funcionalidade de criar tabela via Markdown
-- Gerenciamento completo de blocos (adicionar, editar, remover)
-- Interface visual para os três botões embaixo de cada bloco (Cartão, Planilha, Arquivo)
+- **Blocos no Quadro**:
+  - ✅ Adição de blocos com nome personalizado
+  - ✅ Edição de nome de blocos (clique no título ou menu de opções)
+  - ✅ Remoção de blocos (com confirmação)
+  - ✅ Interface de arrastar e soltar para reorganização
+  - ✅ Prévia visual ao arrastar blocos (borda tracejada)
 
-### Correções Realizadas
-1. **Blocos adaptáveis:**
-   - Os blocos agora têm largura fixa inicial (`w-[272px]`) similar ao Trello
-   - O conteúdo se adapta verticalmente dentro do bloco
-   - Cada bloco cresce verticalmente conforme o conteúdo é adicionado
+- **Tamanho dos Blocos**:
+  - ✅ Blocos crescem de forma independente com base no conteúdo
+  - ✅ Redimensionamento automático dos blocos para acomodar conteúdo
+  - ✅ Cálculo dinâmico de altura baseado no conteúdo interno
+  - ✅ Blocos iniciam com tamanho mínimo e crescem somente conforme necessário
 
-2. **Renderização de Markdown:**
-   - Implementada usando a biblioteca `react-markdown`
-   - Aplicação de estilos adequados com a classe `prose`
-   - Conteúdo Markdown agora é formatado corretamente quando exibido
+- **Conteúdo dos Blocos**:
+  - ✅ Botão "Cartão" para criar cartões
+  - ✅ Botão "Texto" para criar notas markdown
+  - ✅ Botão "Planilha" para criar planilhas
+  - ✅ Opções no menu de três pontos para inserir texto markdown e arquivos
 
-3. **Sistema de navegação:**
-   - Implementada rolagem vertical/horizontal conforme configuração
-   - A área de trabalho se adapta adequadamente quando há muitos blocos
+- **Interação com Itens**:
+  - ✅ Foco automático ao adicionar novos itens
+  - ✅ Expansão dinâmica de campos de texto baseado no conteúdo
+  - ✅ Ações de cancelar e salvar funcionais em todos os tipos de conteúdo
+  - ✅ Clique em um item existente abre diretamente o modo de edição
+  - ✅ Clique fora do item salva automaticamente ou cancela se vazio
 
-4. **Criação de quadros:**
-   - Novos quadros agora são criados vazios, sem blocos pré-definidos
+### 2. Interação e Feedback Visual
 
-5. **Visualização de quadros na barra lateral:**
-   - Botões dos três pontos agora ficam visíveis quando o mouse passa por cima do quadro
+- **Drag & Drop**:
+  - ✅ Prévia visual ao arrastar blocos
+  - ✅ Feedback visual na área de destino
+  - ✅ Reordenação de blocos através da funcionalidade de arrastar e soltar
+  - ✅ Persistência da nova ordem após a reorganização
+  - ✅ Animações visuais limitadas aos blocos, não à área de trabalho inteira
+  - ✅ Sistema de logs para facilitar depuração de problemas de arrasto
 
-### Funcionalidades Pendentes
-1. **Barra Lateral:**
-   - Implementação completa das pastas para organizar quadros
-   - Arrastar e soltar quadros/pastas para reordenação
-   - Visualização em árvore para pastas
+- **Organização de Quadros e Pastas**:
+  - ✅ Funcionalidade para fixar quadros e pastas no topo da barra lateral
+  - ✅ Arrastar quadros para dentro das pastas
+  - ✅ Reordenar quadros e pastas na barra lateral
 
-2. **Arrastar e Soltar:**
-   - Implementar a prévia visual ao arrastar blocos
+### 3. Sistema de Salvamento
 
-3. **Salvamento:**
-   - Verificar e aprimorar o salvamento em JSON de pastas, quadros e blocos
+- **Persistência de Dados**:
+  - ✅ Salvamento automático de alterações
+  - ✅ Estrutura de dados para blocos, cartões, planilhas e arquivos
+  - ✅ Salvamento em localStorage com estratégia de separação por tipo de dados
 
-### Próximos Passos
-1. Implementar a estrutura completa de pastas na barra lateral
-2. Adicionar funcionalidade de arrastar e soltar para reorganização de elementos
-3. Melhorar a integração com o sistema de salvamento
+## Melhorias Implementadas
 
-### Notas Técnicas
-- A estrutura de componentes foi mantida, mas com melhorias na adaptabilidade
-- Os componentes agora são mais flexíveis em termos de tamanho e comportamento
-- A implementação visual dos três botões e opções de menu está completa
+1. **Crescimento Individual dos Blocos**:
+   - ✅ Implementação de ResizeObserver para monitorar mudanças de tamanho
+   - ✅ Cálculo dinâmico de altura baseado no conteúdo
+   - ✅ Redimensionamento independente para cada bloco
+   - ✅ Remoção de animações lentas no redimensionamento para crescimento instantâneo
+
+2. **Foco ao Adicionar Texto**:
+   - ✅ Foco automático nos campos de edição de texto
+   - ✅ Detecção de itens novos para ativar automaticamente o modo de edição
+   - ✅ Clique em um item existente abre diretamente o modo de edição
+   - ✅ Clique fora do item salva automaticamente o conteúdo
+
+3. **Ações de Cancelar e Salvar**:
+   - ✅ Armazenamento do conteúdo original para restauração ao cancelar
+   - ✅ Atualização do item ao salvar com timestamp de modificação
+   - ✅ Feedback visual após ações de edição
+   - ✅ Exclusão automática de itens vazios quando o usuário cancela
+
+4. **Drag & Drop Aprimorado**:
+   - ✅ Limitação de animações apenas aos elementos sendo arrastados
+   - ✅ Feedback visual mais preciso durante a interação
+   - ✅ Melhor desempenho e experiência do usuário
+   - ✅ Sistema de logs para identificar problemas no fluxo de arrasto
+
+## Estrutura de Dados
+
+### Blocos
+
+```typescript
+interface Block {
+  id: string;
+  name: string;
+  boardId: string;
+  items: Array<Card | Spreadsheet | MarkdownNote | FileItem>;
+  order: number;
+  archived: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+```
+
+### Itens nos Blocos
+
+Cada bloco pode conter diferentes tipos de itens:
+
+- **Cartões**: Para tarefas, notas rápidas ou informações estruturadas
+- **Notas Markdown**: Para textos formatados com suporte completo a Markdown
+- **Planilhas**: Para dados tabulares com diferentes tipos de colunas
+- **Arquivos**: Para anexos como imagens, PDFs e outros documentos
+
+## Componentes Principais
+
+### BlockComponent
+
+Responsável pela renderização e gerenciamento de um bloco individual dentro do quadro. Inclui:
+- Cabeçalho com nome e menu de opções
+- Área de conteúdo para renderizar itens
+- Barra de botões para adicionar novos itens
+- Redimensionamento automático baseado no conteúdo
+
+### CardItem, MarkdownItem, SpreadsheetItem, FileItemComponent
+
+Componentes específicos para renderizar e gerenciar cada tipo de conteúdo dentro dos blocos:
+- Suporte para edição com foco automático
+- Expansão automática de campos de texto
+- Ações de cancelar e salvar alterações
+- Notificação de redimensionamento para o bloco pai
+
+## Próximos Passos
+
+As seguintes funcionalidades estão planejadas para implementação nas próximas fases:
+
+1. **Gerenciamento avançado de cartões**:
+   - Etiquetas coloridas
+   - Datas de vencimento
+   - Checklist com progresso visual
+   - Anexos
+   
+2. **Edição avançada de planilhas**:
+   - Editor inline para células
+   - Classificação e filtragem de dados
+   - Formatação condicional
+   
+3. **Melhorias na organização de quadros**:
+   - Visualizações alternativas (timeline, calendário)
+   - Filtros e busca avançada
+   - Integração com calendários externos

@@ -1,43 +1,31 @@
 
-import { useState, useRef } from "react";
-import { Block, Card, Spreadsheet, MarkdownNote, FileItem } from "@/types/calendario";
+import { useState, useEffect, useRef } from "react";
 import { useCalendario } from "@/contexts/CalendarioContext";
-import { useDragDrop } from "@/hooks/use-drag-drop";
+import { Button } from "@/components/ui/button";
+import { Block } from "@/types/calendario";
 import { 
+  MoreVertical,
+  FileText,
+  Plus,
+  ListTodo,
+  Table2,
+  GripVertical
+} from "lucide-react";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
-  Dialog, 
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle 
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { 
-  Archive, 
-  File, 
-  Grid3X3, 
-  MoreVertical, 
-  Pencil, 
-  Plus, 
-  Square, 
-  Trash2, 
-  Text 
-} from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
-
-import CardItem from "./CardItem";
-import SpreadsheetItem from "./SpreadsheetItem";
 import MarkdownItem from "./MarkdownItem";
+import CardItem from "./CardItem";
 import FileItemComponent from "./FileItemComponent";
-import { markdownToTable } from "@/utils/markdown";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import SpreadsheetItem from "./SpreadsheetItem";
+import { toast } from "sonner";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface BlockComponentProps {
   block: Block;
@@ -45,307 +33,301 @@ interface BlockComponentProps {
 
 export default function BlockComponent({ block }: BlockComponentProps) {
   const { 
+    currentBoardId, 
     updateBlock,
-    archiveBlock,
     deleteBlock,
-    createCard,
-    createSpreadsheet,
+    createCard, 
     createMarkdownNote,
+    createSpreadsheet,
     createFileItem
   } = useCalendario();
   
-  const [isEditing, setIsEditing] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [blockName, setBlockName] = useState(block.name);
-  const [showDialog, setShowDialog] = useState<string | null>(null);
-  const [markdownContent, setMarkdownContent] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // Ordenar os itens pelo campo order
-  const sortedItems = [...block.items].filter(item => !item.archived);
-  sortedItems.sort((a, b) => a.order - b.order);
   
-  const { isDraggedOver, handlers } = useDragDrop({
-    onDrop: (e, targetId) => {
-      // Implementaremos a lógica de drop no futuro
-      console.log(`Dropped on block ${block.id}`);
-    }
-  });
+  // Refs for dynamic height calculation without animation
+  const contentRef = useRef<HTMLDivElement>(null);
+  const blockRef = useRef<HTMLDivElement>(null);
   
-  const handleNameChange = () => {
-    if (blockName.trim()) {
-      updateBlock({
-        ...block,
-        name: blockName
-      });
-    }
-    setIsEditing(false);
+  // Setup sortable functionality
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: block.id });
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: "transform 0.2s ease", // Only transform gets animation, not size
+    zIndex: isDragging ? 10 : 0,
+    opacity: isDragging ? 0.8 : 1,
   };
   
-  const handleCreateCard = () => {
-    createCard(block.id, "Novo Cartão");
-  };
-  
-  const handleCreateSpreadsheet = () => {
-    createSpreadsheet(block.id, "Nova Planilha");
-  };
-  
-  const handleCreateMarkdownNote = () => {
-    createMarkdownNote(block.id, markdownContent);
-    setMarkdownContent("");
-    setShowDialog(null);
-  };
-  
-  const handleCreateMarkdownTable = () => {
-    try {
-      const { columns, rows } = markdownToTable(markdownContent);
-      createSpreadsheet(block.id, "Tabela de Markdown", columns, rows);
-      setMarkdownContent("");
-      setShowDialog(null);
-    } catch (error) {
-      console.error("Erro ao converter Markdown para tabela:", error);
-      alert("Erro ao converter Markdown para tabela. Verifique o formato.");
-    }
-  };
-  
-  const handleFileUpload = () => {
-    fileInputRef.current?.click();
-  };
-  
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      await createFileItem(block.id, files[0]);
+  // Function to recalculate block height based on content - without animation
+  const recalculateHeight = () => {
+    if (contentRef.current && blockRef.current) {
+      const headerHeight = 40; // Approx. header height
+      const footerHeight = 60; // Approx. footer height with buttons
+      const padding = 32; // Total padding (16px * 2)
       
-      // Limpar o input para permitir enviar o mesmo arquivo novamente
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+      const contentHeight = contentRef.current.scrollHeight;
+      const newHeight = headerHeight + contentHeight + footerHeight + padding;
+      
+      // Minimum 200px height with no transition/animation
+      blockRef.current.style.transition = "none";
+      blockRef.current.style.height = `${Math.max(200, newHeight)}px`;
+    }
+  };
+  
+  // Recalculate height when content changes - without animation
+  useEffect(() => {
+    // Disable animation and apply height immediately
+    if (blockRef.current) {
+      blockRef.current.style.transition = "none";
+    }
+    
+    recalculateHeight();
+    
+    // Setup mutation observer to detect changes in content
+    const resizeObserver = new ResizeObserver(() => {
+      if (blockRef.current) {
+        blockRef.current.style.transition = "none";
       }
+      recalculateHeight();
+    });
+    
+    if (contentRef.current) {
+      resizeObserver.observe(contentRef.current);
+    }
+    
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [block.items]);
+  
+  // Recalculate height on component mount and window resize
+  useEffect(() => {
+    if (blockRef.current) {
+      blockRef.current.style.transition = "none";
+    }
+    
+    recalculateHeight();
+    
+    const handleResize = () => {
+      if (blockRef.current) {
+        blockRef.current.style.transition = "none";
+      }
+      recalculateHeight();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+  const handleUpdateName = () => {
+    if (blockName.trim() !== "") {
+      updateBlock({ ...block, name: blockName });
+      setEditing(false);
+    }
+  };
+  
+  const handleDelete = () => {
+    if (window.confirm(`Tem certeza que deseja deletar o bloco "${block.name}"?`)) {
+      deleteBlock(block.id);
+      toast.success("Bloco deletado com sucesso");
     }
   };
 
+  const handleCreateMarkdown = () => {
+    if (currentBoardId) {
+      createMarkdownNote(block.id, "Novo texto markdown");
+      // Recalculate height without animation
+      setTimeout(() => {
+        if (blockRef.current) {
+          blockRef.current.style.transition = "none";
+        }
+        recalculateHeight();
+      }, 0);
+    }
+  };
+
+  const handleCreateCard = () => {
+    if (currentBoardId) {
+      createCard(block.id, "Novo cartão");
+      // Recalculate height without animation
+      setTimeout(() => {
+        if (blockRef.current) {
+          blockRef.current.style.transition = "none";
+        }
+        recalculateHeight();
+      }, 0);
+    }
+  };
+
+  const handleCreateSpreadsheet = () => {
+    if (currentBoardId) {
+      createSpreadsheet(block.id, "Nova planilha");
+      // Recalculate height without animation
+      setTimeout(() => {
+        if (blockRef.current) {
+          blockRef.current.style.transition = "none";
+        }
+        recalculateHeight();
+      }, 0);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      createFileItem(block.id, e.target.files[0]);
+      // Recalculate height without animation
+      setTimeout(() => {
+        if (blockRef.current) {
+          blockRef.current.style.transition = "none";
+        }
+        recalculateHeight();
+      }, 0);
+    }
+  };
+  
   return (
-    <>
-      <div 
-        className={`calendario-block bg-white/95 shadow-md rounded-md border w-[272px] flex flex-col ${
-          isDraggedOver ? "calendario-drag-over border-primary border-dashed" : ""
-        }`}
-        onDragOver={handlers.handleDragOver}
-        onDragLeave={handlers.handleDragLeave}
-        onDrop={(e) => handlers.handleDrop(e, block.id)}
-      >
-        <div className="px-3 pt-3 mb-2">
-          {isEditing ? (
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={blockName}
-                onChange={(e) => setBlockName(e.target.value)}
-                onBlur={handleNameChange}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleNameChange();
-                  if (e.key === "Escape") {
-                    setBlockName(block.name);
-                    setIsEditing(false);
-                  }
-                }}
-                className="flex-1 border rounded px-2 py-1 text-sm font-medium focus:ring-1 focus:ring-primary focus:outline-none"
-                autoFocus
-              />
-            </div>
+    <div 
+      ref={(node) => {
+        setNodeRef(node);
+        if (node) {
+          blockRef.current = node as HTMLDivElement;
+        }
+      }}
+      id={`block-${block.id}`}
+      className={`bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-sm min-w-[280px] max-w-[280px] flex flex-col ${
+        isDragging ? 'shadow-lg border-2 border-blue-500' : ''
+      }`}
+      style={{ 
+        ...style,
+        minHeight: '200px', 
+      }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center">
+          <div {...attributes} {...listeners}>
+            <GripVertical size={16} className="mr-2 cursor-grab text-muted-foreground" />
+          </div>
+          {editing ? (
+            <input
+              type="text"
+              value={blockName}
+              onChange={(e) => setBlockName(e.target.value)}
+              onBlur={handleUpdateName}
+              onKeyDown={(e) => e.key === 'Enter' && handleUpdateName()}
+              className="border-none bg-transparent outline-none focus:ring-1 focus:ring-blue-500 rounded p-1 flex-1 font-medium"
+              autoFocus
+            />
           ) : (
-            <div className="flex items-center justify-between">
-              <h3 
-                className="text-sm font-medium truncate cursor-pointer"
-                onClick={() => setIsEditing(true)}
-              >
-                {block.name}
-              </h3>
-              
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground">
-                    <MoreVertical size={16} />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                    <Pencil size={16} className="mr-2" />
-                    <span>Renomear</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem onClick={() => setShowDialog("markdown")}>
-                    <Text size={16} className="mr-2" />
-                    <span>Inserir texto Markdown</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem onClick={() => setShowDialog("markdownTable")}>
-                    <Grid3X3 size={16} className="mr-2" />
-                    <span>Criar tabela via Markdown</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuSeparator />
-                  
-                  <DropdownMenuItem onClick={() => archiveBlock(block.id)}>
-                    <Archive size={16} className="mr-2" />
-                    <span>Arquivar</span>
-                  </DropdownMenuItem>
-                  
-                  <DropdownMenuItem 
-                    className="text-destructive focus:text-destructive" 
-                    onClick={() => setShowDialog("delete")}
-                  >
-                    <Trash2 size={16} className="mr-2" />
-                    <span>Excluir</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <h3 
+              className="font-medium truncate cursor-pointer flex-1" 
+              onClick={() => setEditing(true)}
+              title={block.name}
+            >
+              {block.name}
+            </h3>
           )}
         </div>
         
-        <div className="px-3 space-y-2 flex-grow">
-          {sortedItems.map((item) => {
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical size={16} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuLabel>Opções</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setEditing(true)}>
+              Renomear
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleCreateMarkdown}>
+              Inserir texto Markdown
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => document.getElementById(`file-upload-${block.id}`)?.click()}>
+              Inserir Arquivo
+              <input 
+                type="file" 
+                id={`file-upload-${block.id}`} 
+                className="hidden" 
+                onChange={handleFileUpload}
+              />
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleDelete} className="text-red-500">
+              Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      
+      <div 
+        ref={contentRef}
+        className="flex-1 overflow-visible"
+      >
+        {block.items.length === 0 && (
+          <div className="flex items-center justify-center h-20">
+            <p className="text-muted-foreground text-sm">Vazio</p>
+          </div>
+        )}
+        
+        <div className="space-y-2">
+          {block.items.map((item) => {
             switch (item.type) {
-              case "card":
-                return <CardItem key={item.id} card={item as Card} />;
-              case "spreadsheet":
-                return <SpreadsheetItem key={item.id} spreadsheet={item as Spreadsheet} />;
-              case "markdown":
-                return <MarkdownItem key={item.id} markdownNote={item as MarkdownNote} />;
-              case "file":
-                return <FileItemComponent key={item.id} fileItem={item as FileItem} />;
+              case 'markdown':
+                return <MarkdownItem key={item.id} markdownNote={item} onResize={recalculateHeight} />;
+              case 'card':
+                return <CardItem key={item.id} card={item} onResize={recalculateHeight} />;
+              case 'spreadsheet':
+                return <SpreadsheetItem key={item.id} spreadsheet={item} />;
+              case 'file':
+                return <FileItemComponent key={item.id} fileItem={item} />;
               default:
                 return null;
             }
           })}
-          
-          {sortedItems.length === 0 && (
-            <div className="text-center py-4 text-muted-foreground text-sm">
-              Este bloco está vazio.
-              <br />
-              Adicione cartões ou planilhas abaixo.
-            </div>
-          )}
         </div>
-        
-        <div className="mt-2 px-3 pb-3 pt-2 border-t flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handleCreateCard}>
-            <Square size={14} className="mr-1" />
-            Cartão
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handleCreateSpreadsheet}>
-            <Grid3X3 size={14} className="mr-1" />
-            Planilha
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handleFileUpload}>
-            <File size={14} className="mr-1" />
-            Arquivo
-          </Button>
-        </div>
-        
-        <input 
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-        />
       </div>
       
-      {/* Diálogo de exclusão */}
-      <Dialog open={showDialog === "delete"} onOpenChange={(open) => !open && setShowDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Excluir bloco</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja excluir o bloco "{block.name}"? Esta ação não pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(null)}>
-              Cancelar
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={() => {
-                deleteBlock(block.id);
-                setShowDialog(null);
-              }}
-            >
-              Excluir permanentemente
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Diálogo de inserção de Markdown */}
-      <Dialog open={showDialog === "markdown"} onOpenChange={(open) => !open && setShowDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Inserir texto Markdown</DialogTitle>
-            <DialogDescription>
-              Digite ou cole o conteúdo Markdown que deseja adicionar ao bloco.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <Textarea
-              value={markdownContent}
-              onChange={(e) => setMarkdownContent(e.target.value)}
-              placeholder="# Título\nParágrafo com **negrito** e *itálico*\n\n* Item 1\n* Item 2"
-              className="font-mono text-sm"
-              rows={8}
-            />
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(null)}>
-              Cancelar
-            </Button>
-            <Button 
-              onClick={handleCreateMarkdownNote}
-            >
-              Adicionar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Diálogo de inserção de tabela Markdown */}
-      <Dialog open={showDialog === "markdownTable"} onOpenChange={(open) => !open && setShowDialog(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Criar tabela via Markdown</DialogTitle>
-            <DialogDescription>
-              Digite ou cole uma tabela em formato Markdown para converter em planilha.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="py-4">
-            <Textarea
-              value={markdownContent}
-              onChange={(e) => setMarkdownContent(e.target.value)}
-              placeholder="| Coluna 1 | Coluna 2 | Coluna 3 |\n| --- | --- | --- |\n| Valor 1 | Valor 2 | Valor 3 |"
-              className="font-mono text-sm"
-              rows={8}
-            />
-            
-            <p className="text-xs text-muted-foreground mt-2">
-              Formato: A primeira linha deve conter os títulos das colunas, a segunda deve ter separadores,
-              e as linhas seguintes contêm os dados.
-            </p>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDialog(null)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleCreateMarkdownTable}>
-              Converter para planilha
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+      <div className="mt-3 flex gap-2 justify-center border-t pt-3">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="flex-1"
+          onClick={handleCreateCard}
+        >
+          <ListTodo size={14} className="mr-1" />
+          Cartão
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="flex-1"
+          onClick={handleCreateMarkdown}
+        >
+          <FileText size={14} className="mr-1" />
+          Texto
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm"
+          className="flex-1" 
+          onClick={handleCreateSpreadsheet}
+        >
+          <Table2 size={14} className="mr-1" />
+          Planilha
+        </Button>
+      </div>
+    </div>
   );
 }
