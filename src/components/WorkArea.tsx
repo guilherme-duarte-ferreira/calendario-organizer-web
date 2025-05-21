@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useCalendario } from "@/contexts/CalendarioContext";
 import { Button } from "@/components/ui/button";
@@ -155,9 +154,10 @@ export default function WorkArea() {
     transition: "none",
   };
 
-  const blocksContainerStyle = {
+  // Fix for the TypeScript error - explicitly type flexDirection as a valid CSS FlexDirection value
+  const blocksContainerStyle: React.CSSProperties = {
     transition: "none",
-    flexDirection: settings.scrollOrientation === 'vertical' ? 'column' : 'row',
+    flexDirection: settings.scrollOrientation === 'vertical' ? 'column' as const : 'row' as const,
     minHeight: settings.scrollOrientation === 'vertical' ? 'fit-content' : '100%',
     minWidth: settings.scrollOrientation === 'horizontal' ? 'fit-content' : '100%',
   };
