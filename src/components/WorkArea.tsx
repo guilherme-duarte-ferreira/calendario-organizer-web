@@ -160,6 +160,8 @@ export default function WorkArea() {
     flexDirection: settings.scrollOrientation === 'vertical' ? 'column' as const : 'row' as const,
     minHeight: settings.scrollOrientation === 'vertical' ? 'fit-content' : '100%',
     minWidth: settings.scrollOrientation === 'horizontal' ? 'fit-content' : '100%',
+    alignItems: 'flex-start',
+    alignContent: 'flex-start',
   };
 
   return (

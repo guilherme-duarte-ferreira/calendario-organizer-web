@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useCalendario } from "@/contexts/CalendarioContext";
 import { Button } from "@/components/ui/button";
 import { Block } from "@/types/calendario";
@@ -59,9 +59,10 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     isDragging,
   } = useSortable({ id: block.id });
   
-  const style = {
+  // Separate dndStyle from other styles for clarity
+  const dndStyle = {
     transform: CSS.Transform.toString(transform),
-    transition: isDragging ? transition : "none", // Only apply transition during drag, not for resizing
+    transition: isDragging ? transition : "none", // Only apply transition during drag
     zIndex: isDragging ? 10 : 0,
     opacity: isDragging ? 0.8 : 1,
   };
@@ -69,6 +70,11 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   // Function to recalculate block height based on content - without animation
   const recalculateHeight = () => {
     if (contentRef.current && blockRef.current) {
+      // Explicitly disable transitions before height calculation
+      if (blockRef.current) {
+        blockRef.current.style.setProperty('transition', 'none', 'important');
+      }
+      
       const headerHeight = 40; // Approx. header height
       const footerHeight = 60; // Approx. footer height with buttons
       const padding = 32; // Total padding (16px * 2)
@@ -76,17 +82,18 @@ export default function BlockComponent({ block }: BlockComponentProps) {
       const contentHeight = contentRef.current.scrollHeight;
       const newHeight = headerHeight + contentHeight + footerHeight + padding;
       
-      // Minimum 200px height with no transition/animation
-      blockRef.current.style.transition = "none";
-      blockRef.current.style.height = `${Math.max(200, newHeight)}px`;
+      // Apply height without transitions
+      if (blockRef.current) {
+        blockRef.current.style.height = `${Math.max(200, newHeight)}px`;
+      }
     }
   };
   
-  // Recalculate height when content changes - without animation
+  // Recalculate height when content changes
   useEffect(() => {
     // Disable any animation when calculating height
     if (blockRef.current) {
-      blockRef.current.style.transition = "none";
+      blockRef.current.style.setProperty('transition', 'none', 'important');
     }
     
     recalculateHeight();
@@ -94,7 +101,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     // Setup mutation observer to detect changes in content
     const resizeObserver = new ResizeObserver(() => {
       if (blockRef.current) {
-        blockRef.current.style.transition = "none";
+        blockRef.current.style.setProperty('transition', 'none', 'important');
       }
       recalculateHeight();
     });
@@ -108,17 +115,17 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     };
   }, [block.items]);
   
-  // Recalculate height on component mount and window resize - without animation
+  // Recalculate height on component mount and window resize
   useEffect(() => {
     if (blockRef.current) {
-      blockRef.current.style.transition = "none";
+      blockRef.current.style.setProperty('transition', 'none', 'important');
     }
     
     recalculateHeight();
     
     const handleResize = () => {
       if (blockRef.current) {
-        blockRef.current.style.transition = "none";
+        blockRef.current.style.setProperty('transition', 'none', 'important');
       }
       recalculateHeight();
     };
@@ -194,7 +201,8 @@ export default function BlockComponent({ block }: BlockComponentProps) {
         setNodeRef(node);
         if (node) {
           blockRef.current = node as HTMLDivElement;
-          node.style.transition = "none"; // Ensure no transitions on the node itself
+          // Stronger approach to disable transitions on mount
+          node.style.setProperty('transition', 'none', 'important');
         }
       }}
       id={`block-${block.id}`}
@@ -202,9 +210,11 @@ export default function BlockComponent({ block }: BlockComponentProps) {
         isDragging ? 'shadow-lg border-2 border-blue-500' : ''
       }`}
       style={{ 
-        ...style,
-        minHeight: '200px', 
-        transition: "none", // Ensure no transitions at all times
+        ...dndStyle,
+        minHeight: '200px',
+        height: 'auto', // Allow natural height based on content
+        // Explicitly disable all transitions except during drag
+        transitionProperty: isDragging ? undefined : 'none',
       }}
     >
       <div className="flex items-center justify-between mb-3">
