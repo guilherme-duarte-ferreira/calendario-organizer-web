@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Spreadsheet, SpreadsheetColumn } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -6,6 +5,7 @@ import BaseDialog from "./BaseDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { 
   Copy, 
@@ -21,7 +21,9 @@ import {
   AlignCenter,
   AlignRight,
   Type,
-  Palette
+  Palette,
+  Download,
+  Upload
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,7 +40,7 @@ export default function SpreadsheetDialog({
   onClose, 
   blockName 
 }: SpreadsheetDialogProps) {
-  const { updateItem } = useCalendario();
+  const { updateItem, deleteItem } = useCalendario();
   
   const [title, setTitle] = useState(spreadsheet.title);
   const [columns, setColumns] = useState(spreadsheet.columns);
@@ -48,6 +50,7 @@ export default function SpreadsheetDialog({
   const [selectedCell, setSelectedCell] = useState<{row: number, col: number} | null>(null);
   const [isEditingCell, setIsEditingCell] = useState(false);
   const [cellValue, setCellValue] = useState("");
+  const [markdownImport, setMarkdownImport] = useState("");
 
   const tableRef = useRef<HTMLDivElement>(null);
 
@@ -75,6 +78,74 @@ export default function SpreadsheetDialog({
       toast.error("Erro ao salvar planilha");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleArchive = () => {
+    const updatedSpreadsheet: Spreadsheet = {
+      ...spreadsheet,
+      archived: true,
+      updatedAt: new Date().toISOString(),
+    };
+    updateItem(updatedSpreadsheet);
+    toast.success("Planilha arquivada!");
+    onClose();
+  };
+
+  const handleDelete = () => {
+    if (window.confirm(`Tem certeza que deseja excluir a planilha "${spreadsheet.title}"?`)) {
+      deleteItem(spreadsheet.id, "spreadsheet");
+      toast.success("Planilha excluída!");
+      onClose();
+    }
+  };
+
+  const importMarkdownTable = () => {
+    if (!markdownImport.trim()) {
+      toast.error("Por favor, cole uma tabela Markdown");
+      return;
+    }
+
+    try {
+      const lines = markdownImport.trim().split('\n');
+      if (lines.length < 3) {
+        toast.error("Formato de tabela Markdown inválido");
+        return;
+      }
+
+      // Parse header
+      const headerLine = lines[0];
+      const headers = headerLine.split('|').map(h => h.trim()).filter(h => h);
+      
+      // Parse data rows (skip separator line)
+      const dataRows = lines.slice(2).map(line => 
+        line.split('|').map(cell => cell.trim()).filter(cell => cell)
+      );
+
+      // Create columns
+      const newColumns: SpreadsheetColumn[] = headers.map((header, index) => ({
+        id: `col_${Date.now()}_${index}`,
+        name: header,
+        type: 'text',
+        required: false,
+        width: 120
+      }));
+
+      // Create rows
+      const newRows = dataRows.map((rowData, index) => ({
+        id: `row_${Date.now()}_${index}`,
+        cells: newColumns.reduce((acc, col, colIndex) => {
+          acc[col.id] = rowData[colIndex] || '';
+          return acc;
+        }, {} as Record<string, any>)
+      }));
+
+      setColumns(newColumns);
+      setRows(newRows);
+      setMarkdownImport("");
+      toast.success("Tabela Markdown importada com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao importar tabela Markdown");
     }
   };
 
@@ -180,7 +251,12 @@ export default function SpreadsheetDialog({
         <Copy size={16} className="mr-2" />
         Copiar Planilha
       </Button>
-      <Button variant="secondary" size="sm" className="w-full justify-start">
+      <Button 
+        variant="secondary" 
+        size="sm" 
+        className="w-full justify-start"
+        onClick={handleArchive}
+      >
         <Archive size={16} className="mr-2" />
         Arquivar Planilha
       </Button>
@@ -188,7 +264,12 @@ export default function SpreadsheetDialog({
         <Share size={16} className="mr-2" />
         Compartilhar
       </Button>
-      <Button variant="secondary" size="sm" className="w-full justify-start text-destructive">
+      <Button 
+        variant="secondary" 
+        size="sm" 
+        className="w-full justify-start text-destructive"
+        onClick={handleDelete}
+      >
         <Trash2 size={16} className="mr-2" />
         Excluir Planilha
       </Button>
@@ -202,6 +283,8 @@ export default function SpreadsheetDialog({
       title={title || "Nova Planilha"}
       location={blockName}
       onSave={handleSave}
+      onArchive={handleArchive}
+      onDelete={handleDelete}
       isMaximized={isMaximized}
       onToggleMaximize={() => setIsMaximized(!isMaximized)}
       isSaving={isSaving}
@@ -217,6 +300,23 @@ export default function SpreadsheetDialog({
             placeholder="Título da planilha..."
             className="text-lg font-semibold border-0 px-0 focus-visible:ring-0"
           />
+        </div>
+
+        {/* Importação de Markdown */}
+        <div className="space-y-2">
+          <h3 className="font-semibold text-sm">Importar Tabela Markdown</h3>
+          <div className="flex gap-2">
+            <Textarea
+              value={markdownImport}
+              onChange={(e) => setMarkdownImport(e.target.value)}
+              placeholder="Cole sua tabela Markdown aqui..."
+              className="flex-1 text-xs h-20"
+            />
+            <Button onClick={importMarkdownTable} className="self-start">
+              <Upload size={14} className="mr-2" />
+              Importar
+            </Button>
+          </div>
         </div>
 
         {/* Barra de Ferramentas */}

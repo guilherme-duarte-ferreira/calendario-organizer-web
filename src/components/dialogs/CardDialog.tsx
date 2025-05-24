@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Card } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -23,7 +22,10 @@ import {
   Link,
   Image,
   Plus,
-  MoreHorizontal
+  MoreHorizontal,
+  X,
+  FileText,
+  ImageIcon
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,17 +37,19 @@ interface CardDialogProps {
 }
 
 export default function CardDialog({ card, isOpen, onClose, blockName }: CardDialogProps) {
-  const { updateItem } = useCalendario();
+  const { updateItem, deleteItem, createFileItem } = useCalendario();
   
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description || "");
   const [status, setStatus] = useState(card.status);
   const [checklist, setChecklist] = useState(card.checklist || []);
+  const [attachments, setAttachments] = useState(card.attachments || []);
   const [isMaximized, setIsMaximized] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [newComment, setNewComment] = useState("");
 
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -61,6 +65,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         description: description.trim(),
         status,
         checklist,
+        attachments,
         updatedAt: new Date().toISOString(),
       };
 
@@ -75,17 +80,46 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   };
 
   const handleArchive = () => {
-    // Implementar arquivamento
-    toast.info("Funcionalidade de arquivar será implementada");
+    const updatedCard: Card = {
+      ...card,
+      archived: true,
+      updatedAt: new Date().toISOString(),
+    };
+    updateItem(updatedCard);
+    toast.success("Cartão arquivado!");
+    onClose();
   };
 
   const handleDelete = () => {
-    // Implementar exclusão
-    toast.info("Funcionalidade de excluir será implementada");
+    if (window.confirm(`Tem certeza que deseja excluir o cartão "${card.title}"?`)) {
+      deleteItem(card.id, "card");
+      toast.success("Cartão excluído!");
+      onClose();
+    }
   };
 
   const handleHelp = () => {
     toast.info("Ajuda do Markdown: Use **negrito**, *itálico*, [links](url), ![imagens](url)");
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const newAttachment = {
+        id: Date.now().toString(),
+        name: file.name,
+        fileType: file.type.startsWith('image/') ? 'image' : 'file',
+        url: URL.createObjectURL(file),
+        thumbnail: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined
+      };
+      setAttachments([...attachments, newAttachment]);
+      toast.success(`Arquivo "${file.name}" adicionado!`);
+    }
+  };
+
+  const removeAttachment = (attachmentId: string) => {
+    setAttachments(attachments.filter(att => att.id !== attachmentId));
+    toast.success("Anexo removido!");
   };
 
   const addChecklistItem = () => {
@@ -138,7 +172,12 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         <Tag size={16} className="mr-2" />
         Etiquetas
       </Button>
-      <Button variant="secondary" size="sm" className="w-full justify-start">
+      <Button 
+        variant="secondary" 
+        size="sm" 
+        className="w-full justify-start"
+        onClick={addChecklistItem}
+      >
         <CheckSquare size={16} className="mr-2" />
         Checklist
       </Button>
@@ -146,7 +185,12 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         <Clock size={16} className="mr-2" />
         Datas
       </Button>
-      <Button variant="secondary" size="sm" className="w-full justify-start">
+      <Button 
+        variant="secondary" 
+        size="sm" 
+        className="w-full justify-start"
+        onClick={() => fileInputRef.current?.click()}
+      >
         <Paperclip size={16} className="mr-2" />
         Anexo
       </Button>
@@ -191,6 +235,15 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       sidebarContent={sidebarContent}
     >
       <div className="space-y-6">
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          onChange={handleFileUpload}
+          multiple
+        />
+
         {/* Título */}
         <div>
           <Input
@@ -251,7 +304,12 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
               <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
                 <Plus size={12} />
               </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs ml-auto">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-6 px-1 text-xs ml-auto"
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <Paperclip size={12} />
               </Button>
               <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
@@ -271,6 +329,45 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
             />
           </div>
         </div>
+
+        {/* Anexos */}
+        {attachments.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Paperclip size={16} />
+              <h3 className="font-semibold text-sm">Anexos</h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              {attachments.map((attachment) => (
+                <div key={attachment.id} className="relative group border rounded-md p-2">
+                  {attachment.fileType === 'image' && attachment.thumbnail ? (
+                    <div className="aspect-video bg-muted rounded overflow-hidden">
+                      <img 
+                        src={attachment.thumbnail} 
+                        alt={attachment.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-video bg-muted rounded flex items-center justify-center">
+                      <FileText size={24} className="text-muted-foreground" />
+                    </div>
+                  )}
+                  <p className="text-xs mt-1 truncate">{attachment.name}</p>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => removeAttachment(attachment.id)}
+                  >
+                    <X size={12} />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Checklist */}
         {checklist.length > 0 && (
