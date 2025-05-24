@@ -34,6 +34,13 @@ export default function SpreadsheetItem({ spreadsheet, onResize }: SpreadsheetIt
   const [title, setTitle] = useState(spreadsheet.title);
   const [showSpreadsheetDialog, setShowSpreadsheetDialog] = useState(false);
 
+  // Auto-open modal for new spreadsheets
+  React.useEffect(() => {
+    if (spreadsheet.title === "Nova planilha" && spreadsheet.rows.length === 0) {
+      setShowSpreadsheetDialog(true);
+    }
+  }, [spreadsheet]);
+
   const handleSave = () => {
     const updatedSpreadsheet: Spreadsheet = {
       ...spreadsheet,
@@ -86,10 +93,7 @@ export default function SpreadsheetItem({ spreadsheet, onResize }: SpreadsheetIt
         <div className="flex justify-between items-center">
           <h4 
             className="font-medium text-sm cursor-pointer hover:text-blue-600"
-            onClick={() => {
-              setTitle(spreadsheet.title);
-              setIsEditing(true);
-            }}
+            onClick={handleOpenModal}
           >
             {spreadsheet.title}
           </h4>
@@ -196,7 +200,6 @@ export default function SpreadsheetItem({ spreadsheet, onResize }: SpreadsheetIt
         </DialogContent>
       </Dialog>
 
-      {/* Modal avançado da planilha */}
       <SpreadsheetDialog
         spreadsheet={spreadsheet}
         isOpen={showSpreadsheetDialog}

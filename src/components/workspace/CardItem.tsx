@@ -122,19 +122,13 @@ export default function CardItem({ card, onResize }: CardItemProps) {
     <>
       <div
         className={`calendario-card bg-white border rounded-md p-3 shadow-sm hover:shadow-md transition-shadow ${card.status === 'completed' ? 'border-green-500 bg-green-50 opacity-75' : ''}`}
-        onClick={() => {
-          // Ao clicar para editar, os valores atuais do card (props) são usados para popular os inputs
-          setCurrentTitle(card.title);
-          setCurrentDescription(card.description || "");
-          setIsEditing(true);
-        }}
+        onClick={handleOpenModal}
       >
         <div className="flex justify-between items-start mb-1">
           <h4 className={`font-medium text-sm ${card.status === 'completed' ? 'line-through text-gray-500' : ''}`}>
             {card.title === NEW_CARD_PLACEHOLDER_TITLE && initialIsNewCardRef.current ? <em>Novo cartão (sem título)</em> : card.title}
           </h4>
           <div className="flex items-center">
-            {/* Botão de status e DropdownMenu ... sua lógica existente ... */}
             <Button
                 variant="ghost"
                 size="icon"
@@ -194,10 +188,16 @@ export default function CardItem({ card, onResize }: CardItemProps) {
             {card.description}
           </p>
         )}
-        {/* Checklist (se houver) ... sua lógica existente ... */}
+        
+        {/* Checklist preview */}
+        {card.checklist && card.checklist.length > 0 && (
+          <div className="mt-2 text-xs text-gray-500">
+            <CheckSquare size={12} className="inline mr-1" />
+            {card.checklist.filter(item => item.completed).length}/{card.checklist.length} concluídos
+          </div>
+        )}
       </div>
 
-      {/* Dialog de confirmação para excluir */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
           <DialogHeader>
@@ -217,7 +217,6 @@ export default function CardItem({ card, onResize }: CardItemProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Modal avançado do cartão */}
       <CardDialog
         card={card}
         isOpen={showCardDialog}

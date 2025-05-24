@@ -23,6 +23,7 @@ import MarkdownItem from "./MarkdownItem";
 import CardItem from "./CardItem";
 import FileItemComponent from "./FileItemComponent";
 import SpreadsheetItem from "./SpreadsheetItem";
+import SpreadsheetDialog from "@/components/dialogs/SpreadsheetDialog";
 import { toast } from "sonner";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -44,6 +45,8 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   
   const [editing, setEditing] = useState(false);
   const [blockName, setBlockName] = useState(block.name);
+  const [showSpreadsheetDialog, setShowSpreadsheetDialog] = useState(false);
+  const [newSpreadsheetId, setNewSpreadsheetId] = useState<string | null>(null);
   
   // Refs for dynamic height calculation without animation
   const contentRef = useRef<HTMLDivElement>(null);
@@ -62,7 +65,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   // Separate dndStyle from other styles for clarity
   const dndStyle = {
     transform: CSS.Transform.toString(transform),
-    transition: isDragging ? transition : "none", // Only apply transition during drag
+    transition: isDragging ? transition : "none",
     zIndex: isDragging ? 10 : 0,
     opacity: isDragging ? 0.8 : 1,
   };
@@ -70,19 +73,17 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   // Function to recalculate block height based on content - without animation
   const recalculateHeight = () => {
     if (contentRef.current && blockRef.current) {
-      // Explicitly disable transitions before height calculation
       if (blockRef.current) {
         blockRef.current.style.setProperty('transition', 'none', 'important');
       }
       
-      const headerHeight = 40; // Approx. header height
-      const footerHeight = 60; // Approx. footer height with buttons
-      const padding = 32; // Total padding (16px * 2)
+      const headerHeight = 40;
+      const footerHeight = 60;
+      const padding = 32;
       
       const contentHeight = contentRef.current.scrollHeight;
       const newHeight = headerHeight + contentHeight + footerHeight + padding;
       
-      // Apply height without transitions
       if (blockRef.current) {
         blockRef.current.style.height = `${Math.max(200, newHeight)}px`;
       }
@@ -91,14 +92,12 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   
   // Recalculate height when content changes
   useEffect(() => {
-    // Disable any animation when calculating height
     if (blockRef.current) {
       blockRef.current.style.setProperty('transition', 'none', 'important');
     }
     
     recalculateHeight();
     
-    // Setup mutation observer to detect changes in content
     const resizeObserver = new ResizeObserver(() => {
       if (blockRef.current) {
         blockRef.current.style.setProperty('transition', 'none', 'important');
@@ -115,7 +114,6 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     };
   }, [block.items]);
   
-  // Recalculate height on component mount and window resize
   useEffect(() => {
     if (blockRef.current) {
       blockRef.current.style.setProperty('transition', 'none', 'important');
@@ -154,7 +152,6 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const handleCreateMarkdown = () => {
     if (currentBoardId) {
       createMarkdownNote(block.id, "Novo texto markdown");
-      // Recalculate height immediately without animation
       if (blockRef.current) {
         blockRef.current.style.transition = "none";
       }
@@ -165,7 +162,6 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const handleCreateCard = () => {
     if (currentBoardId) {
       createCard(block.id, "Novo cartão");
-      // Recalculate height immediately without animation
       if (blockRef.current) {
         blockRef.current.style.transition = "none";
       }
@@ -175,8 +171,9 @@ export default function BlockComponent({ block }: BlockComponentProps) {
 
   const handleCreateSpreadsheet = () => {
     if (currentBoardId) {
-      createSpreadsheet(block.id, "Nova planilha");
-      // Recalculate height immediately without animation
+      const spreadsheetId = createSpreadsheet(block.id, "Nova planilha");
+      setNewSpreadsheetId(spreadsheetId);
+      setShowSpreadsheetDialog(true);
       if (blockRef.current) {
         blockRef.current.style.transition = "none";
       }
@@ -187,152 +184,168 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       createFileItem(block.id, e.target.files[0]);
-      // Recalculate height immediately without animation
       if (blockRef.current) {
         blockRef.current.style.transition = "none";
       }
       recalculateHeight();
     }
   };
+
+  const newSpreadsheet = newSpreadsheetId ? 
+    block.items.find(item => item.id === newSpreadsheetId && item.type === 'spreadsheet') as any :
+    null;
   
   return (
-    <div 
-      ref={(node) => {
-        setNodeRef(node);
-        if (node) {
-          blockRef.current = node as HTMLDivElement;
-          // Stronger approach to disable transitions on mount
-          node.style.setProperty('transition', 'none', 'important');
-        }
-      }}
-      id={`block-${block.id}`}
-      className={`bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-sm min-w-[280px] max-w-[280px] flex flex-col ${
-        isDragging ? 'shadow-lg border-2 border-blue-500' : ''
-      }`}
-      style={{ 
-        ...dndStyle,
-        minHeight: '200px',
-        height: 'auto', // Allow natural height based on content
-        // Explicitly disable all transitions except during drag
-        transitionProperty: isDragging ? undefined : 'none',
-      }}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center">
-          <div {...attributes} {...listeners}>
-            <GripVertical size={16} className="mr-2 cursor-grab text-muted-foreground" />
-          </div>
-          {editing ? (
-            <input
-              type="text"
-              value={blockName}
-              onChange={(e) => setBlockName(e.target.value)}
-              onBlur={handleUpdateName}
-              onKeyDown={(e) => e.key === 'Enter' && handleUpdateName()}
-              className="border-none bg-transparent outline-none focus:ring-1 focus:ring-blue-500 rounded p-1 flex-1 font-medium"
-              autoFocus
-            />
-          ) : (
-            <h3 
-              className="font-medium truncate cursor-pointer flex-1" 
-              onClick={() => setEditing(true)}
-              title={block.name}
-            >
-              {block.name}
-            </h3>
-          )}
-        </div>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical size={16} />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuLabel>Opções</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => setEditing(true)}>
-              Renomear
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleCreateMarkdown}>
-              Inserir texto Markdown
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => document.getElementById(`file-upload-${block.id}`)?.click()}>
-              Inserir Arquivo
-              <input 
-                type="file" 
-                id={`file-upload-${block.id}`} 
-                className="hidden" 
-                onChange={handleFileUpload}
-              />
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleDelete} className="text-red-500">
-              Excluir
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      
+    <>
       <div 
-        ref={contentRef}
-        className="flex-1 overflow-visible"
-        style={{ transition: "none" }} // Ensure no transitions on content container
+        ref={(node) => {
+          setNodeRef(node);
+          if (node) {
+            blockRef.current = node as HTMLDivElement;
+            node.style.setProperty('transition', 'none', 'important');
+          }
+        }}
+        id={`block-${block.id}`}
+        className={`bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-sm min-w-[280px] max-w-[280px] flex flex-col ${
+          isDragging ? 'shadow-lg border-2 border-blue-500' : ''
+        }`}
+        style={{ 
+          ...dndStyle,
+          minHeight: '200px',
+          height: 'auto',
+          transitionProperty: isDragging ? undefined : 'none',
+        }}
       >
-        {block.items.length === 0 && (
-          <div className="flex items-center justify-center h-20">
-            <p className="text-muted-foreground text-sm">Vazio</p>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center">
+            <div {...attributes} {...listeners}>
+              <GripVertical size={16} className="mr-2 cursor-grab text-muted-foreground" />
+            </div>
+            {editing ? (
+              <input
+                type="text"
+                value={blockName}
+                onChange={(e) => setBlockName(e.target.value)}
+                onBlur={handleUpdateName}
+                onKeyDown={(e) => e.key === 'Enter' && handleUpdateName()}
+                className="border-none bg-transparent outline-none focus:ring-1 focus:ring-blue-500 rounded p-1 flex-1 font-medium"
+                autoFocus
+              />
+            ) : (
+              <h3 
+                className="font-medium truncate cursor-pointer flex-1" 
+                onClick={() => setEditing(true)}
+                title={block.name}
+              >
+                {block.name}
+              </h3>
+            )}
           </div>
-        )}
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreVertical size={16} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Opções</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setEditing(true)}>
+                Renomear
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleCreateMarkdown}>
+                Inserir texto Markdown
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => document.getElementById(`file-upload-${block.id}`)?.click()}>
+                Inserir Arquivo
+                <input 
+                  type="file" 
+                  id={`file-upload-${block.id}`} 
+                  className="hidden" 
+                  onChange={handleFileUpload}
+                />
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleDelete} className="text-red-500">
+                Excluir
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         
-        <div className="space-y-2" style={{ transition: "none" }}>
-          {block.items.map((item) => {
-            switch (item.type) {
-              case 'markdown':
-                return <MarkdownItem key={item.id} markdownNote={item} onResize={recalculateHeight} />;
-              case 'card':
-                return <CardItem key={item.id} card={item} onResize={recalculateHeight} />;
-              case 'spreadsheet':
-                return <SpreadsheetItem key={item.id} spreadsheet={item} />;
-              case 'file':
-                return <FileItemComponent key={item.id} fileItem={item} />;
-              default:
-                return null;
-            }
-          })}
+        <div 
+          ref={contentRef}
+          className="flex-1 overflow-visible"
+          style={{ transition: "none" }}
+        >
+          {block.items.length === 0 && (
+            <div className="flex items-center justify-center h-20">
+              <p className="text-muted-foreground text-sm">Vazio</p>
+            </div>
+          )}
+          
+          <div className="space-y-2" style={{ transition: "none" }}>
+            {block.items.map((item) => {
+              switch (item.type) {
+                case 'markdown':
+                  return <MarkdownItem key={item.id} markdownNote={item} onResize={recalculateHeight} />;
+                case 'card':
+                  return <CardItem key={item.id} card={item} onResize={recalculateHeight} />;
+                case 'spreadsheet':
+                  return <SpreadsheetItem key={item.id} spreadsheet={item} />;
+                case 'file':
+                  return <FileItemComponent key={item.id} fileItem={item} />;
+                default:
+                  return null;
+              }
+            })}
+          </div>
+        </div>
+        
+        <div className="mt-3 flex gap-2 justify-center border-t pt-3">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex-1"
+            onClick={handleCreateCard}
+          >
+            <ListTodo size={14} className="mr-1" />
+            Cartão
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="flex-1"
+            onClick={handleCreateMarkdown}
+          >
+            <FileText size={14} className="mr-1" />
+            Texto
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="flex-1" 
+            onClick={handleCreateSpreadsheet}
+          >
+            <Table2 size={14} className="mr-1" />
+            Planilha
+          </Button>
         </div>
       </div>
-      
-      <div className="mt-3 flex gap-2 justify-center border-t pt-3">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex-1"
-          onClick={handleCreateCard}
-        >
-          <ListTodo size={14} className="mr-1" />
-          Cartão
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex-1"
-          onClick={handleCreateMarkdown}
-        >
-          <FileText size={14} className="mr-1" />
-          Texto
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm"
-          className="flex-1" 
-          onClick={handleCreateSpreadsheet}
-        >
-          <Table2 size={14} className="mr-1" />
-          Planilha
-        </Button>
-      </div>
-    </div>
+
+      {/* Modal para nova planilha */}
+      {newSpreadsheet && (
+        <SpreadsheetDialog
+          spreadsheet={newSpreadsheet}
+          isOpen={showSpreadsheetDialog}
+          onClose={() => {
+            setShowSpreadsheetDialog(false);
+            setNewSpreadsheetId(null);
+          }}
+          blockName={block.name}
+        />
+      )}
+    </>
   );
 }
