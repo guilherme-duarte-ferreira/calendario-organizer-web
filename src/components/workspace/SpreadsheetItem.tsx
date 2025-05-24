@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Spreadsheet } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -86,7 +87,7 @@ export default function SpreadsheetItem({ spreadsheet, onResize }: SpreadsheetIt
           <h4 
             className="font-medium text-sm cursor-pointer hover:text-blue-600"
             onClick={() => {
-              setCurrentTitle(spreadsheet.title);
+              setTitle(spreadsheet.title);
               setIsEditing(true);
             }}
           >
@@ -106,7 +107,7 @@ export default function SpreadsheetItem({ spreadsheet, onResize }: SpreadsheetIt
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => {
-                setCurrentTitle(spreadsheet.title);
+                setTitle(spreadsheet.title);
                 setIsEditing(true);
               }}>
                 <Pencil size={14} className="mr-2" />

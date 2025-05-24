@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { Card } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -68,13 +69,13 @@ export default function CardItem({ card, onResize }: CardItemProps) {
   const handleCancel = () => {
     setIsEditing(false);
     if (initialIsNewCardRef.current) {
-      deleteItem(card.id);
+      deleteItem(card.id, "card");
       toast.message("Novo cartão descartado.");
     }
   };
 
   const handleDeleteConfirmation = () => {
-    deleteItem(card.id);
+    deleteItem(card.id, "card");
     setShowDeleteDialog(false);
     toast.success("Cartão excluído permanentemente.");
   };
