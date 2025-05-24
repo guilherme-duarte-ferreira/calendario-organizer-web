@@ -1,0 +1,788 @@
+<html class="scroll-smooth" lang="pt-BR" style="scroll-behavior:smooth">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1" name="viewport"/>
+  <title>
+   Trello UI Clone
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <style>
+   /* Custom scrollbar for dark backgrounds */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #1e293b;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0f172a;
+  }
+  </style>
+ </head>
+ <body class="bg-[#1b2733] text-[#cbd5e1] font-sans">
+  <main class="grid grid-cols-2 gap-4 p-4 max-w-[1280px] mx-auto">
+   <!-- Left Column -->
+   <section class="flex flex-col gap-6">
+    <!-- Image 1 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      1
+     </div>
+     <div class="bg-[#1e293b] rounded shadow-lg max-w-[280px] p-4 font-semibold text-center text-[#cbd5e1]">
+      <div class="flex justify-center items-center gap-2 mb-2 text-xs font-bold select-none">
+       <button aria-label="Previous month" class="text-[#cbd5e1] hover:text-white">
+        <i class="fas fa-angle-double-left">
+        </i>
+       </button>
+       <button aria-label="Previous month" class="text-[#cbd5e1] hover:text-white">
+        <i class="fas fa-angle-left">
+        </i>
+       </button>
+       <span>
+        maio 2025
+       </span>
+       <button aria-label="Next month" class="text-[#cbd5e1] hover:text-white">
+        <i class="fas fa-angle-right">
+        </i>
+       </button>
+       <button aria-label="Next month" class="text-[#cbd5e1] hover:text-white">
+        <i class="fas fa-angle-double-right">
+        </i>
+       </button>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-[10px] font-normal text-[#94a3b8] mb-1 select-none">
+       <span>
+        dom
+       </span>
+       <span>
+        seg
+       </span>
+       <span>
+        ter
+       </span>
+       <span>
+        qua
+       </span>
+       <span>
+        qui
+       </span>
+       <span>
+        sex
+       </span>
+       <span>
+        sáb
+       </span>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-[10px] font-normal text-[#cbd5e1]">
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        27
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        28
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        29
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        30
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        1
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        2
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        3
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        4
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        5
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        6
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        7
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        8
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        9
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        10
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        11
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        12
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        13
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        14
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        15
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        16
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        17
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        18
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        19
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        20
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        21
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        22
+       </button>
+       <button class="hover:bg-[#2563eb] hover:text-white rounded px-1 text-[10px] font-semibold text-[#3b82f6]">
+        24
+       </button>
+       <button class="bg-[#2563eb] rounded px-1 text-[10px] font-semibold text-white">
+        25
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        1
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        2
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        3
+       </button>
+       <button class="opacity-50 cursor-default select-none bg-[#334155] rounded px-1 text-[10px] font-semibold text-[#94a3b8]" disabled="">
+        4
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        5
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        6
+       </button>
+       <button class="opacity-50 cursor-default select-none" disabled="">
+        7
+       </button>
+      </div>
+      <hr class="my-2 border-[#334155]"/>
+      <form class="flex flex-col gap-2 text-xs font-normal text-[#94a3b8]">
+       <label class="flex items-center gap-2">
+        <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" disabled="" type="checkbox"/>
+        <span>
+         Data de início
+        </span>
+       </label>
+       <input class="bg-[#334155] rounded px-2 py-1 text-xs font-mono text-[#475569] cursor-not-allowed" disabled="" placeholder="D/M/AAAA" type="text"/>
+       <label class="flex flex-col gap-1">
+        <span class="text-[#94a3b8] font-semibold">
+         Data de entrega
+        </span>
+        <div class="flex gap-2">
+         <label class="flex items-center gap-2">
+          <input checked="" class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+          <span class="text-[#cbd5e1] text-xs font-semibold">
+           25/05/2025
+          </span>
+         </label>
+         <input class="bg-[#334155] rounded px-2 py-1 text-xs font-mono text-[#cbd5e1]" type="time" value="10:48"/>
+        </div>
+       </label>
+       <label class="flex flex-col gap-1">
+        <span class="text-[#94a3b8] font-semibold">
+         Definir lembrete
+        </span>
+        <select class="bg-[#0f172a] border border-[#2563eb] rounded px-2 py-1 text-xs font-semibold text-[#cbd5e1]">
+         <option>
+          1 dia antes
+         </option>
+        </select>
+        <span class="text-[9px] text-[#94a3b8] font-normal">
+         Lembretes serão enviados a todos os membros e seguidores deste cartão.
+        </span>
+       </label>
+       <button class="bg-[#0f69ff] text-white rounded px-4 py-1 text-xs font-semibold hover:bg-[#2563eb]" type="submit">
+        Salvar
+       </button>
+       <button class="bg-[#334155] text-[#94a3b8] rounded px-4 py-1 text-xs font-semibold hover:bg-[#475569]" type="button">
+        Remover
+       </button>
+      </form>
+     </div>
+    </div>
+    <hr class="border-[#475569]"/>
+    <!-- Image 2 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      2
+     </div>
+     <div class="bg-[#1e293b] rounded shadow-lg max-w-[280px] p-4 font-semibold text-center text-[#cbd5e1]">
+      <div class="flex justify-between items-center mb-2 text-xs font-bold select-none">
+       <span>
+        Capa
+       </span>
+       <button aria-label="Close" class="text-[#94a3b8] hover:text-white">
+        <i class="fas fa-times">
+        </i>
+       </button>
+      </div>
+      <div class="mb-2 text-xs font-semibold text-[#cbd5e1]">
+       Tamanho
+      </div>
+      <div class="flex gap-2 mb-2">
+       <button class="flex flex-col justify-end gap-1 w-20 h-12 rounded border border-[#475569] bg-[#dc2626] text-white text-[10px] font-semibold px-2 py-1">
+        <div class="h-3 bg-[#334155] rounded">
+        </div>
+        <div class="h-1 bg-[#ef4444] rounded">
+        </div>
+       </button>
+       <button class="flex flex-col justify-end gap-1 w-28 h-12 rounded border border-[#475569] bg-[#dc2626] text-white text-[10px] font-semibold px-2 py-1">
+        <div class="h-3 bg-[#ef4444] rounded">
+        </div>
+       </button>
+      </div>
+      <button class="w-full bg-[#334155] text-[#94a3b8] rounded px-4 py-1 text-xs font-semibold hover:bg-[#475569] mb-2" type="button">
+       Remover capa
+      </button>
+      <div class="mb-2 text-xs font-semibold text-[#cbd5e1]">
+       Cores
+      </div>
+      <div class="grid grid-cols-5 gap-2 max-w-[280px]">
+       <button aria-label="Cor verde escuro" class="w-8 h-6 rounded bg-[#046c4e] border border-transparent hover:border-white">
+       </button>
+       <button aria-label="Cor marrom escuro" class="w-8 h-6 rounded bg-[#a16207] border border-transparent hover:border-white">
+       </button>
+       <button aria-label="Cor laranja escuro" class="w-8 h-6 rounded bg-[#c2410c] border border-transparent hover:border-white">
+       </button>
+       <button aria-label="Cor vermelho selecionada" class="w-8 h-6 rounded bg-[#dc2626] border border-white">
+       </button>
+       <button aria-label="Cor roxo escuro" class="w-8 h-6 rounded bg-[#7c3aed] border border-transparent hover:border-white">
+       </button>
+       <button aria-label="Cor azul" class="w-8 h-6 rounded bg-[#2563eb] border border-transparent hover:border-white">
+       </button>
+       <button aria-label="Cor verde médio" class="w-8 h-6 rounded bg-[#4d7c0f] border border-transparent hover:border-white">
+       </button>
+       <button aria-label="Cor rosa escuro" class="w-8 h-6 rounded bg-[#be185d] border border-transparent hover:border-white">
+       </button>
+       <button aria-label="Cor cinza" class="w-8 h-6 rounded bg-[#64748b] border border-transparent hover:border-white">
+       </button>
+      </div>
+     </div>
+    </div>
+    <hr class="border-[#475569]"/>
+    <!-- Image 3 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      3
+     </div>
+     <div class="bg-[#004225] max-w-[280px] rounded p-2 text-[#cbd5e1] font-semibold text-xs" style="max-width: 280px">
+      <div class="bg-[#dc2626] rounded-t px-2 py-1 text-white text-[10px] font-semibold mb-1 select-none">
+       A fazer
+      </div>
+      <div class="bg-[#1e293b] rounded p-2 text-xs font-semibold text-[#cbd5e1]">
+       Check list
+       <i class="fas fa-list ml-1">
+       </i>
+      </div>
+     </div>
+    </div>
+   </section>
+   <!-- Right Column -->
+   <section class="flex flex-col gap-6">
+    <!-- Image 4 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      4
+     </div>
+     <div class="bg-[#1e293b] rounded shadow-lg max-w-[280px] p-4 font-semibold text-[#cbd5e1] text-xs" style="max-width: 280px">
+      <div class="flex justify-between items-center mb-2 font-bold select-none">
+       <span>
+        Mover cartão
+       </span>
+       <button aria-label="Close" class="text-[#94a3b8] hover:text-white">
+        <i class="fas fa-times">
+        </i>
+       </button>
+      </div>
+      <form class="flex flex-col gap-3">
+       <label class="font-normal">
+        Selecionar destino
+       </label>
+       <label class="font-normal">
+        Quadro
+        <select aria-label="Selecionar quadro" class="w-full mt-1 rounded border border-[#2563eb] bg-[#0f172a] px-2 py-1 text-xs font-semibold text-[#cbd5e1]">
+         <option>
+          ORACULO
+         </option>
+        </select>
+       </label>
+       <div class="flex gap-4">
+        <label class="font-normal flex-1">
+         Lista
+         <select aria-label="Selecionar lista" class="w-full mt-1 rounded border border-[#475569] bg-[#0f172a] px-2 py-1 text-xs font-semibold text-[#cbd5e1]">
+          <option>
+           A fazer
+          </option>
+         </select>
+        </label>
+        <label class="font-normal w-20">
+         Posição
+         <select aria-label="Selecionar posição" class="w-full mt-1 rounded border border-[#475569] bg-[#0f172a] px-2 py-1 text-xs font-semibold text-[#cbd5e1]">
+          <option>
+           1
+          </option>
+         </select>
+        </label>
+       </div>
+       <button class="bg-[#0f69ff] text-white rounded px-4 py-1 text-xs font-semibold hover:bg-[#2563eb]" type="submit">
+        Mover
+       </button>
+      </form>
+     </div>
+    </div>
+    <hr class="border-[#475569]"/>
+    <!-- Image 5 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      5
+     </div>
+     <div class="bg-[#1e293b] rounded shadow-lg max-w-[280px] p-4 font-semibold text-[#cbd5e1] text-xs" style="max-width: 280px">
+      <div class="flex justify-between items-center mb-2 font-bold select-none">
+       <span>
+        Etiquetas
+       </span>
+       <button aria-label="Close" class="text-[#94a3b8] hover:text-white">
+        <i class="fas fa-times">
+        </i>
+       </button>
+      </div>
+      <form class="flex flex-col gap-2">
+       <input class="w-full rounded border border-[#475569] bg-[#0f172a] px-2 py-1 text-xs font-semibold text-[#cbd5e1]" placeholder="Buscar etiquetas..." type="search"/>
+       <div class="flex flex-col gap-1">
+        <label class="flex items-center gap-2">
+         <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+         <span class="bg-[#046c4e] w-full h-6 rounded">
+         </span>
+         <button aria-label="Editar etiqueta" class="text-[#94a3b8] hover:text-white">
+          <i class="fas fa-pen">
+          </i>
+         </button>
+        </label>
+        <label class="flex items-center gap-2">
+         <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+         <span class="bg-[#a16207] w-full h-6 rounded">
+         </span>
+         <button aria-label="Editar etiqueta" class="text-[#94a3b8] hover:text-white">
+          <i class="fas fa-pen">
+          </i>
+         </button>
+        </label>
+        <label class="flex items-center gap-2">
+         <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+         <span class="bg-[#c2410c] w-full h-6 rounded">
+         </span>
+         <button aria-label="Editar etiqueta" class="text-[#94a3b8] hover:text-white">
+          <i class="fas fa-pen">
+          </i>
+         </button>
+        </label>
+        <label class="flex items-center gap-2">
+         <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+         <span class="bg-[#dc2626] w-full h-6 rounded">
+         </span>
+         <button aria-label="Editar etiqueta" class="text-[#94a3b8] hover:text-white">
+          <i class="fas fa-pen">
+          </i>
+         </button>
+        </label>
+        <label class="flex items-center gap-2">
+         <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+         <span class="bg-[#7c3aed] w-full h-6 rounded">
+         </span>
+         <button aria-label="Editar etiqueta" class="text-[#94a3b8] hover:text-white">
+          <i class="fas fa-pen">
+          </i>
+         </button>
+        </label>
+        <label class="flex items-center gap-2">
+         <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+         <span class="bg-[#2563eb] w-full h-6 rounded">
+         </span>
+         <button aria-label="Editar etiqueta" class="text-[#94a3b8] hover:text-white">
+          <i class="fas fa-pen">
+          </i>
+         </button>
+        </label>
+       </div>
+       <button class="bg-[#334155] text-[#cbd5e1] rounded px-4 py-1 text-xs font-semibold hover:bg-[#475569]" type="button">
+        Criar uma nova etiqueta
+       </button>
+      </form>
+     </div>
+    </div>
+    <hr class="border-[#475569]"/>
+    <!-- Image 6 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      6
+     </div>
+     <div class="bg-[#1e293b] rounded shadow-lg max-w-[280px] p-4 font-semibold text-[#cbd5e1] text-xs" style="max-width: 280px">
+      <div class="flex justify-between items-center mb-2 font-bold select-none">
+       <span>
+        Mover cartão
+       </span>
+       <button aria-label="Close" class="text-[#94a3b8] hover:text-white">
+        <i class="fas fa-times">
+        </i>
+       </button>
+      </div>
+      <form class="flex flex-col gap-3">
+       <label class="font-normal">
+        Selecionar destino
+       </label>
+       <label class="font-normal">
+        Quadro
+        <select aria-label="Selecionar quadro" class="w-full mt-1 rounded border border-[#2563eb] bg-[#0f172a] px-2 py-1 text-xs font-semibold text-[#cbd5e1]">
+         <option>
+          ORACULO
+         </option>
+        </select>
+       </label>
+       <div class="flex gap-4">
+        <label class="font-normal flex-1">
+         Lista
+         <select aria-label="Selecionar lista" class="w-full mt-1 rounded border border-[#475569] bg-[#0f172a] px-2 py-1 text-xs font-semibold text-[#cbd5e1]">
+          <option>
+           A fazer
+          </option>
+         </select>
+        </label>
+        <label class="font-normal w-20">
+         Posição
+         <select aria-label="Selecionar posição" class="w-full mt-1 rounded border border-[#475569] bg-[#0f172a] px-2 py-1 text-xs font-semibold text-[#cbd5e1]">
+          <option>
+           1
+          </option>
+         </select>
+        </label>
+       </div>
+       <button class="bg-[#0f69ff] text-white rounded px-4 py-1 text-xs font-semibold hover:bg-[#2563eb]" type="submit">
+        Mover
+       </button>
+      </form>
+     </div>
+    </div>
+   </section>
+   <!-- Right side top -->
+   <section class="flex flex-col gap-4 col-span-2">
+    <!-- Image 7 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      7
+     </div>
+     <div class="bg-[#1e293b] rounded shadow-lg max-w-[600px] p-4 font-semibold text-[#cbd5e1] text-xs" style="max-width: 600px">
+      <div class="flex justify-between items-center mb-2 font-bold select-none">
+       <div class="flex items-center gap-2">
+        <i class="fas fa-list-ul">
+        </i>
+        <span>
+         Atividade
+        </span>
+       </div>
+       <button class="bg-[#334155] rounded px-3 py-1 text-[10px] font-semibold text-[#94a3b8] hover:bg-[#475569]" type="button">
+        Ocultar detalhes
+       </button>
+      </div>
+      <form class="mb-3">
+       <textarea class="w-full resize-none rounded bg-[#0f172a] px-3 py-2 text-xs font-normal text-[#cbd5e1] placeholder:text-[#475569]" placeholder="Escrever um comentário..." rows="2"></textarea>
+      </form>
+      <ul class="flex flex-col gap-3">
+       <li class="flex gap-2">
+        <img alt="Foto de perfil de usuário masculino com cabelo curto e barba, em círculo" class="rounded-full" height="24" loading="lazy" src="https://storage.googleapis.com/a1aa/image/a5c89033-0e8d-4307-6217-bc2474598121.jpg" width="24"/>
+        <div class="flex flex-col gap-1">
+         <p class="text-[11px] font-semibold text-[#cbd5e1]">
+          <span class="font-bold">
+           Guilherme Ferreira
+          </span>
+          removeu Checklist de este cartão
+         </p>
+         <p class="text-[9px] text-[#94a3b8]">
+          há pouco
+         </p>
+        </div>
+       </li>
+       <li class="flex gap-2">
+        <img alt="Foto de perfil de usuário masculino com cabelo curto e barba, em círculo" class="rounded-full" height="24" loading="lazy" src="https://storage.googleapis.com/a1aa/image/a5c89033-0e8d-4307-6217-bc2474598121.jpg" width="24"/>
+        <div class="flex flex-col gap-1">
+         <p class="text-[11px] font-semibold text-[#cbd5e1]">
+          <span class="font-bold">
+           Guilherme Ferreira
+          </span>
+          excluiu o anexo screencapture-trello-b-hl2MMZ36-piramide-de-maslow-2025-05-14-13_25_20.png de este cartão
+         </p>
+         <p class="text-[9px] text-[#94a3b8]">
+          há pouco
+         </p>
+        </div>
+       </li>
+       <li class="flex gap-2">
+        <img alt="Foto de perfil de usuário masculino com cabelo curto e barba, em círculo" class="rounded-full" height="24" loading="lazy" src="https://storage.googleapis.com/a1aa/image/a5c89033-0e8d-4307-6217-bc2474598121.jpg" width="24"/>
+        <div class="flex flex-col gap-1">
+         <p class="text-[11px] font-semibold text-[#cbd5e1]">
+          <span class="font-bold">
+           Guilherme Ferreira
+          </span>
+          adicionou Checklist a este cartão
+         </p>
+         <p class="text-[9px] text-[#94a3b8]">
+          há 1 minuto
+         </p>
+        </div>
+       </li>
+       <li class="flex gap-2">
+        <img alt="Foto de perfil de usuário masculino com cabelo curto e barba, em círculo" class="rounded-full" height="24" loading="lazy" src="https://storage.googleapis.com/a1aa/image/a5c89033-0e8d-4307-6217-bc2474598121.jpg" width="24"/>
+        <div class="flex flex-col gap-1">
+         <p class="text-[11px] font-semibold text-[#cbd5e1]">
+          <span class="font-bold">
+           Guilherme Ferreira
+          </span>
+          anexou screencapture-trello-b-hl2MMZ36-piramide-de-maslow-2025-05-14-13_25_20.png a este cartão
+         </p>
+         <p class="text-[9px] text-[#94a3b8]">
+          há 2 minutos
+          <button class="text-[9px] text-[#94a3b8] underline ml-2">
+           Responder
+          </button>
+         </p>
+        </div>
+       </li>
+       <li class="flex gap-2">
+        <img alt="Foto de perfil de usuário masculino com cabelo curto e barba, em círculo" class="rounded-full" height="24" loading="lazy" src="https://storage.googleapis.com/a1aa/image/a5c89033-0e8d-4307-6217-bc2474598121.jpg" width="24"/>
+        <div class="flex flex-col gap-1">
+         <p class="text-[11px] font-semibold text-[#cbd5e1]">
+          <span class="font-bold">
+           Guilherme Ferreira
+          </span>
+          marcou este cartão como incompleto
+         </p>
+         <p class="text-[9px] text-[#94a3b8]">
+          23 de mai. de 2025, 16:14
+         </p>
+        </div>
+       </li>
+       <li class="flex gap-2">
+        <img alt="Foto de perfil de usuário masculino com cabelo curto e barba, em círculo" class="rounded-full" height="24" loading="lazy" src="https://storage.googleapis.com/a1aa/image/a5c89033-0e8d-4307-6217-bc2474598121.jpg" width="24"/>
+        <div class="flex flex-col gap-1">
+         <p class="text-[11px] font-semibold text-[#cbd5e1]">
+          <span class="font-bold">
+           Guilherme Ferreira
+          </span>
+          marcou este cartão como completo
+         </p>
+         <p class="text-[9px] text-[#94a3b8]">
+          23 de mai. de 2025, 16:14
+         </p>
+        </div>
+       </li>
+       <li class="flex gap-2">
+        <img alt="Foto de perfil de usuário masculino com cabelo curto e barba, em círculo" class="rounded-full" height="24" loading="lazy" src="https://storage.googleapis.com/a1aa/image/a5c89033-0e8d-4307-6217-bc2474598121.jpg" width="24"/>
+        <div class="flex flex-col gap-1">
+         <p class="text-[11px] font-semibold text-[#cbd5e1]">
+          <span class="font-bold">
+           Guilherme Ferreira
+          </span>
+          adicionou este cartão a A fazer
+         </p>
+         <p class="text-[9px] text-[#94a3b8]">
+          11 de mai. de 2025, 18:21
+         </p>
+        </div>
+       </li>
+      </ul>
+     </div>
+    </div>
+    <hr class="border-[#475569]"/>
+    <!-- Image 8 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      8
+     </div>
+     <div class="bg-[#1e293b] rounded shadow-lg max-w-[600px] p-4 font-semibold text-[#cbd5e1] text-xs" style="max-width: 600px">
+      <div class="flex justify-between items-center mb-2 font-bold select-none">
+       <div class="flex items-center gap-2">
+        <i class="fas fa-check-square">
+        </i>
+        <span>
+         Checklist
+        </span>
+        <span class="text-[10px] font-normal text-[#94a3b8]">
+         0%
+        </span>
+       </div>
+       <button class="bg-[#334155] rounded px-3 py-1 text-[10px] font-semibold text-[#94a3b8] hover:bg-[#475569]" type="button">
+        Excluir
+       </button>
+      </div>
+      <ul class="flex flex-col gap-2 mb-2">
+       <li class="flex items-center gap-2">
+        <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+        <span>
+         g
+        </span>
+       </li>
+       <li class="flex items-center gap-2">
+        <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+        <span>
+         h
+        </span>
+       </li>
+      </ul>
+      <form class="flex gap-2">
+       <input class="flex-1 rounded border border-[#475569] bg-[#0f172a] px-2 py-1 text-xs font-semibold text-[#cbd5e1]" placeholder="Adicionar um item" type="text"/>
+       <button class="bg-[#0f69ff] text-white rounded px-3 py-1 text-xs font-semibold hover:bg-[#2563eb]" type="submit">
+        Adicionar
+       </button>
+       <button class="text-[#94a3b8] rounded px-3 py-1 text-xs font-semibold hover:text-white" type="button">
+        Cancelar
+       </button>
+       <button class="flex items-center gap-1 bg-[#334155] rounded px-3 py-1 text-xs font-semibold text-[#94a3b8] cursor-not-allowed" disabled="" type="button">
+        <i class="fas fa-user">
+        </i>
+        Atribuir
+       </button>
+       <button class="flex items-center gap-1 bg-[#334155] rounded px-3 py-1 text-xs font-semibold text-[#94a3b8] cursor-not-allowed" disabled="" type="button">
+        <i class="far fa-clock">
+        </i>
+        Data de Entrega
+       </button>
+      </form>
+     </div>
+    </div>
+    <hr class="border-[#475569]"/>
+    <!-- Image 9 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      9
+     </div>
+     <div class="bg-[#dc2626] rounded-t shadow-lg max-w-[600px] p-4 font-semibold text-white text-xs" style="max-width: 600px">
+      <div class="flex justify-end">
+       <button aria-label="Close" class="text-white hover:text-[#f87171]">
+        <i class="fas fa-times">
+        </i>
+       </button>
+      </div>
+     </div>
+     <div class="bg-[#1e293b] rounded-b shadow-lg max-w-[600px] p-4 font-semibold text-[#cbd5e1] text-xs flex items-center gap-2" style="max-width: 600px">
+      <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" name="checklist" type="radio"/>
+      <span>
+       Check list
+      </span>
+      <span class="text-[10px] font-normal text-[#94a3b8]">
+       na lista
+      </span>
+      <button class="text-[10px] font-semibold text-[#94a3b8] bg-[#334155] rounded px-2 py-0.5 cursor-default" disabled="" type="button">
+       A FAZER
+      </button>
+      <i class="fas fa-eye text-[#94a3b8]">
+      </i>
+     </div>
+    </div>
+    <hr class="border-[#475569]"/>
+    <!-- Image 10 -->
+    <div>
+     <div class="mb-1 text-xs font-bold text-[#94a3b8] select-none">
+      10
+     </div>
+     <div class="bg-[#1e293b] rounded shadow-lg max-w-[600px] p-4 font-semibold text-[#cbd5e1] text-xs" style="max-width: 600px">
+      <div class="flex gap-2 mb-2">
+       <img alt="Imagem de anexo com fundo verde escuro e texto 'Anexo' em branco" class="rounded" height="40" loading="lazy" src="https://storage.googleapis.com/a1aa/image/fe82cabe-2947-4814-9fa6-267a03c33388.jpg" width="40"/>
+       <div class="flex flex-col flex-1">
+        <span class="font-semibold text-[#cbd5e1] text-[11px] break-words">
+         screencapture-trello-b-hl2MMZ36-piramide-de-maslow-2025-05-14-13_25_20.png
+        </span>
+        <span class="text-[9px] text-[#94a3b8]">
+         Adicionado há há pouco ·
+         <i class="fas fa-tag">
+         </i>
+         Capa
+        </span>
+       </div>
+      </div>
+      <div class="flex justify-between items-center mb-2 font-bold select-none">
+       <div class="flex items-center gap-2">
+        <i class="fas fa-check-square">
+        </i>
+        <span>
+         Checklist
+        </span>
+        <span class="text-[10px] font-normal text-[#94a3b8]">
+         0%
+        </span>
+       </div>
+       <div class="flex gap-2">
+        <button class="bg-[#334155] rounded px-3 py-1 text-[10px] font-semibold text-[#94a3b8] hover:bg-[#475569]" type="button">
+         ...
+        </button>
+        <button class="bg-[#334155] rounded px-3 py-1 text-[10px] font-semibold text-[#94a3b8] hover:bg-[#475569]" type="button">
+         Arquivar
+        </button>
+       </div>
+      </div>
+      <ul class="flex flex-col gap-2 mb-2">
+       <li class="flex items-center gap-2">
+        <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+        <span>
+         g
+        </span>
+       </li>
+       <li class="flex items-center gap-2">
+        <input class="w-4 h-4 rounded border-[#334155] bg-[#0f172a]" type="checkbox"/>
+        <span>
+         h
+        </span>
+       </li>
+      </ul>
+      <form class="flex gap-2">
+       <input class="flex-1 rounded border border-[#475569] bg-[#0f172a] px-2 py-1 text-xs font-semibold text-[#cbd5e1]" placeholder="Adicionar um item" type="text"/>
+       <button class="bg-[#0f69ff] text-white rounded px-3 py-1 text-xs font-semibold hover:bg-[#2563eb]" type="submit">
+        Adicionar
+       </button>
+       <button class="text-[#94a3b8] rounded px-3 py-1 text-xs font-semibold hover:text-white" type="button">
+        Cancelar
+       </button>
+       <button class="flex items-center gap-1 bg-[#334155] rounded px-3 py-1 text-xs font-semibold text-[#94a3b8] cursor-not-allowed" disabled="" type="button">
+        <i class="fas fa-user">
+        </i>
+        Atribuir
+       </button>
+       <button class="flex items-center gap-1 bg-[#334155] rounded px-3 py-1 text-xs font-semibold text-[#94a3b8] cursor-not-allowed" disabled="" type="button">
+        <i class="far fa-clock">
+        </i>
+        Data de Entrega
+       </button>
+      </form>
+     </div>
+    </div>
+   </section>
+  </main>
+ </body>
+</html>
