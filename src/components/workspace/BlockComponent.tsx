@@ -26,6 +26,7 @@ import SpreadsheetDialog from "@/components/dialogs/SpreadsheetDialog";
 import { toast } from "sonner";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useBlockAutoAdjust } from "@/hooks/useBlockAutoAdjust";
 
 interface BlockComponentProps {
   block: Block;
@@ -46,6 +47,9 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const [blockName, setBlockName] = useState(block.name);
   const [showSpreadsheetDialog, setShowSpreadsheetDialog] = useState(false);
   const [newSpreadsheetId, setNewSpreadsheetId] = useState<string | null>(null);
+  
+  // Use auto-adjust hook
+  const { adjustedWidth, adjustedHeight } = useBlockAutoAdjust(block);
   
   // Refs for dynamic height calculation without animation
   const contentRef = useRef<HTMLDivElement>(null);
@@ -83,7 +87,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
       const contentHeight = contentRef.current.scrollHeight;
       const newHeight = headerHeight + contentHeight + footerHeight + padding;
       
-      if (blockRef.current) {
+      if (blockRef.current && !adjustedHeight) {
         blockRef.current.style.height = `${Math.max(200, newHeight)}px`;
       }
     }
@@ -111,7 +115,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [block.items]);
+  }, [block.items, adjustedHeight]);
   
   useEffect(() => {
     if (blockRef.current) {
@@ -193,6 +197,15 @@ export default function BlockComponent({ block }: BlockComponentProps) {
   const newSpreadsheet = newSpreadsheetId ? 
     block.items.find(item => item.id === newSpreadsheetId && item.type === 'spreadsheet') as any :
     null;
+
+  // Dynamic styles with auto-adjust
+  const blockStyles = {
+    ...dndStyle,
+    width: adjustedWidth ? `${adjustedWidth}px` : undefined,
+    height: adjustedHeight ? `${adjustedHeight}px` : 'auto',
+    minHeight: '200px',
+    transitionProperty: isDragging ? undefined : 'none',
+  };
   
   return (
     <>
@@ -208,12 +221,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
         className={`bg-white/90 backdrop-blur-sm p-4 rounded-lg shadow-sm min-w-[280px] max-w-[280px] flex flex-col ${
           isDragging ? 'shadow-lg border-2 border-blue-500' : ''
         }`}
-        style={{ 
-          ...dndStyle,
-          minHeight: '200px',
-          height: 'auto',
-          transitionProperty: isDragging ? undefined : 'none',
-        }}
+        style={blockStyles}
       >
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center">
