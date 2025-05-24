@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import { Spreadsheet } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
 import { Button } from "@/components/ui/button";
-import { Table2, Pencil, Trash2, MoreVertical } from "lucide-react";
+import { Table2, Pencil, Trash2, MoreVertical, ExternalLink } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,16 +19,19 @@ import {
   DialogTitle 
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import SpreadsheetDialog from "@/components/dialogs/SpreadsheetDialog";
 
 interface SpreadsheetItemProps {
   spreadsheet: Spreadsheet;
+  onResize?: (width: number) => void;
 }
 
-export default function SpreadsheetItem({ spreadsheet }: SpreadsheetItemProps) {
+export default function SpreadsheetItem({ spreadsheet, onResize }: SpreadsheetItemProps) {
   const { updateItem, deleteItem } = useCalendario();
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [title, setTitle] = useState(spreadsheet.title);
+  const [showSpreadsheetDialog, setShowSpreadsheetDialog] = useState(false);
 
   const handleSave = () => {
     const updatedSpreadsheet: Spreadsheet = {
@@ -46,6 +48,10 @@ export default function SpreadsheetItem({ spreadsheet }: SpreadsheetItemProps) {
   const handleDelete = () => {
     deleteItem(spreadsheet.id, "spreadsheet");
     setShowDeleteDialog(false);
+  };
+
+  const handleOpenModal = () => {
+    setShowSpreadsheetDialog(true);
   };
 
   if (isEditing) {
@@ -75,26 +81,40 @@ export default function SpreadsheetItem({ spreadsheet }: SpreadsheetItemProps) {
 
   return (
     <>
-      <div className="calendario-spreadsheet bg-white border rounded-md p-3 shadow-sm hover:bg-gray-50 transition-colors">
-        <div className="flex justify-between items-start mb-2">
-          <div className="flex items-center gap-2">
-            <Table2 size={16} className="text-blue-500" />
-            <h4 className="font-medium">{spreadsheet.title}</h4>
-          </div>
+      <div className="bg-white border rounded-md p-3 shadow-sm hover:shadow-md transition-shadow space-y-2">
+        <div className="flex justify-between items-center">
+          <h4 
+            className="font-medium text-sm cursor-pointer hover:text-blue-600"
+            onClick={() => {
+              setCurrentTitle(spreadsheet.title);
+              setIsEditing(true);
+            }}
+          >
+            {spreadsheet.title}
+          </h4>
+          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 text-muted-foreground"
+                onClick={(e) => e.stopPropagation()}
               >
                 <MoreVertical size={14} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setIsEditing(true)}>
+              <DropdownMenuItem onClick={() => {
+                setCurrentTitle(spreadsheet.title);
+                setIsEditing(true);
+              }}>
                 <Pencil size={14} className="mr-2" />
                 <span>Editar</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleOpenModal}>
+                <ExternalLink size={14} className="mr-2" />
+                <span>Ver Planilha</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -174,6 +194,14 @@ export default function SpreadsheetItem({ spreadsheet }: SpreadsheetItemProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Modal avançado da planilha */}
+      <SpreadsheetDialog
+        spreadsheet={spreadsheet}
+        isOpen={showSpreadsheetDialog}
+        onClose={() => setShowSpreadsheetDialog(false)}
+        blockName="Lista"
+      />
     </>
   );
 }
