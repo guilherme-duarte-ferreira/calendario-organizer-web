@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useCalendario } from "@/contexts/CalendarioContext";
 import { Button } from "@/components/ui/button";
@@ -171,8 +170,8 @@ export default function BlockComponent({ block }: BlockComponentProps) {
 
   const handleCreateSpreadsheet = () => {
     if (currentBoardId) {
-      const spreadsheetId = createSpreadsheet(block.id, "Nova planilha");
-      setNewSpreadsheetId(spreadsheetId);
+      const newSpreadsheet = createSpreadsheet(block.id, "Nova planilha");
+      setNewSpreadsheetId(newSpreadsheet.id);
       setShowSpreadsheetDialog(true);
       if (blockRef.current) {
         blockRef.current.style.transition = "none";
