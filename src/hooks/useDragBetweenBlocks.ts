@@ -27,20 +27,10 @@ export function useDragBetweenBlocks() {
 
     if (!sourceBlock || !targetBlock) return;
 
-    // Find the item in source block
-    let item: Card | Spreadsheet | undefined;
-    let sourceItems: (Card | Spreadsheet)[];
-    let targetItems: (Card | Spreadsheet)[];
-
-    if (itemType === 'card') {
-      sourceItems = sourceBlock.cards || [];
-      targetItems = targetBlock.cards || [];
-      item = sourceItems.find(c => c.id === itemId);
-    } else {
-      sourceItems = sourceBlock.spreadsheets || [];
-      targetItems = targetBlock.spreadsheets || [];
-      item = sourceItems.find(s => s.id === itemId);
-    }
+    // Find the item in source block's items array
+    const item = sourceBlock.items.find(item => 
+      item.id === itemId && item.type === itemType
+    );
 
     if (!item) return;
 

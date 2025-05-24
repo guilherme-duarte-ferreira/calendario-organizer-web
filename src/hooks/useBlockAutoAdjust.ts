@@ -4,10 +4,19 @@ import { useCalendario } from "@/contexts/CalendarioContext";
 import { Block, Spreadsheet } from "@/types/calendario";
 
 export function useBlockAutoAdjust(block: Block) {
-  const { settings, updateBlock } = useCalendario();
+  const { settings } = useCalendario();
 
   useEffect(() => {
-    if (!settings.blockAutoAdjustToSpreadsheet || !block.spreadsheets?.length) {
+    if (!settings.blockAutoAdjustToSpreadsheet) {
+      return;
+    }
+
+    // Get spreadsheets from block items
+    const spreadsheets = block.items.filter(item => 
+      item.type === 'spreadsheet' && !item.archived
+    ) as Spreadsheet[];
+
+    if (!spreadsheets.length) {
       return;
     }
 
@@ -15,9 +24,7 @@ export function useBlockAutoAdjust(block: Block) {
     let maxWidth = settings.defaultBlockWidth;
     let maxHeight = settings.defaultBlockHeight;
 
-    block.spreadsheets.forEach((spreadsheet: Spreadsheet) => {
-      if (spreadsheet.archived) return;
-
+    spreadsheets.forEach((spreadsheet: Spreadsheet) => {
       // Calculate width: sum of column widths + padding
       const totalWidth = spreadsheet.columns.reduce((sum, col) => sum + (col.width || 120), 0) + 40;
       
@@ -28,24 +35,26 @@ export function useBlockAutoAdjust(block: Block) {
       maxHeight = Math.max(maxHeight, totalHeight);
     });
 
-    // Only update if dimensions changed significantly (more than 20px difference)
-    const currentWidth = block.width || settings.defaultBlockWidth;
-    const currentHeight = block.height || settings.defaultBlockHeight;
+    // Apply dimensions to the block element if it exists
+    const blockElement = document.getElementById(`block-${block.id}`);
+    if (blockElement) {
+      // Only update if dimensions changed significantly (more than 20px difference)
+      const currentWidth = blockElement.offsetWidth;
+      const currentHeight = blockElement.offsetHeight;
 
-    if (Math.abs(currentWidth - maxWidth) > 20 || Math.abs(currentHeight - maxHeight) > 20) {
-      updateBlock(block.id, {
-        width: maxWidth,
-        height: maxHeight,
-      });
+      if (Math.abs(currentWidth - maxWidth) > 20 || Math.abs(currentHeight - maxHeight) > 20) {
+        blockElement.style.width = `${maxWidth}px`;
+        blockElement.style.height = `${maxHeight}px`;
+      }
     }
-  }, [block.spreadsheets, settings.blockAutoAdjustToSpreadsheet, settings.defaultBlockWidth, settings.defaultBlockHeight, block.id, block.width, block.height, updateBlock]);
+  }, [block.items, settings.blockAutoAdjustToSpreadsheet, settings.defaultBlockWidth, settings.defaultBlockHeight, block.id]);
 
   return {
-    adjustedWidth: settings.blockAutoAdjustToSpreadsheet && block.spreadsheets?.length 
-      ? block.width 
+    adjustedWidth: settings.blockAutoAdjustToSpreadsheet && block.items.some(item => item.type === 'spreadsheet' && !item.archived)
+      ? undefined // Let CSS handle it when auto-adjusting
       : settings.defaultBlockWidth,
-    adjustedHeight: settings.blockAutoAdjustToSpreadsheet && block.spreadsheets?.length 
-      ? block.height 
+    adjustedHeight: settings.blockAutoAdjustToSpreadsheet && block.items.some(item => item.type === 'spreadsheet' && !item.archived)
+      ? undefined // Let CSS handle it when auto-adjusting
       : settings.defaultBlockHeight,
   };
 }
