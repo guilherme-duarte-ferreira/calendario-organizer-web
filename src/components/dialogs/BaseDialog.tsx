@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Maximize2, Minimize2, Archive, Trash2, HelpCircle } from "lucide-react";
+import { X, Maximize2, Minimize2, Archive, Trash2, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BaseDialogProps {
@@ -16,21 +16,22 @@ interface BaseDialogProps {
   onClose: () => void;
   title: string;
   location?: string;
+  onLocationClick?: () => void;
   children: React.ReactNode;
   sidebarContent?: React.ReactNode;
   onSave?: () => void;
   onCancel?: () => void;
   onArchive?: () => void;
   onDelete?: () => void;
-  onHelp?: () => void;
+  onNotificationClick?: () => void;
   isMaximized?: boolean;
   onToggleMaximize?: () => void;
   saveButtonText?: string;
   cancelButtonText?: string;
   showArchive?: boolean;
   showDelete?: boolean;
-  showHelp?: boolean;
   showMaximize?: boolean;
+  showNotifications?: boolean;
   isSaving?: boolean;
   className?: string;
 }
@@ -40,21 +41,22 @@ export default function BaseDialog({
   onClose,
   title,
   location,
+  onLocationClick,
   children,
   sidebarContent,
   onSave,
   onCancel,
   onArchive,
   onDelete,
-  onHelp,
+  onNotificationClick,
   isMaximized = false,
   onToggleMaximize,
   saveButtonText = "Salvar",
   cancelButtonText = "Cancelar",
   showArchive = true,
   showDelete = true,
-  showHelp = true,
   showMaximize = true,
+  showNotifications = true,
   isSaving = false,
   className,
 }: BaseDialogProps) {
@@ -96,11 +98,12 @@ export default function BaseDialog({
             </div>
             {location && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                <span>na lista</span>
+                <span>No bloco</span>
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="h-auto py-0.5 px-2 text-xs font-semibold"
+                  className="h-auto py-0.5 px-2 text-xs font-semibold hover:bg-secondary/80"
+                  onClick={onLocationClick}
                 >
                   {location}
                 </Button>
@@ -110,6 +113,16 @@ export default function BaseDialog({
           
           {/* Header Actions */}
           <div className="flex items-center gap-2">
+            {showNotifications && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onNotificationClick}
+                className="h-8 w-8"
+              >
+                <Bell size={16} />
+              </Button>
+            )}
             {showMaximize && onToggleMaximize && (
               <Button
                 variant="ghost"
@@ -118,16 +131,6 @@ export default function BaseDialog({
                 className="h-8 w-8"
               >
                 {isMaximized ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-              </Button>
-            )}
-            {showHelp && onHelp && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onHelp}
-                className="h-8 w-8"
-              >
-                <HelpCircle size={16} />
               </Button>
             )}
             <Button
