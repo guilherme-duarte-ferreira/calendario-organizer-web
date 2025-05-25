@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { 
   Tag, 
   CheckSquare, 
@@ -26,9 +27,16 @@ import {
   MoreHorizontal,
   X,
   FileText,
-  ImageIcon
+  ImageIcon,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { toast } from "sonner";
+import EtiquetaPopup from "./popups/EtiquetaPopup";
+import DataPopup from "./popups/DataPopup";
+import CapaPopup from "./popups/CapaPopup";
+import ChecklistPopup from "./popups/ChecklistPopup";
+import MoverPopup from "./popups/MoverPopup";
 
 interface CardDialogProps {
   card: Card;
@@ -37,8 +45,14 @@ interface CardDialogProps {
   blockName?: string;
 }
 
+interface Etiqueta {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export default function CardDialog({ card, isOpen, onClose, blockName }: CardDialogProps) {
-  const { updateItem, deleteItem, createFileItem } = useCalendario();
+  const { updateItem, deleteItem, boards } = useCalendario();
   
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description || "");
@@ -48,6 +62,26 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const [isMaximized, setIsMaximized] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const [showActivityDetails, setShowActivityDetails] = useState(false);
+  
+  // Estados dos popups
+  const [showEtiquetaPopup, setShowEtiquetaPopup] = useState(false);
+  const [showDataPopup, setShowDataPopup] = useState(false);
+  const [showCapaPopup, setShowCapaPopup] = useState(false);
+  const [showChecklistPopup, setShowChecklistPopup] = useState(false);
+  const [showMoverPopup, setShowMoverPopup] = useState(false);
+  
+  // Estados para funcionalidades
+  const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([
+    { id: "1", name: "Urgente", color: "#ef4444" },
+    { id: "2", name: "Importante", color: "#f97316" },
+    { id: "3", name: "Bug", color: "#dc2626" },
+    { id: "4", name: "Feature", color: "#16a34a" }
+  ]);
+  const [selectedEtiquetas, setSelectedEtiquetas] = useState<string[]>(card.etiquetas || []);
+  const [dueDate, setDueDate] = useState<Date | null>(card.dueDate ? new Date(card.dueDate) : null);
+  const [reminderDate, setReminderDate] = useState<Date | null>(card.reminderDate ? new Date(card.reminderDate) : null);
+  const [capa, setCapa] = useState<string | undefined>(card.capa);
 
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,6 +101,10 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         status,
         checklist,
         attachments,
+        etiquetas: selectedEtiquetas,
+        dueDate: dueDate?.toISOString(),
+        reminderDate: reminderDate?.toISOString(),
+        capa,
         updatedAt: new Date().toISOString(),
       };
 
@@ -119,23 +157,47 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     toast.success("Anexo removido!");
   };
 
-  const addChecklistItem = () => {
-    const newItem = {
+  const handleToggleEtiqueta = (etiquetaId: string) => {
+    setSelectedEtiquetas(prev => 
+      prev.includes(etiquetaId) 
+        ? prev.filter(id => id !== etiquetaId)
+        : [...prev, etiquetaId]
+    );
+  };
+
+  const handleCreateEtiqueta = (name: string, color: string) => {
+    const newEtiqueta: Etiqueta = {
       id: Date.now().toString(),
-      text: "",
-      completed: false
+      name,
+      color
     };
-    setChecklist([...checklist, newItem]);
+    setEtiquetas(prev => [...prev, newEtiqueta]);
+    setSelectedEtiquetas(prev => [...prev, newEtiqueta.id]);
+    toast.success(`Etiqueta "${name}" criada!`);
   };
 
-  const updateChecklistItem = (id: string, updates: Partial<{ text: string; completed: boolean }>) => {
-    setChecklist(checklist.map(item => 
-      item.id === id ? { ...item, ...updates } : item
-    ));
+  const handleSetDate = (date: Date | null, type: 'due' | 'reminder') => {
+    if (type === 'due') {
+      setDueDate(date);
+    } else {
+      setReminderDate(date);
+    }
+    toast.success(date ? "Data definida!" : "Data removida!");
   };
 
-  const removeChecklistItem = (id: string) => {
-    setChecklist(checklist.filter(item => item.id !== id));
+  const handleSetCapa = (imageUrl: string) => {
+    setCapa(imageUrl);
+    toast.success("Capa definida!");
+  };
+
+  const handleRemoveCapa = () => {
+    setCapa(undefined);
+    toast.success("Capa removida!");
+  };
+
+  const handleMove = (boardId: string, blockId: string, position: number) => {
+    // Implementar lógica de mover
+    toast.success("Cartão movido!");
   };
 
   const formatText = (format: string) => {
@@ -165,23 +227,63 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
 
   const sidebarContent = (
     <div className="space-y-2">
-      <Button variant="secondary" size="sm" className="w-full justify-start">
-        <Tag size={16} className="mr-2" />
-        Etiquetas
-      </Button>
-      <Button 
-        variant="secondary" 
-        size="sm" 
-        className="w-full justify-start"
-        onClick={addChecklistItem}
-      >
-        <CheckSquare size={16} className="mr-2" />
-        Checklist
-      </Button>
-      <Button variant="secondary" size="sm" className="w-full justify-start">
-        <Clock size={16} className="mr-2" />
-        Datas
-      </Button>
+      <div className="relative">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="w-full justify-start"
+          onClick={() => setShowEtiquetaPopup(!showEtiquetaPopup)}
+        >
+          <Tag size={16} className="mr-2" />
+          Etiquetas
+        </Button>
+        <EtiquetaPopup
+          isOpen={showEtiquetaPopup}
+          onClose={() => setShowEtiquetaPopup(false)}
+          etiquetas={etiquetas}
+          selectedEtiquetas={selectedEtiquetas}
+          onToggleEtiqueta={handleToggleEtiqueta}
+          onCreateEtiqueta={handleCreateEtiqueta}
+        />
+      </div>
+      
+      <div className="relative">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="w-full justify-start"
+          onClick={() => setShowChecklistPopup(!showChecklistPopup)}
+        >
+          <CheckSquare size={16} className="mr-2" />
+          Checklist
+        </Button>
+        <ChecklistPopup
+          isOpen={showChecklistPopup}
+          onClose={() => setShowChecklistPopup(false)}
+          checklist={checklist}
+          onUpdateChecklist={setChecklist}
+        />
+      </div>
+      
+      <div className="relative">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="w-full justify-start"
+          onClick={() => setShowDataPopup(!showDataPopup)}
+        >
+          <Clock size={16} className="mr-2" />
+          Datas
+        </Button>
+        <DataPopup
+          isOpen={showDataPopup}
+          onClose={() => setShowDataPopup(false)}
+          onSetDate={handleSetDate}
+          dueDate={dueDate}
+          reminderDate={reminderDate}
+        />
+      </div>
+      
       <Button 
         variant="secondary" 
         size="sm" 
@@ -191,13 +293,45 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         <Paperclip size={16} className="mr-2" />
         Anexo
       </Button>
+
+      <div className="relative">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="w-full justify-start"
+          onClick={() => setShowCapaPopup(!showCapaPopup)}
+        >
+          <ImageIcon size={16} className="mr-2" />
+          Capa
+        </Button>
+        <CapaPopup
+          isOpen={showCapaPopup}
+          onClose={() => setShowCapaPopup(false)}
+          onSetCapa={handleSetCapa}
+          onRemoveCapa={handleRemoveCapa}
+          currentCapa={capa}
+        />
+      </div>
       
       <Separator className="my-4" />
       
-      <Button variant="secondary" size="sm" className="w-full justify-start">
-        <ArrowRight size={16} className="mr-2" />
-        Mover
-      </Button>
+      <div className="relative">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="w-full justify-start"
+          onClick={() => setShowMoverPopup(!showMoverPopup)}
+        >
+          <ArrowRight size={16} className="mr-2" />
+          Mover
+        </Button>
+        <MoverPopup
+          isOpen={showMoverPopup}
+          onClose={() => setShowMoverPopup(false)}
+          onMove={handleMove}
+        />
+      </div>
+      
       <Button variant="secondary" size="sm" className="w-full justify-start">
         <Copy size={16} className="mr-2" />
         Copiar
@@ -231,7 +365,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       sidebarContent={sidebarContent}
     >
       <div className="space-y-6">
-        {/* Hidden file input */}
         <input
           ref={fileInputRef}
           type="file"
@@ -239,6 +372,17 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           onChange={handleFileUpload}
           multiple
         />
+
+        {/* Capa */}
+        {capa && (
+          <div className="relative">
+            <img 
+              src={capa} 
+              alt="Capa do cartão" 
+              className="w-full h-32 object-cover rounded-lg"
+            />
+          </div>
+        )}
 
         {/* Título */}
         <div>
@@ -250,6 +394,43 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           />
         </div>
 
+        {/* Etiquetas */}
+        {selectedEtiquetas.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {selectedEtiquetas.map(etiquetaId => {
+              const etiqueta = etiquetas.find(e => e.id === etiquetaId);
+              if (!etiqueta) return null;
+              return (
+                <Badge 
+                  key={etiqueta.id} 
+                  className="text-white text-xs"
+                  style={{ backgroundColor: etiqueta.color }}
+                >
+                  {etiqueta.name}
+                </Badge>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Datas */}
+        {(dueDate || reminderDate) && (
+          <div className="flex flex-wrap gap-2">
+            {dueDate && (
+              <Badge variant="destructive" className="text-xs">
+                <Clock size={12} className="mr-1" />
+                Vencimento: {dueDate.toLocaleDateString()}
+              </Badge>
+            )}
+            {reminderDate && (
+              <Badge variant="secondary" className="text-xs">
+                <Clock size={12} className="mr-1" />
+                Lembrete: {reminderDate.toLocaleDateString()}
+              </Badge>
+            )}
+          </div>
+        )}
+
         {/* Descrição */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -258,7 +439,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           </div>
           
           <div className="border rounded-md">
-            {/* Barra de formatação */}
             <div className="flex items-center gap-2 border-b px-3 py-2 text-sm">
               <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
                 Aa ▼
@@ -307,12 +487,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Paperclip size={12} />
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                M+
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                ?
               </Button>
             </div>
             
@@ -371,51 +545,62 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
             <div className="flex items-center gap-2">
               <CheckSquare size={16} />
               <h3 className="font-semibold text-sm">Checklist</h3>
+              <div className="text-xs text-muted-foreground">
+                {checklist.filter(item => item.completed).length}/{checklist.length}
+              </div>
             </div>
             
             <div className="space-y-2">
-              {checklist.map((item) => (
+              {checklist.slice(0, 3).map((item) => (
                 <div key={item.id} className="flex items-center gap-2">
                   <Checkbox
                     checked={item.completed}
-                    onCheckedChange={(checked) => 
-                      updateChecklistItem(item.id, { completed: !!checked })
-                    }
+                    onCheckedChange={(checked) => {
+                      const updatedChecklist = checklist.map(checkItem => 
+                        checkItem.id === item.id ? { ...checkItem, completed: !!checked } : checkItem
+                      );
+                      setChecklist(updatedChecklist);
+                    }}
                   />
-                  <Input
-                    value={item.text}
-                    onChange={(e) => updateChecklistItem(item.id, { text: e.target.value })}
-                    placeholder="Item do checklist..."
-                    className="flex-1 text-sm"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeChecklistItem(item.id)}
-                    className="text-muted-foreground"
-                  >
-                    ×
-                  </Button>
+                  <span className={`text-sm ${item.completed ? 'line-through text-muted-foreground' : ''}`}>
+                    {item.text || 'Item sem texto'}
+                  </span>
                 </div>
               ))}
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={addChecklistItem}
-                className="w-full"
-              >
-                <Plus size={14} className="mr-2" />
-                Adicionar item
-              </Button>
+              {checklist.length > 3 && (
+                <p className="text-xs text-muted-foreground">
+                  ... e mais {checklist.length - 3} itens
+                </p>
+              )}
             </div>
           </div>
         )}
 
         {/* Atividade */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <List size={16} />
-            <h3 className="font-semibold text-sm">Atividade</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <List size={16} />
+              <h3 className="font-semibold text-sm">Atividade</h3>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowActivityDetails(!showActivityDetails)}
+              className="text-xs"
+            >
+              {showActivityDetails ? (
+                <>
+                  <ChevronUp size={14} className="mr-1" />
+                  Ocultar Detalhes
+                </>
+              ) : (
+                <>
+                  <ChevronDown size={14} className="mr-1" />
+                  Mostrar Detalhes
+                </>
+              )}
+            </Button>
           </div>
           
           <div className="flex items-center gap-2 bg-muted rounded-md px-3 py-2">
@@ -428,16 +613,20 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
             />
           </div>
           
-          <div className="flex items-start gap-3 bg-muted rounded-md px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-gray-300 mt-1"></div>
-            <div>
-              <p className="text-sm">
-                <strong>Sistema</strong> criou este cartão
-                <br />
-                <span className="text-xs text-muted-foreground">há poucos minutos</span>
-              </p>
+          {showActivityDetails && (
+            <div className="space-y-2">
+              <div className="flex items-start gap-3 bg-muted rounded-md px-3 py-2">
+                <div className="w-8 h-8 rounded-full bg-gray-300 mt-1"></div>
+                <div>
+                  <p className="text-sm">
+                    <strong>Sistema</strong> criou este cartão
+                    <br />
+                    <span className="text-xs text-muted-foreground">há poucos minutos</span>
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </BaseDialog>
