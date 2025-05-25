@@ -76,7 +76,7 @@ export default function MoverPopup({
               <SelectContent>
                 {selectedBoardData?.blocks.map((block) => (
                   <SelectItem key={block.id} value={block.id}>
-                    {block.title}
+                    {block.name}
                   </SelectItem>
                 ))}
               </SelectContent>

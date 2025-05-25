@@ -56,6 +56,10 @@ export interface Card extends BaseItem {
   status: 'pending' | 'completed';
   checklist?: ChecklistItem[];
   attachments?: Attachment[];
+  etiquetas?: string[];
+  dueDate?: string;
+  reminderDate?: string;
+  capa?: string;
 }
 
 export interface ChecklistItem {
