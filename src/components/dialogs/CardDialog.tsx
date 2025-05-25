@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { Card } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -96,10 +97,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       toast.success("Cartão excluído!");
       onClose();
     }
-  };
-
-  const handleHelp = () => {
-    toast.info("Ajuda do Markdown: Use **negrito**, *itálico*, [links](url), ![imagens](url)");
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,7 +225,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       onSave={handleSave}
       onArchive={handleArchive}
       onDelete={handleDelete}
-      onHelp={handleHelp}
       isMaximized={isMaximized}
       onToggleMaximize={() => setIsMaximized(!isMaximized)}
       isSaving={isSaving}
