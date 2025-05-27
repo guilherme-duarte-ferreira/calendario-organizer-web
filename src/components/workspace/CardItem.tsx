@@ -69,6 +69,10 @@ export default function CardItem({ card, onResize }: CardItemProps) {
     setShowCardDialog(true);
   };
 
+  const handleStatusChange = (value: string) => {
+    setStatus(value as "pending" | "completed");
+  };
+
   const totalChecklistItems = card.checklist?.length || 0;
   const completedChecklistItems = card.checklist?.filter(item => item.completed).length || 0;
 
@@ -87,7 +91,7 @@ export default function CardItem({ card, onResize }: CardItemProps) {
           className="w-full text-sm min-h-[80px]"
           placeholder="Descrição do cartão..."
         />
-        <Select value={status} onValueChange={setStatus}>
+        <Select value={status} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-full">
             <SelectValue />
           </SelectTrigger>
