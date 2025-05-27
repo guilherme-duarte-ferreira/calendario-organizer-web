@@ -1,130 +1,156 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Calendar, Plus, Bell, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar, Filter, Plus, Search, X } from "lucide-react";
-import { useCalendario } from "@/contexts/CalendarioContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
-export default function Header() {
-  const { createBoard } = useCalendario();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value;
-    setSearchQuery(query);
-    
-    if (query.length > 2) {
-      setIsSearching(true);
-      // Aqui você implementaria a lógica real de pesquisa
-      // Por enquanto, apenas um resultado de exemplo
-      setTimeout(() => {
-        setSearchResults([
-          { type: "board", id: "1", name: "Exemplo de resultado" }
-        ]);
-        setIsSearching(false);
-      }, 300);
-    } else {
-      setSearchResults([]);
+interface HeaderProps {
+  onCreateBoard: () => void;
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  description: string;
+  type: 'reminder' | 'action';
+  isRead: boolean;
+  cardId?: string;
+  createdAt: string;
+}
+
+export default function Header({ onCreateBoard }: HeaderProps) {
+  const [searchValue, setSearchValue] = useState("");
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      id: "1",
+      title: "Lembrete: Cartão vence em 1 dia",
+      description: "Cartão 'Checklist' vence amanhã",
+      type: "reminder",
+      isRead: false,
+      cardId: "card-1",
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: "2", 
+      title: "Cartão movido",
+      description: "Cartão movido para bloco Concluído",
+      type: "action",
+      isRead: false,
+      createdAt: new Date().toISOString()
+    }
+  ]);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const handleNotificationClick = (notification: Notification) => {
+    // Marcar como lida
+    setNotifications(prev => 
+      prev.map(n => 
+        n.id === notification.id ? { ...n, isRead: true } : n
+      )
+    );
+
+    // Se tem cardId, abrir modal do cartão (implementar depois)
+    if (notification.cardId) {
+      console.log("Abrir modal do cartão:", notification.cardId);
     }
   };
-  
-  const clearSearch = () => {
-    setSearchQuery("");
-    setSearchResults([]);
-  };
-  
-  const handleCreateBoard = () => {
-    createBoard("Novo Quadro");
+
+  const markAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
   };
 
   return (
-    <header className="calendario-header">
-      <div className="flex items-center gap-2 font-semibold text-lg mr-4">
-        <Calendar size={24} className="text-primary" />
-        <span>Calendário</span>
-      </div>
-      
-      <Button
-        onClick={handleCreateBoard}
-        className="bg-primary hover:bg-primary/90 text-white mr-4"
-      >
-        <Plus size={20} className="mr-1" />
-        Criar Quadro
-      </Button>
-      
-      <div className="flex-1 flex relative">
-        <div className="relative w-full max-w-md">
-          <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Pesquisar..."
-            value={searchQuery}
-            onChange={handleSearch}
-            className="pl-10 pr-10 w-full"
-          />
-          {searchQuery && (
-            <button 
-              onClick={clearSearch}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X size={18} />
-            </button>
-          )}
+    <header className="bg-white border-b border-gray-200 px-4 py-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Calendar size={24} className="text-blue-600" />
+            <h1 className="text-xl font-semibold text-gray-800">Calendário</h1>
+          </div>
         </div>
-        
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="ml-2">
-              <Filter size={18} />
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Pesquisar..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="w-64"
+            />
+            <Button variant="ghost" size="icon">
+              <Search size={16} />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-2">
-              <h3 className="font-medium">Filtros de pesquisa</h3>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm flex items-center gap-2">
-                  <input type="checkbox" className="rounded" />
-                  Quadros
-                </label>
-                <label className="text-sm flex items-center gap-2">
-                  <input type="checkbox" className="rounded" />
-                  Blocos
-                </label>
-                <label className="text-sm flex items-center gap-2">
-                  <input type="checkbox" className="rounded" />
-                  Cartões
-                </label>
-                <label className="text-sm flex items-center gap-2">
-                  <input type="checkbox" className="rounded" />
-                  Planilhas
-                </label>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-        
-        {/* Dropdown de resultados */}
-        {searchResults.length > 0 && (
-          <div className="absolute top-full left-0 w-full max-w-md mt-1 bg-white shadow-lg rounded-md z-20 border">
-            <div className="p-2">
-              <h4 className="text-sm text-muted-foreground mb-2">Resultados:</h4>
-              {searchResults.map((result) => (
-                <div key={result.id} className="p-2 hover:bg-secondary rounded cursor-pointer">
-                  <div className="text-sm font-medium">{result.name}</div>
-                  <div className="text-xs text-muted-foreground">{result.type}</div>
+            <Button variant="ghost" size="icon">
+              <Filter size={16} />
+            </Button>
+          </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell size={16} />
+                {unreadCount > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs flex items-center justify-center"
+                  >
+                    {unreadCount}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80 max-h-96 overflow-y-auto">
+              <div className="p-3 border-b">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Notificações</h3>
+                  {unreadCount > 0 && (
+                    <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+                      Marcar todas como lidas
+                    </Button>
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {isSearching && (
-          <div className="absolute top-full left-0 w-full max-w-md mt-1 bg-white shadow-lg rounded-md z-20 border p-4 text-center">
-            <span className="text-sm">Pesquisando...</span>
-          </div>
-        )}
+              </div>
+              {notifications.length === 0 ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  Nenhuma notificação
+                </div>
+              ) : (
+                notifications.map((notification) => (
+                  <DropdownMenuItem
+                    key={notification.id}
+                    className={`p-3 cursor-pointer ${
+                      !notification.isRead ? 'bg-red-50 border-l-2 border-l-red-500' : ''
+                    }`}
+                    onClick={() => handleNotificationClick(notification)}
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{notification.title}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {notification.description}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(notification.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                  </DropdownMenuItem>
+                ))
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button onClick={onCreateBoard} className="bg-blue-600 hover:bg-blue-700">
+            <Plus size={16} className="mr-2" />
+            Criar
+          </Button>
+        </div>
       </div>
     </header>
   );

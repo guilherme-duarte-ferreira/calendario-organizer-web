@@ -50,9 +50,7 @@ export interface BaseItem {
 }
 
 export interface Card extends BaseItem {
-  type: 'card';
-  title: string;
-  description: string; // Suporta Markdown
+  description?: string;
   status: 'pending' | 'completed';
   checklist?: ChecklistItem[];
   attachments?: Attachment[];
@@ -60,6 +58,7 @@ export interface Card extends BaseItem {
   dueDate?: string;
   reminderDate?: string;
   capa?: string;
+  capaColor?: string; // Nova propriedade para cor da capa
 }
 
 export interface ChecklistItem {

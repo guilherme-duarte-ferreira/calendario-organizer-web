@@ -3,160 +3,187 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { Checkbox } from "@/components/ui/checkbox";
-import { X, Trash2, Clock } from "lucide-react";
+import { X, Trash2, Plus, MoreHorizontal } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ChecklistItem {
   id: string;
   text: string;
   completed: boolean;
+  dueDate?: string;
+}
+
+interface Checklist {
+  id: string;
+  title: string;
+  items: ChecklistItem[];
 }
 
 interface ChecklistPopupProps {
   isOpen: boolean;
   onClose: () => void;
-  checklist: ChecklistItem[];
-  onUpdateChecklist: (checklist: ChecklistItem[]) => void;
-  checklistTitle?: string;
-  onUpdateTitle?: (title: string) => void;
+  checklists: Checklist[];
+  onUpdateChecklists: (checklists: Checklist[]) => void;
 }
 
 export default function ChecklistPopup({
   isOpen,
   onClose,
-  checklist,
-  onUpdateChecklist,
-  checklistTitle = "Checklist",
-  onUpdateTitle
+  checklists,
+  onUpdateChecklists
 }: ChecklistPopupProps) {
-  const [title, setTitle] = useState(checklistTitle);
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [newChecklistTitle, setNewChecklistTitle] = useState("");
 
   if (!isOpen) return null;
 
-  const completedCount = checklist.filter(item => item.completed).length;
-  const progress = checklist.length > 0 ? (completedCount / checklist.length) * 100 : 0;
+  const totalItems = checklists.reduce((acc, checklist) => acc + checklist.items.length, 0);
+  const completedItems = checklists.reduce((acc, checklist) => 
+    acc + checklist.items.filter(item => item.completed).length, 0);
+  const overallProgress = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
 
-  const handleTitleSave = () => {
-    if (onUpdateTitle) {
-      onUpdateTitle(title);
-    }
-    setIsEditingTitle(false);
-  };
+  const handleCreateChecklist = () => {
+    if (!newChecklistTitle.trim()) return;
 
-  const addItem = () => {
-    const newItem: ChecklistItem = {
+    const newChecklist: Checklist = {
       id: Date.now().toString(),
-      text: "",
-      completed: false
+      title: newChecklistTitle.trim(),
+      items: []
     };
-    onUpdateChecklist([...checklist, newItem]);
+
+    onUpdateChecklists([...checklists, newChecklist]);
+    setNewChecklistTitle("");
+    onClose(); // Fecha a telinha após criar
   };
 
-  const updateItem = (id: string, updates: Partial<ChecklistItem>) => {
-    onUpdateChecklist(checklist.map(item => 
-      item.id === id ? { ...item, ...updates } : item
-    ));
+  const handleDeleteChecklist = (checklistId: string) => {
+    onUpdateChecklists(checklists.filter(c => c.id !== checklistId));
   };
 
-  const removeItem = (id: string) => {
-    onUpdateChecklist(checklist.filter(item => item.id !== id));
+  const getChecklistProgress = (checklist: Checklist) => {
+    if (checklist.items.length === 0) return 0;
+    return (checklist.items.filter(item => item.completed).length / checklist.items.length) * 100;
   };
 
   return (
-    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-50">
-      <div className="p-3 border-b">
-        <div className="flex items-center justify-between mb-2">
-          {isEditingTitle ? (
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onBlur={handleTitleSave}
-              onKeyDown={(e) => e.key === 'Enter' && handleTitleSave()}
-              className="text-sm font-medium"
-              autoFocus
-            />
-          ) : (
-            <h3 
-              className="font-medium text-sm cursor-pointer hover:bg-muted px-1 py-0.5 rounded"
-              onClick={() => setIsEditingTitle(true)}
-            >
-              {title}
-            </h3>
-          )}
-          <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 p-0">
-            <X size={14} />
-          </Button>
-        </div>
-        
-        <div className="space-y-2">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>{completedCount}/{checklist.length}</span>
-            <span>{Math.round(progress)}%</span>
+    <>
+      {/* Overlay para fechar ao clicar fora */}
+      <div 
+        className="fixed inset-0 z-[9998]" 
+        onClick={onClose}
+      />
+      
+      <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]">
+        <div className="p-3 border-b">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium text-sm">Checklist</h3>
+            <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 p-0">
+              <X size={14} />
+            </Button>
           </div>
-          <Progress value={progress} className="h-2" />
         </div>
-      </div>
 
-      <div className="p-3 max-h-60 overflow-y-auto">
-        <div className="space-y-2">
-          {checklist.map((item) => (
-            <div key={item.id} className="group flex items-center gap-2 p-2 hover:bg-muted rounded">
-              <Checkbox
-                checked={item.completed}
-                onCheckedChange={(checked) => 
-                  updateItem(item.id, { completed: !!checked })
-                }
-              />
+        <div className="p-3">
+          {/* Criação de novo checklist */}
+          <div className="mb-4">
+            <label className="text-xs font-medium text-muted-foreground block mb-2">
+              Criar novo checklist
+            </label>
+            <div className="flex gap-2">
               <Input
-                value={item.text}
-                onChange={(e) => updateItem(item.id, { text: e.target.value })}
-                placeholder="Item do checklist..."
-                className="flex-1 text-sm border-0 bg-transparent focus-visible:ring-0"
+                value={newChecklistTitle}
+                onChange={(e) => setNewChecklistTitle(e.target.value)}
+                placeholder="Nome do checklist..."
+                className="text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleCreateChecklist();
+                  }
+                }}
               />
-              <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 w-6 p-0 text-muted-foreground"
-                >
-                  <Clock size={12} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeItem(item.id)}
-                  className="h-6 w-6 p-0 text-red-500"
-                >
-                  <Trash2 size={12} />
-                </Button>
+              <Button 
+                size="sm" 
+                onClick={handleCreateChecklist}
+                disabled={!newChecklistTitle.trim()}
+              >
+                <Plus size={14} className="mr-1" />
+                Adicionar
+              </Button>
+            </div>
+          </div>
+
+          {/* Visão geral */}
+          {checklists.length > 0 && (
+            <div className="mb-4">
+              <label className="text-xs font-medium text-muted-foreground block mb-2">
+                Visão geral
+              </label>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Progresso geral:</span>
+                  <span>{Math.round(overallProgress)}%</span>
+                </div>
+                <Progress value={overallProgress} className="h-2" />
+                <div className="text-xs text-muted-foreground">
+                  {completedItems} de {totalItems} itens concluídos
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          )}
 
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={addItem}
-          className="w-full mt-3 text-xs h-8"
-        >
-          Adicionar item
-        </Button>
+          {/* Lista de checklists existentes */}
+          {checklists.length > 0 && (
+            <div>
+              <label className="text-xs font-medium text-muted-foreground block mb-2">
+                Checklists existentes
+              </label>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {checklists.map((checklist) => (
+                  <div 
+                    key={checklist.id} 
+                    className="flex items-center justify-between p-2 bg-muted rounded text-sm"
+                  >
+                    <div className="flex-1">
+                      <div className="font-medium">{checklist.title}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {Math.round(getChecklistProgress(checklist))}% • {checklist.items.filter(i => i.completed).length}/{checklist.items.length} itens
+                      </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                          <MoreHorizontal size={12} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          className="text-red-500 focus:text-red-500"
+                          onClick={() => handleDeleteChecklist(checklist.id)}
+                        >
+                          <Trash2 size={12} className="mr-2" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-        <div className="mt-4 pt-3 border-t">
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => onUpdateChecklist([])}
-            className="w-full text-xs h-8"
-            disabled={checklist.length === 0}
-          >
-            <Trash2 size={14} className="mr-2" />
-            Excluir checklist
-          </Button>
+          {checklists.length === 0 && (
+            <div className="text-center py-4 text-muted-foreground text-sm">
+              Nenhum checklist criado ainda.
+              <br />
+              Crie seu primeiro checklist acima.
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </>
   );
 }
