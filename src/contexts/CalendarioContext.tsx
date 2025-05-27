@@ -46,6 +46,7 @@ interface CalendarioContextType {
   createSpreadsheet: (blockId: string, title: string) => Spreadsheet;
   createMarkdownNote: (blockId: string, content: string) => MarkdownNote;
   createFileItem: (blockId: string, file: File) => Promise<FileItem | null>;
+  createItem: (blockId: string, type: ItemType, data?: any) => void;
   updateItem: (item: Card | Spreadsheet | MarkdownNote | FileItem) => void;
   archiveItem: (itemId: string, type: ItemType) => void;
   restoreItem: (itemId: string, type: ItemType) => void;
@@ -816,6 +817,22 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
+  const createItem = (blockId: string, type: ItemType, data?: any) => {
+    switch (type) {
+      case 'card':
+        createCard(blockId, data?.title || "Novo cartão");
+        break;
+      case 'spreadsheet':
+        createSpreadsheet(blockId, data?.title || "Nova planilha");
+        break;
+      case 'markdown':
+        createMarkdownNote(blockId, data?.content || "");
+        break;
+      default:
+        break;
+    }
+  };
+
   const updateItem = (item: Card | Spreadsheet | MarkdownNote | FileItem) => {
     let targetBlock: Block | undefined;
     let boardId = "";
@@ -1290,6 +1307,7 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     createSpreadsheet,
     createMarkdownNote,
     createFileItem,
+    createItem,
     updateItem,
     archiveItem,
     restoreItem,

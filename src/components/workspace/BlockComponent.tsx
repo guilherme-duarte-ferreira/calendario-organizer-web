@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from "react";
 import { Block, Card, MarkdownNote, Spreadsheet, FileItem } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -81,7 +82,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
           }
           
           if (item.type === 'markdown') {
-            return <MarkdownItem key={item.id} note={item as MarkdownNote} />;
+            return <MarkdownItem key={item.id} markdown={item as MarkdownNote} />;
           }
           
           if (item.type === 'spreadsheet') {
