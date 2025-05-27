@@ -31,169 +31,150 @@ A Fase 3 do Sistema Calendário foca na implementação avançada de cartões e 
 - Importação de tabelas Markdown
 - Suporte em todas as áreas de texto
 
-## Arquitetura Implementada
+## Arquitetura Planejada
 
 ### Componentes Base
-- **BaseDialog.tsx**: Layout e funcionalidades comuns ✅
-- **Composables**: Funções reutilizáveis para Markdown e anexos ✅
-- **Hooks personalizados**: Para gerenciamento de estado complexo ✅
+- **BaseDialog.tsx**: Layout e funcionalidades comuns
+- **Composables**: Funções reutilizáveis para Markdown e anexos
+- **Hooks personalizados**: Para gerenciamento de estado complexo
 
 ### Funcionalidades Avançadas
-- **Ajuste automático de blocos**: Baseado no conteúdo das planilhas ✅
-- **Sistema de comentários**: Com histórico e anexos ✅
-- **Movimentação entre blocos**: Interface para reorganização ✅
-
-## Sistema de Pop-ups e Modais
-
-### Comportamento Implementado dos Pop-ups:
-
-#### 1. **Foco Exclusivo**
-- Quando uma telinha (pop-up) está aberta, ela tem foco exclusivo
-- Outros elementos do modal ficam em segundo plano
-
-#### 2. **Fechamento Inteligente**
-- **Clicar fora da telinha**: Fecha apenas a telinha, mantém modal aberto
-- **Concluir ação**: Fecha a telinha automaticamente após salvar/aplicar
-- **Clicar fora do modal**: Fecha modal apenas se nenhuma telinha estiver aberta
-
-#### 3. **Proteção do Modal**
-- Se há pop-up aberto, cliques fora do modal não fecham o modal
-- Modal só fecha se não há pop-ups ativos
-
-#### 4. **Implementação Técnica**
-```typescript
-// Controle de pop-ups abertos
-const anyPopupOpen = showEtiquetaPopup || showDataPopup || showCapaPopup || showChecklistPopup || showMoverPopup;
-
-// Função para fechar apenas pop-ups
-const closeAllPopups = () => {
-  setShowEtiquetaPopup(false);
-  setShowDataPopup(false);
-  // ... outros pop-ups
-};
-
-// Event listener para cliques fora
-useEffect(() => {
-  const handleClickOutside = (event: MouseEvent) => {
-    // Se clicou dentro do modal, não faz nada
-    if (modalRef.current.contains(target)) return;
-    
-    // Se há pop-up aberto, fecha apenas os pop-ups
-    if (anyPopupOpen) {
-      closeAllPopups();
-      return;
-    }
-    
-    // Se não há pop-ups, fecha o modal
-    onClose();
-  };
-}, [anyPopupOpen]);
-```
+- **Ajuste automático de blocos**: Baseado no conteúdo das planilhas
+- **Sistema de comentários**: Com histórico e anexos
+- **Movimentação entre blocos**: Interface para reorganização
 
 ## Status de Implementação
 
-### ✅ FASE 3 - PARTE 1 COMPLETAMENTE FINALIZADA (100%)
-- Todos os modais básicos implementados
-- Sistema de anexos funcionando
-- Markdown suportado
-- Arquitetura base estabelecida
+**Início da Fase 3**: Planejamento e arquitetura definidos
+**Próximos passos**: Implementação do checklist detalhado
 
-### ✅ FASE 3 - PARTE 2 QUASE FINALIZADA (90%)
 
-#### Funcionalidades Implementadas:
-1. **CardDialog.tsx Completo**:
-   - ✅ Pop-ups da barra lateral (Etiquetas, Checklist, Datas, Capa, Mover)
-   - ✅ Comportamento correto de pop-ups com foco exclusivo
-   - ✅ Sistema de capas (cores e imagens) 
-   - ✅ Exibição de capas na área de trabalho
-   - ✅ Sistema de checklist integrado
-   - ✅ Salvamento de todas as funcionalidades
 
-2. **SpreadsheetDialog.tsx Parcial**:
-   - ✅ Modal básico funcionando
-   - ✅ Capas implementadas na área de trabalho
-   - ⏳ Barra lateral com pop-ups (pendente)
-   - ⏳ Comportamento de pop-ups (pendente)
+# Planejamento de Implementação do Sistema "Calendário" em 5 Fases
 
-3. **Sistema de Notificações**:
-   - ✅ Sino no cabeçalho
-   - ⏳ Notificações funcionais (pendente)
+## STATUS ATUAL DO PROJETO - FASE 3 (Parte 2)
 
-#### Próximas Implementações (10% restante):
-1. **SpreadsheetDialog Melhorias**: Aplicar mesmas funcionalidades do CardDialog
-2. **Sistema de Notificações**: Implementar exibição e interação
+### ✅ CONCLUÍDO (80% da Fase 3)
 
-### 📊 Progresso Geral da Fase 3:
-- **Parte 1**: 100% ✅
-- **Parte 2**: 90% 🚀
-- **Estimativa para conclusão**: 1 sessão adicional
+#### Modal de Edição de Cartões (`CardDialog.tsx`):
+- ✅ Modal dinâmico que cresce conforme o conteúdo
+- ✅ Rolagem na tela principal (não no modal)
+- ✅ Barra lateral integrada ao modal
+- ✅ Capa no cabeçalho do modal (cores e imagens)
+- ✅ Campo de descrição expandido (200px mínimo)
+- ✅ Popups que ultrapassam limites do modal
+- ✅ Botão "No bloco [nome]" clicável para localização
+- ✅ Seção de atividades com "Mostrar/Ocultar Detalhes"
+- ✅ Comentários com hover para editar/excluir
 
-### 🎯 Qualidade da Implementação:
-- **Comportamento de UI**: Consistente e intuitivo
-- **Performance**: Otimizada com hooks adequados
-- **Responsividade**: Garantida em todos os componentes
-- **Manutenibilidade**: Código modular e bem estruturado
+#### Funcionalidades de Barra Lateral:
+- ✅ Popup de Etiquetas (busca, criação, aplicação)
+- ✅ Popup de Datas (início, entrega, lembrete)
+- ✅ Popup de Capa (cores predefinidas, personalizadas, remoção)
+- ✅ Popup de Mover (quadro, bloco, posição)
+- ✅ Localização do cartão implementada
 
-## Tecnologias Utilizadas
+#### Sistema de Notificações:
+- ✅ Sino movido para cabeçalho principal
+- ✅ Notificações com badge de quantidade
+- ✅ Notificações destacadas até serem lidas
+- ✅ Clique abre contexto (modal do cartão)
 
-### Frontend
-- **React 18** com TypeScript
-- **TailwindCSS** para estilização
-- **Shadcn/UI** para componentes base
-- **React Markdown** para renderização
-- **Lucide React** para ícones
-- **Sonner** para notificações toast
+#### Capas:
+- ✅ Capa no cabeçalho do modal
+- ✅ Capa nos cartões da área de trabalho
+- ✅ Suporte a cores e imagens
+- ✅ Cores predefinidas e personalizadas
 
-### Gerenciamento de Estado
-- **Context API** (CalendarioContext)
-- **useState** e **useEffect** para estado local
-- **Custom Hooks** para lógica reutilizável
+#### Checklist - NOVA IMPLEMENTAÇÃO:
+- ✅ Popup reformulado para criação de checklists
+- ✅ Campo de texto com botão "Adicionar" e Enter
+- ✅ Visão geral com porcentagens e contagem
+- ✅ Lista de checklists existentes com exclusão
+- ✅ Fechamento da telinha ao clicar fora
 
-### Arquitetura
-- **Componentes funcionais** com hooks
-- **Props drilling** minimizado com context
-- **Separação de responsabilidades** clara
-- **Componentização** granular
+### 🔄 EM ANDAMENTO (20% restante)
 
-## Padrões de Desenvolvimento
+#### Checklist no Modal - Pendente:
+- ⏳ Exibição de checklists no modal principal
+- ⏳ Adição de itens com botão "Adicionar Item"
+- ⏳ Menu de contexto nos itens (Renomear, Excluir, Marcar)
+- ⏳ Menu de contexto no título do checklist
+- ⏳ Reordenação via arrastar e soltar
+- ⏳ Barra de progresso individual por checklist
 
-### 1. **Estrutura de Arquivos**
-```
-src/
-├── components/
-│   ├── dialogs/
-│   │   ├── BaseDialog.tsx
-│   │   ├── CardDialog.tsx
-│   │   ├── SpreadsheetDialog.tsx
-│   │   └── popups/
-│   │       ├── EtiquetaPopup.tsx
-│   │       ├── ChecklistPopup.tsx
-│   │       ├── DataPopup.tsx
-│   │       ├── CapaPopup.tsx
-│   │       └── MoverPopup.tsx
-│   └── workspace/
-│       ├── CardItem.tsx
-│       └── SpreadsheetItem.tsx
-├── contexts/
-│   └── CalendarioContext.tsx
-└── types/
-    └── calendario.ts
-```
+#### Modal de Planilhas - Pendente:
+- ⏳ Aplicar mesmas funcionalidades do modal de cartões
+- ⏳ Barra lateral idêntica
+- ⏳ Capas em planilhas
 
-### 2. **Convenções de Nomenclatura**
-- **Componentes**: PascalCase (ex: `CardDialog`)
-- **Hooks**: camelCase com prefixo `use` (ex: `useCalendario`)
-- **Interfaces**: PascalCase (ex: `Card`, `Spreadsheet`)
-- **Estados**: camelCase (ex: `showEtiquetaPopup`)
+---
 
-### 3. **Gerenciamento de Estado**
-- **Estado local**: `useState` para UI temporária
-- **Estado global**: Context para dados persistentes
-- **Estado de pop-ups**: Controle local com propagação para pai
+## Fase 1: Fundação do Sistema e Interface Principal
 
-### 4. **Tratamento de Eventos**
-- **Handlers específicos**: Uma função por ação
-- **Propagação controlada**: `stopPropagation` onde necessário
-- **Cleanup**: `useEffect` com cleanup functions
+**Objetivo:** Estabelecer a estrutura base da aplicação, incluindo o layout principal, navegação essencial e as primeiras funcionalidades de criação de conteúdo.
 
-**🎉 A Fase 3 representa um marco importante no desenvolvimento, estabelecendo uma base sólida para funcionalidades avançadas!**
+**Detalhes da Implementação:**
+
+1.  **Configuração Inicial do Projeto:**
+    * Estruturar o frontend com HTML, CSS, JavaScript e TailwindCSS.
+    * Definir a arquitetura básica do backend RESTful (a tecnologia específica pode ser escolhida, ex: Node.js, Python, Java), com endpoints iniciais para quadros (ex: `/api/boards`).
+    * Implementar a função `generateId()` para IDs únicos.
+    * Implementar a função `checkRequiredFields()` para validação.
+    * Implementar a função básica `saveData()` para localStorage inicialmente, com estrutura para futura integração com backend.
+
+2.  **Desenvolvimento do Cabeçalho (RF01 - Parcial):**
+    * Exibir o nome "Calendário" com ícone de calendário à esquerda (RF01.1).
+    * Implementar o botão "Criar Quadro" com ícone "+" e cor destacada. Funcionalidade: cria um novo quadro diretamente (RF01.2).
+    * Garantir que não haja ícone de foto de perfil (RF01.4).
+
+3.  **Desenvolvimento da Barra Lateral (RF02 - Parcial):**
+    * Garantir que não haja seção de usuário (RF02.1).
+    * Implementar o botão "Recolher Barra Lateral" com ícone de seta (esquerda/direita) no topo, abaixo do futuro botão "Calendário". Funcionalidade: recolher/expandir a barra lateral, ajustando a área de trabalho automaticamente (RF02.3).
+    * Criar a estrutura da seção "Quadros" (RF02.5 - Parcial):
+        * Listagem inicial de quadros (vazia ou com dados de exemplo).
+        * Botão "+" para criar "Novo Quadro" (deve funcionar em conjunto com RF01.2).
+
+4.  **Estrutura da Área de Trabalho (RF03 - Parcial):**
+    * Definir a área principal onde os quadros e seus conteúdos serão exibidos.
+    * Implementar a barra de scroll restrita à área de trabalho com ajuste dinâmico inicial (vertical/horizontal) (RF03.4).
+    * Configurar a rolagem horizontal como padrão para a área de trabalho, permitindo que blocos cresçam horizontalmente e o espaço inicial seja adaptável à tela do cliente (mínimo: tamanho total da tela) (parte de RF03.4).
+
+5.  **Sistema de Salvamento Inicial (RF06 - Parcial):**
+    * Implementar o salvamento básico de dados dos quadros em formato JSON localmente (localStorage). Foco em salvar a estrutura dos quadros criados (RF06.1 - Parcial, salvando todos os dados em um único JSON por enquanto ou estrutura para múltiplos arquivos).
+    * Implementar a validação básica do JSON ao carregar (RF06.2 - Parcial).
+
+6.  **Interface Responsiva Inicial (RNF08 - Parcial):**
+    * Aplicar TailwindCSS para garantir que a estrutura básica (cabeçalho, barra lateral, área de trabalho) seja responsiva desde o início (RNF08.1).
+
+## Fase 2: Gerenciamento de Quadros, Pastas e Blocos
+
+**Objetivo:** Implementar funcionalidades completas para criação, organização e manipulação de quadros, pastas e blocos, que são os contêineres principais de conteúdo.
+
+## Fase 3: Implementação de Cartões Simples e Planilhas (Funcionalidades Essenciais)
+
+**Objetivo:** Desenvolver cartões simples e planilhas com funcionalidades básicas de criação, edição e organização, incluindo suporte a Markdown e modals de edição avançada com funcionalidades estilo Excel.
+
+### PRÓXIMAS TAREFAS PRIORITÁRIAS:
+
+1. **Completar Checklist no Modal Principal**
+2. **Aplicar funcionalidades ao Modal de Planilhas**
+3. **Implementar comentários com Markdown**
+4. **Finalizar reordenação via arrastar e soltar**
+5. **Testes e refinamentos**
+
+### CRONOGRAMA ESTIMADO:
+- **Fase 3 Parte 2**: 90% concluída
+- **Restante da Fase 3**: 1-2 sessões de trabalho
+- **Início Fase 4**: Próxima semana
+
+### FEEDBACK DO USUÁRIO IMPLEMENTADO:
+✅ Modal dinâmico sem rolagem interna
+✅ Popups ultrapassam limites do modal
+✅ Capa no cabeçalho e cartões
+✅ Sino no cabeçalho principal
+✅ Barra lateral integrada
+✅ Localização do cartão clicável
+✅ Checklist popup reformulado
+
+O projeto está progredindo muito bem! Estamos na reta final da Fase 3 com a maioria das funcionalidades principais já implementadas.
