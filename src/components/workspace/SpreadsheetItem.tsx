@@ -89,86 +89,101 @@ export default function SpreadsheetItem({ spreadsheet, onResize }: SpreadsheetIt
 
   return (
     <>
-      <div className="bg-white border rounded-md p-3 shadow-sm hover:shadow-md transition-shadow space-y-2">
-        <div className="flex justify-between items-center">
-          <h4 
-            className="font-medium text-sm cursor-pointer hover:text-blue-600"
-            onClick={handleOpenModal}
-          >
-            {spreadsheet.title}
-          </h4>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 text-muted-foreground"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreVertical size={14} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => {
-                setTitle(spreadsheet.title);
-                setIsEditing(true);
-              }}>
-                <Pencil size={14} className="mr-2" />
-                <span>Editar</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleOpenModal}>
-                <ExternalLink size={14} className="mr-2" />
-                <span>Ver Planilha</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-red-500 focus:text-red-500"
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                <Trash2 size={14} className="mr-2" />
-                <span>Excluir</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+      <div className="bg-white border rounded-md shadow-sm hover:shadow-md transition-shadow space-y-2 overflow-hidden">
+        {/* Capa da planilha */}
+        {(spreadsheet.capa || spreadsheet.capaColor) && (
+          <div 
+            className="spreadsheet-cover h-8 w-full"
+            style={{
+              backgroundColor: spreadsheet.capaColor,
+              backgroundImage: spreadsheet.capa ? `url(${spreadsheet.capa})` : undefined,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+        )}
         
-        <div className="border rounded text-xs">
-          <div className="bg-gray-100 p-1 font-medium border-b flex">
-            {spreadsheet.columns.map((col, index) => (
-              <div 
-                key={col.id}
-                className="px-2 flex-1 truncate" 
-                style={{maxWidth: col.width}}
-              >
-                {col.name}
-              </div>
-            ))}
+        <div className="p-3">
+          <div className="flex justify-between items-center">
+            <h4 
+              className="font-medium text-sm cursor-pointer hover:text-blue-600"
+              onClick={handleOpenModal}
+            >
+              {spreadsheet.title}
+            </h4>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-muted-foreground"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical size={14} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => {
+                  setTitle(spreadsheet.title);
+                  setIsEditing(true);
+                }}>
+                  <Pencil size={14} className="mr-2" />
+                  <span>Editar</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleOpenModal}>
+                  <ExternalLink size={14} className="mr-2" />
+                  <span>Ver Planilha</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-red-500 focus:text-red-500"
+                  onClick={() => setShowDeleteDialog(true)}
+                >
+                  <Trash2 size={14} className="mr-2" />
+                  <span>Excluir</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           
-          {spreadsheet.rows.map((row) => (
-            <div key={row.id} className="flex border-b last:border-0">
-              {spreadsheet.columns.map((col) => (
+          <div className="border rounded text-xs">
+            <div className="bg-gray-100 p-1 font-medium border-b flex">
+              {spreadsheet.columns.map((col, index) => (
                 <div 
-                  key={`${row.id}-${col.id}`}
-                  className="px-2 py-1 flex-1 truncate"
+                  key={col.id}
+                  className="px-2 flex-1 truncate" 
                   style={{maxWidth: col.width}}
                 >
-                  {row.cells[col.id] || ''}
+                  {col.name}
                 </div>
               ))}
             </div>
-          ))}
+            
+            {spreadsheet.rows.map((row) => (
+              <div key={row.id} className="flex border-b last:border-0">
+                {spreadsheet.columns.map((col) => (
+                  <div 
+                    key={`${row.id}-${col.id}`}
+                    className="px-2 py-1 flex-1 truncate"
+                    style={{maxWidth: col.width}}
+                  >
+                    {row.cells[col.id] || ''}
+                  </div>
+                ))}
+              </div>
+            ))}
+            
+            {spreadsheet.rows.length === 0 && (
+              <div className="p-2 text-center text-muted-foreground">
+                Planilha vazia
+              </div>
+            )}
+          </div>
           
-          {spreadsheet.rows.length === 0 && (
-            <div className="p-2 text-center text-muted-foreground">
-              Planilha vazia
-            </div>
-          )}
-        </div>
-        
-        <div className="text-xs text-right mt-1 text-muted-foreground">
-          Modificado: {new Date(spreadsheet.lastEditedAt).toLocaleString()}
+          <div className="text-xs text-right mt-1 text-muted-foreground">
+            Modificado: {new Date(spreadsheet.lastEditedAt).toLocaleString()}
+          </div>
         </div>
       </div>
 

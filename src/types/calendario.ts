@@ -52,7 +52,7 @@ export interface BaseItem {
 
 export interface Card extends BaseItem {
   type: 'card';
-  title: string; // Added title property
+  title: string;
   description?: string;
   status: 'pending' | 'completed';
   checklist?: ChecklistItem[];
@@ -61,7 +61,7 @@ export interface Card extends BaseItem {
   dueDate?: string;
   reminderDate?: string;
   capa?: string;
-  capaColor?: string; // Nova propriedade para cor da capa
+  capaColor?: string;
 }
 
 export interface ChecklistItem {
@@ -84,6 +84,12 @@ export interface Spreadsheet extends BaseItem {
   columns: SpreadsheetColumn[];
   rows: SpreadsheetRow[];
   lastEditedAt: string;
+  etiquetas?: string[];
+  dueDate?: string;
+  reminderDate?: string;
+  capa?: string;
+  capaColor?: string;
+  attachments?: Attachment[];
 }
 
 export interface SpreadsheetColumn {
