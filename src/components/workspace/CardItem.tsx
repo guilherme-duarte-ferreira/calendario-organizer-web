@@ -210,6 +210,21 @@ export default function CardItem({ card, onResize }: CardItemProps) {
               {card.checklist.filter(item => item.completed).length}/{card.checklist.length} concluídos
             </div>
           )}
+
+          {/* Etiquetas preview */}
+          {card.etiquetas && card.etiquetas.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {card.etiquetas.slice(0, 3).map((etiquetaId) => (
+                <div 
+                  key={etiquetaId}
+                  className="w-8 h-2 rounded-full bg-blue-500"
+                />
+              ))}
+              {card.etiquetas.length > 3 && (
+                <span className="text-xs text-muted-foreground">+{card.etiquetas.length - 3}</span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

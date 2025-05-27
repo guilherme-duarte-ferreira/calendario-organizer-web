@@ -3,7 +3,7 @@
 
 ## Visão Geral
 
-A Fase 3 do Sistema Calendário foca na implementação avançada de cartões e planilhas, introduzindo modals de edição sofisticados (`CardDialog.tsx` e `SpreadsheetDialog.tsx`) com funcionalidades estilo Excel, suporte completo a Markdown, sistema de anexos e arquitetura baseada em componentes reutilizáveis.
+A Fase 3 do Sistema Calendário foca na implementação avançada de cartões e planilhas, introduzindo modais de edição sofisticados (`CardDialog.tsx` e `SpreadsheetDialog.tsx`) com funcionalidades estilo Excel, suporte completo a Markdown, sistema de anexos e arquitetura baseada em componentes reutilizáveis.
 
 ## Objetivos da Fase 3
 
@@ -43,18 +43,29 @@ A Fase 3 do Sistema Calendário foca na implementação avançada de cartões e 
 - **Sistema de comentários**: Com histórico e anexos
 - **Movimentação entre blocos**: Interface para reorganização
 
+## Comportamento de Pop-ups e Modais
+
+### Controle de Foco Exclusivo
+Quando uma telinha (pop-up) está aberta no modal:
+
+1. **Foco Exclusivo**: A telinha tem prioridade sobre todas as interações
+2. **Clique fora da telinha**: Fecha apenas a telinha, mantendo o modal aberto
+3. **Ações na telinha**: Botões como "Adicionar", "Salvar" fecham a telinha e retornam foco ao modal
+4. **Clique fora do modal**: 
+   - Se nenhuma telinha estiver aberta: fecha o modal
+   - Se uma telinha estiver aberta: fecha apenas a telinha
+
+### Implementação Técnica
+- Sistema de estado `activePopup` para controlar qual pop-up está ativo
+- Função `closeActivePopup()` para fechar apenas a telinha atual
+- Função `handleModalClose()` que verifica se há pop-up ativo antes de fechar o modal
+- Uso de `stopPropagation()` em botões para evitar fechamento acidental
+
 ## Status de Implementação
 
-**Início da Fase 3**: Planejamento e arquitetura definidos
-**Próximos passos**: Implementação do checklist detalhado
+**Fase 3 - Parte 2**: 90% concluída
 
-
-
-# Planejamento de Implementação do Sistema "Calendário" em 5 Fases
-
-## STATUS ATUAL DO PROJETO - FASE 3 (Parte 2)
-
-### ✅ CONCLUÍDO (80% da Fase 3)
+### ✅ CONCLUÍDO
 
 #### Modal de Edição de Cartões (`CardDialog.tsx`):
 - ✅ Modal dinâmico que cresce conforme o conteúdo
@@ -66,6 +77,7 @@ A Fase 3 do Sistema Calendário foca na implementação avançada de cartões e 
 - ✅ Botão "No bloco [nome]" clicável para localização
 - ✅ Seção de atividades com "Mostrar/Ocultar Detalhes"
 - ✅ Comentários com hover para editar/excluir
+- ✅ Sistema de controle de foco para pop-ups
 
 #### Funcionalidades de Barra Lateral:
 - ✅ Popup de Etiquetas (busca, criação, aplicação)
@@ -73,6 +85,7 @@ A Fase 3 do Sistema Calendário foca na implementação avançada de cartões e 
 - ✅ Popup de Capa (cores predefinidas, personalizadas, remoção)
 - ✅ Popup de Mover (quadro, bloco, posição)
 - ✅ Localização do cartão implementada
+- ✅ Comportamento correto de fechamento dos pop-ups
 
 #### Sistema de Notificações:
 - ✅ Sino movido para cabeçalho principal
@@ -86,86 +99,34 @@ A Fase 3 do Sistema Calendário foca na implementação avançada de cartões e 
 - ✅ Suporte a cores e imagens
 - ✅ Cores predefinidas e personalizadas
 
-#### Checklist - NOVA IMPLEMENTAÇÃO:
+#### Checklist:
 - ✅ Popup reformulado para criação de checklists
 - ✅ Campo de texto com botão "Adicionar" e Enter
 - ✅ Visão geral com porcentagens e contagem
 - ✅ Lista de checklists existentes com exclusão
 - ✅ Fechamento da telinha ao clicar fora
+- ✅ Exibição de checklists no modal principal
+- ✅ Adição de itens com botão "Adicionar Item"
+- ✅ Menu de contexto nos itens (Excluir)
+- ✅ Barra de progresso individual por checklist
 
-### 🔄 EM ANDAMENTO (20% restante)
-
-#### Checklist no Modal - Pendente:
-- ⏳ Exibição de checklists no modal principal
-- ⏳ Adição de itens com botão "Adicionar Item"
-- ⏳ Menu de contexto nos itens (Renomear, Excluir, Marcar)
-- ⏳ Menu de contexto no título do checklist
-- ⏳ Reordenação via arrastar e soltar
-- ⏳ Barra de progresso individual por checklist
+### 🔄 EM ANDAMENTO (10% restante)
 
 #### Modal de Planilhas - Pendente:
-- ⏳ Aplicar mesmas funcionalidades do modal de cartões
-- ⏳ Barra lateral idêntica
-- ⏳ Capas em planilhas
+- ⏳ Aplicar sistema de controle de foco dos pop-ups
+- ⏳ Barra lateral idêntica ao CardDialog
+- ⏳ Capas em planilhas (já implementado no SpreadsheetItem)
+
+#### Refinamentos Finais:
+- ⏳ Sistema de notificações avançado
+- ⏳ Comentários com Markdown
+- ⏳ Reordenação via arrastar e soltar
 
 ---
 
-## Fase 1: Fundação do Sistema e Interface Principal
-
-**Objetivo:** Estabelecer a estrutura base da aplicação, incluindo o layout principal, navegação essencial e as primeiras funcionalidades de criação de conteúdo.
-
-**Detalhes da Implementação:**
-
-1.  **Configuração Inicial do Projeto:**
-    * Estruturar o frontend com HTML, CSS, JavaScript e TailwindCSS.
-    * Definir a arquitetura básica do backend RESTful (a tecnologia específica pode ser escolhida, ex: Node.js, Python, Java), com endpoints iniciais para quadros (ex: `/api/boards`).
-    * Implementar a função `generateId()` para IDs únicos.
-    * Implementar a função `checkRequiredFields()` para validação.
-    * Implementar a função básica `saveData()` para localStorage inicialmente, com estrutura para futura integração com backend.
-
-2.  **Desenvolvimento do Cabeçalho (RF01 - Parcial):**
-    * Exibir o nome "Calendário" com ícone de calendário à esquerda (RF01.1).
-    * Implementar o botão "Criar Quadro" com ícone "+" e cor destacada. Funcionalidade: cria um novo quadro diretamente (RF01.2).
-    * Garantir que não haja ícone de foto de perfil (RF01.4).
-
-3.  **Desenvolvimento da Barra Lateral (RF02 - Parcial):**
-    * Garantir que não haja seção de usuário (RF02.1).
-    * Implementar o botão "Recolher Barra Lateral" com ícone de seta (esquerda/direita) no topo, abaixo do futuro botão "Calendário". Funcionalidade: recolher/expandir a barra lateral, ajustando a área de trabalho automaticamente (RF02.3).
-    * Criar a estrutura da seção "Quadros" (RF02.5 - Parcial):
-        * Listagem inicial de quadros (vazia ou com dados de exemplo).
-        * Botão "+" para criar "Novo Quadro" (deve funcionar em conjunto com RF01.2).
-
-4.  **Estrutura da Área de Trabalho (RF03 - Parcial):**
-    * Definir a área principal onde os quadros e seus conteúdos serão exibidos.
-    * Implementar a barra de scroll restrita à área de trabalho com ajuste dinâmico inicial (vertical/horizontal) (RF03.4).
-    * Configurar a rolagem horizontal como padrão para a área de trabalho, permitindo que blocos cresçam horizontalmente e o espaço inicial seja adaptável à tela do cliente (mínimo: tamanho total da tela) (parte de RF03.4).
-
-5.  **Sistema de Salvamento Inicial (RF06 - Parcial):**
-    * Implementar o salvamento básico de dados dos quadros em formato JSON localmente (localStorage). Foco em salvar a estrutura dos quadros criados (RF06.1 - Parcial, salvando todos os dados em um único JSON por enquanto ou estrutura para múltiplos arquivos).
-    * Implementar a validação básica do JSON ao carregar (RF06.2 - Parcial).
-
-6.  **Interface Responsiva Inicial (RNF08 - Parcial):**
-    * Aplicar TailwindCSS para garantir que a estrutura básica (cabeçalho, barra lateral, área de trabalho) seja responsiva desde o início (RNF08.1).
-
-## Fase 2: Gerenciamento de Quadros, Pastas e Blocos
-
-**Objetivo:** Implementar funcionalidades completas para criação, organização e manipulação de quadros, pastas e blocos, que são os contêineres principais de conteúdo.
-
-## Fase 3: Implementação de Cartões Simples e Planilhas (Funcionalidades Essenciais)
-
-**Objetivo:** Desenvolver cartões simples e planilhas com funcionalidades básicas de criação, edição e organização, incluindo suporte a Markdown e modals de edição avançada com funcionalidades estilo Excel.
-
-### PRÓXIMAS TAREFAS PRIORITÁRIAS:
-
-1. **Completar Checklist no Modal Principal**
-2. **Aplicar funcionalidades ao Modal de Planilhas**
-3. **Implementar comentários com Markdown**
-4. **Finalizar reordenação via arrastar e soltar**
-5. **Testes e refinamentos**
-
-### CRONOGRAMA ESTIMADO:
+## Cronograma Estimado
 - **Fase 3 Parte 2**: 90% concluída
-- **Restante da Fase 3**: 1-2 sessões de trabalho
+- **Restante da Fase 3**: 1 sessão de trabalho
 - **Início Fase 4**: Próxima semana
 
 ### FEEDBACK DO USUÁRIO IMPLEMENTADO:
@@ -176,5 +137,7 @@ A Fase 3 do Sistema Calendário foca na implementação avançada de cartões e 
 ✅ Barra lateral integrada
 ✅ Localização do cartão clicável
 ✅ Checklist popup reformulado
+✅ Sistema de controle de foco correto para pop-ups
+✅ Checklist completo no modal principal
 
-O projeto está progredindo muito bem! Estamos na reta final da Fase 3 com a maioria das funcionalidades principais já implementadas.
+O projeto está na reta final da Fase 3 com todas as funcionalidades principais implementadas e funcionando corretamente!
