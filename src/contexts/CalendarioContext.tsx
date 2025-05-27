@@ -42,8 +42,8 @@ interface CalendarioContextType {
   updateBlocksOrder: (updatedBoards: Board[]) => void;
   
   // Funções para manipulação de itens
-  createCard: (blockId: string, title: string) => Card;
-  createSpreadsheet: (blockId: string, title: string) => Spreadsheet;
+  createCard: (blockId: string) => Card;
+  createSpreadsheet: (blockId: string) => Spreadsheet;
   createMarkdownNote: (blockId: string, content: string) => MarkdownNote;
   createFileItem: (blockId: string, file: File) => Promise<FileItem | null>;
   createItem: (blockId: string, type: ItemType, data?: any) => void;
@@ -662,7 +662,7 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
     return newSpreadsheet;
   };
   
-  const createMarkdownNote = (blockId: string, content: string = ""): MarkdownNote => {
+  const createMarkdownNote = (blockId: string, content: string = "Novo texto markdown"): MarkdownNote => {
     let targetBlock: Block | undefined;
     let boardId = "";
     
@@ -820,13 +820,13 @@ export const CalendarioProvider = ({ children }: { children: ReactNode }) => {
   const createItem = (blockId: string, type: ItemType, data?: any) => {
     switch (type) {
       case 'card':
-        createCard(blockId, data?.title || "Novo cartão");
+        createCard(blockId);
         break;
       case 'spreadsheet':
-        createSpreadsheet(blockId, data?.title || "Nova planilha");
+        createSpreadsheet(blockId);
         break;
       case 'markdown':
-        createMarkdownNote(blockId, data?.content || "");
+        createMarkdownNote(blockId, data?.content || "Novo texto markdown");
         break;
       default:
         break;

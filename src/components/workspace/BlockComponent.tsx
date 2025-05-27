@@ -82,7 +82,7 @@ export default function BlockComponent({ block }: BlockComponentProps) {
           }
           
           if (item.type === 'markdown') {
-            return <MarkdownItem key={item.id} markdown={item as MarkdownNote} />;
+            return <MarkdownItem key={item.id} markdownNote={item as MarkdownNote} onResize={onResize} />;
           }
           
           if (item.type === 'spreadsheet') {
