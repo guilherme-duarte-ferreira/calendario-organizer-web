@@ -34,16 +34,19 @@ interface ChecklistPopupProps {
 export default function ChecklistPopup({
   isOpen,
   onClose,
-  checklists,
+  checklists = [], // Default to empty array
   onUpdateChecklists
 }: ChecklistPopupProps) {
   const [newChecklistTitle, setNewChecklistTitle] = useState("");
 
   if (!isOpen) return null;
 
-  const totalItems = checklists.reduce((acc, checklist) => acc + checklist.items.length, 0);
-  const completedItems = checklists.reduce((acc, checklist) => 
-    acc + checklist.items.filter(item => item.completed).length, 0);
+  // Safely handle checklists array
+  const safeChecklists = Array.isArray(checklists) ? checklists : [];
+  
+  const totalItems = safeChecklists.reduce((acc, checklist) => acc + (checklist.items?.length || 0), 0);
+  const completedItems = safeChecklists.reduce((acc, checklist) => 
+    acc + (checklist.items?.filter(item => item.completed).length || 0), 0);
   const overallProgress = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
 
   const handleCreateChecklist = () => {
@@ -55,17 +58,17 @@ export default function ChecklistPopup({
       items: []
     };
 
-    onUpdateChecklists([...checklists, newChecklist]);
+    onUpdateChecklists([...safeChecklists, newChecklist]);
     setNewChecklistTitle("");
     onClose(); // Fecha a telinha após criar
   };
 
   const handleDeleteChecklist = (checklistId: string) => {
-    onUpdateChecklists(checklists.filter(c => c.id !== checklistId));
+    onUpdateChecklists(safeChecklists.filter(c => c.id !== checklistId));
   };
 
   const getChecklistProgress = (checklist: Checklist) => {
-    if (checklist.items.length === 0) return 0;
+    if (!checklist.items || checklist.items.length === 0) return 0;
     return (checklist.items.filter(item => item.completed).length / checklist.items.length) * 100;
   };
 
@@ -117,7 +120,7 @@ export default function ChecklistPopup({
           </div>
 
           {/* Visão geral */}
-          {checklists.length > 0 && (
+          {safeChecklists.length > 0 && (
             <div className="mb-4">
               <label className="text-xs font-medium text-muted-foreground block mb-2">
                 Visão geral
@@ -136,13 +139,13 @@ export default function ChecklistPopup({
           )}
 
           {/* Lista de checklists existentes */}
-          {checklists.length > 0 && (
+          {safeChecklists.length > 0 && (
             <div>
               <label className="text-xs font-medium text-muted-foreground block mb-2">
                 Checklists existentes
               </label>
               <div className="space-y-2 max-h-48 overflow-y-auto">
-                {checklists.map((checklist) => (
+                {safeChecklists.map((checklist) => (
                   <div 
                     key={checklist.id} 
                     className="flex items-center justify-between p-2 bg-muted rounded text-sm"
@@ -150,7 +153,7 @@ export default function ChecklistPopup({
                     <div className="flex-1">
                       <div className="font-medium">{checklist.title}</div>
                       <div className="text-xs text-muted-foreground">
-                        {Math.round(getChecklistProgress(checklist))}% • {checklist.items.filter(i => i.completed).length}/{checklist.items.length} itens
+                        {Math.round(getChecklistProgress(checklist))}% • {checklist.items?.filter(i => i.completed).length || 0}/{checklist.items?.length || 0} itens
                       </div>
                     </div>
                     <DropdownMenu>
@@ -175,7 +178,7 @@ export default function ChecklistPopup({
             </div>
           )}
 
-          {checklists.length === 0 && (
+          {safeChecklists.length === 0 && (
             <div className="text-center py-4 text-muted-foreground text-sm">
               Nenhum checklist criado ainda.
               <br />

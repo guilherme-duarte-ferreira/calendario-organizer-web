@@ -1,22 +1,23 @@
 
-import React from "react";
-import { CalendarioProvider } from "@/contexts/CalendarioContext";
+import { useCalendario } from "@/contexts/CalendarioContext";
 import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import WorkArea from "@/components/WorkArea";
 
-const Index = () => {
-  return (
-    <CalendarioProvider>
-      <div className="flex h-screen overflow-hidden">
-        <Sidebar />
-        <div className="flex flex-col flex-1 overflow-hidden">
-          <Header />
-          <WorkArea />
-        </div>
-      </div>
-    </CalendarioProvider>
-  );
-};
+export default function Index() {
+  const { createBoard } = useCalendario();
 
-export default Index;
+  const handleCreateBoard = () => {
+    createBoard("Novo Quadro");
+  };
+
+  return (
+    <div className="h-screen flex flex-col bg-gray-50">
+      <Header onCreateBoard={handleCreateBoard} />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar />
+        <WorkArea />
+      </div>
+    </div>
+  );
+}

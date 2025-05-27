@@ -1,3 +1,4 @@
+
 // Tipos e interfaces para o sistema Calendario
 
 export type ThemeMode = 'light' | 'dark';
@@ -50,6 +51,8 @@ export interface BaseItem {
 }
 
 export interface Card extends BaseItem {
+  type: 'card';
+  title: string; // Added title property
   description?: string;
   status: 'pending' | 'completed';
   checklist?: ChecklistItem[];

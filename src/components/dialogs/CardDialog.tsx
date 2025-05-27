@@ -51,13 +51,24 @@ interface Etiqueta {
   color: string;
 }
 
+interface Checklist {
+  id: string;
+  title: string;
+  items: Array<{
+    id: string;
+    text: string;
+    completed: boolean;
+  }>;
+}
+
 export default function CardDialog({ card, isOpen, onClose, blockName }: CardDialogProps) {
   const { updateItem, deleteItem, boards } = useCalendario();
   
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description || "");
   const [status, setStatus] = useState(card.status);
-  const [checklist, setChecklist] = useState(card.checklist || []);
+  const [checklistItems, setChecklistItems] = useState(card.checklist || []);
+  const [checklists, setChecklists] = useState<Checklist[]>([]);
   const [attachments, setAttachments] = useState(card.attachments || []);
   const [isMaximized, setIsMaximized] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -83,7 +94,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const [dueDate, setDueDate] = useState<Date | null>(card.dueDate ? new Date(card.dueDate) : null);
   const [reminderDate, setReminderDate] = useState<Date | null>(card.reminderDate ? new Date(card.reminderDate) : null);
   const [capa, setCapa] = useState<string | undefined>(card.capa);
-  const [capaColor, setCapaColor] = useState<string | undefined>();
+  const [capaColor, setCapaColor] = useState<string | undefined>(card.capaColor);
 
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -101,12 +112,13 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         title: title.trim(),
         description: description.trim(),
         status,
-        checklist,
+        checklist: checklistItems,
         attachments,
         etiquetas: selectedEtiquetas,
         dueDate: dueDate?.toISOString(),
         reminderDate: reminderDate?.toISOString(),
-        capa: capaColor ? undefined : capa, // Se tem cor, remove imagem
+        capa: capaColor ? undefined : capa,
+        capaColor: capaColor,
         updatedAt: new Date().toISOString(),
       };
 
@@ -289,8 +301,8 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         <ChecklistPopup
           isOpen={showChecklistPopup}
           onClose={() => setShowChecklistPopup(false)}
-          checklist={checklist}
-          onUpdateChecklist={setChecklist}
+          checklists={checklists}
+          onUpdateChecklists={setChecklists}
         />
       </div>
       
@@ -404,10 +416,25 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         onClose={onClose}
         title={title || "Novo Cartão"}
         location={blockName || "A FAZER"}
-        onLocationClick={handleLocationClick}
+        onLocationClick={() => setShowLocalizacaoPopup(true)}
         onSave={handleSave}
-        onArchive={handleArchive}
-        onDelete={handleDelete}
+        onArchive={() => {
+          const updatedCard: Card = {
+            ...card,
+            archived: true,
+            updatedAt: new Date().toISOString(),
+          };
+          updateItem(updatedCard);
+          toast.success("Cartão arquivado!");
+          onClose();
+        }}
+        onDelete={() => {
+          if (window.confirm(`Tem certeza que deseja excluir o cartão "${card.title}"?`)) {
+            deleteItem(card.id, "card");
+            toast.success("Cartão excluído!");
+            onClose();
+          }
+        }}
         isMaximized={isMaximized}
         onToggleMaximize={() => setIsMaximized(!isMaximized)}
         isSaving={isSaving}
@@ -623,26 +650,26 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           )}
 
           {/* Checklist */}
-          {checklist.length > 0 && (
+          {checklistItems.length > 0 && (
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <CheckSquare size={16} />
                 <h3 className="font-semibold text-sm">Checklist</h3>
                 <div className="text-xs text-muted-foreground">
-                  {checklist.filter(item => item.completed).length}/{checklist.length}
+                  {checklistItems.filter(item => item.completed).length}/{checklistItems.length}
                 </div>
               </div>
               
               <div className="space-y-2">
-                {checklist.slice(0, 3).map((item) => (
+                {checklistItems.slice(0, 3).map((item) => (
                   <div key={item.id} className="flex items-center gap-2">
                     <Checkbox
                       checked={item.completed}
                       onCheckedChange={(checked) => {
-                        const updatedChecklist = checklist.map(checkItem => 
+                        const updatedChecklist = checklistItems.map(checkItem => 
                           checkItem.id === item.id ? { ...checkItem, completed: !!checked } : checkItem
                         );
-                        setChecklist(updatedChecklist);
+                        setChecklistItems(updatedChecklist);
                       }}
                     />
                     <span className={`text-sm ${item.completed ? 'line-through text-muted-foreground' : ''}`}>
@@ -650,9 +677,9 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
                     </span>
                   </div>
                 ))}
-                {checklist.length > 3 && (
+                {checklistItems.length > 3 && (
                   <p className="text-xs text-muted-foreground">
-                    ... e mais {checklist.length - 3} itens
+                    ... e mais {checklistItems.length - 3} itens
                   </p>
                 )}
               </div>
