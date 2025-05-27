@@ -1,220 +1,187 @@
 
-# Checklist de Implementação - Fase 3
+# CHECKLIST FASE 3 - Sistema Calendário
 
-## Status Atualizado (Pendente = [ ], Concluído = [x])
+## FASE 3 - PARTE 1 ✅ CONCLUÍDA
 
-### RF03: Área de Trabalho (Funcionalidade de Botões em Blocos)
-- [x] **3.1. Botão "Criar Cartão Novo"**:
-  - [x] Criar cartão com edição simples na área de trabalho (título, descrição) - *Implementado na Fase 2*
-  - [x] Salvar e exibir no bloco - *Implementado na Fase 2*
+### Modais de Edição Avançada
+- [x] **BaseDialog.tsx**: Componente base reutilizável
+- [x] **CardDialog.tsx**: Modal completo para edição de cartões
+- [x] **SpreadsheetDialog.tsx**: Editor estilo Excel para planilhas
 
-- [x] **3.1. Botão "Criar Planilha"**:
-  - [x] Criar planilha com 2 colunas (tipo texto) e 1 linha - *Implementado na Fase 2*
-  - [x] Abrir modal `SpreadsheetDialog.tsx` automaticamente - *Implementado*
+### Funcionalidades Base dos Modais
+- [x] Layout responsivo de duas colunas (principal + barra lateral)
+- [x] Redimensionamento dinâmico baseado no conteúdo
+- [x] Maximização/restauração do modal
+- [x] Botões de ação na barra superior (Salvar, Arquivar, Excluir)
 
-### RF03: Área de Trabalho (Gerenciamento de Cartões)
-- [x] **3.2. Gerenciamento de cartões**:
-  - [x] Criar cartões com: Título (obrigatório), Descrição (Markdown), Status - *Implementado na Fase 2*
-  - [x] Checklist - *Implementado com funcionalidade completa*
-  - [x] **Comportamento do modal `CardDialog.tsx`**:
-    - [x] Primeira criação: Edição simples na área de trabalho - *Implementado na Fase 2*
-    - [x] Clicar no cartão ou "Ver Cartão": Abrir modal de edição avançada - *Implementado*
-    - [x] Botão "Editar Cartão": Ativar edição simples na área de trabalho - *Implementado na Fase 2*
-  - [x] **Modal `CardDialog.tsx`** - *Implementado completamente*:
-    - [x] Layout com duas colunas: principal (título, descrição, atividade) e lateral (ações)
-    - [x] Campos: Título, Localização (ex.: "na lista A FAZER")
-    - [x] Descrição: Textarea com botões de formatação (Aa, negrito, itálico, lista, link, imagem, anexo, Markdown, ajuda)
-    - [x] Checklist: Adicionar/remover itens, marcar como concluído
-    - [x] Status: Seleção pendente/concluído (ícone visual)
-    - [x] Anexos: Adicionar arquivos (imagens como miniaturas, outros com ícone/nome)
-    - [x] Atividade: Comentários com Markdown, anexos, opções "Editar" e "Excluir", histórico de ações
-    - [x] Ações: Botões "Salvar", "Cancelar", "Arquivar", "Excluir", "Maximizar/Restaurar", "Ajuda"
-    - [x] Barra lateral: Botões "Etiquetas", "Checklist", "Datas", "Anexo", "Mover", "Copiar", "Arquivar", "Compartilhar"
-    - [x] Mover: Sub-janela com seleções de quadro, bloco e posição - *Implementado: MoveItemDialog component*
-    - [x] Ajuda: Botão "?" com dicas de Markdown
-  - [x] Arquivar cartões - *Implementado*
-  - [x] Excluir cartões - *Implementado na Fase 2*
-  - [x] Arrastar cartões para reordenar no bloco - *Implementado na Fase 2*
-  - [x] Arrastar cartões entre blocos - *Implementado: Hook useDragBetweenBlocks*
-  - [x] Menu de contexto: Editar, Abrir, Copiar, Colar, Arquivar, Excluir - *Implementado através dos botões dos modais*
-
-### RF03: Área de Trabalho (Gerenciamento de Planilhas - Avançado)
-- [x] **3.3. Gerenciamento de planilhas**:
-  - [x] Criar planilhas com colunas personalizáveis (texto, número, data, hora, checkbox, link) - *Estrutura de tipos implementada*
-  - [x] **Comportamento do modal `SpreadsheetDialog.tsx`** - *Implementado*:
-    - [x] Primeira criação: Abrir modal automaticamente
-    - [x] Clicar na planilha ou "Ver Planilha": Abrir modal de edição avançada
-    - [x] Botão "Editar Planilha": Ativar edição simples na área de trabalho - *Implementado na Fase 2*
-  - [x] Edição em tempo real na área de trabalho (`SpreadsheetItem.tsx`) - *Implementado na Fase 2*
-  - [x] **Modal `SpreadsheetDialog.tsx`** - *Implementado completamente*:
-    - [x] Layout: Barra de ferramentas, tabela, barra lateral
-    - [x] Campos: Título editável
-    - [x] **Tabela**:
-      - [x] Cabeçalhos editáveis via popover (nome, tipo, largura, obrigatório)
-      - [x] Células editáveis por tipo (texto, número, data, hora, checkbox, link)
-      - [x] Resizers para colunas (mín. 50px) e linhas (mín. 25px) - *Implementado: ColumnResizer component*
-      - [x] Botões para adicionar/remover colunas e linhas
-      - [x] Seleção múltipla de células via arrastar - *Implementado: CellSelector component*
-      - [x] Menu de contexto para alterar tipo de célula - *Implementado: CellContextMenu component*
-      - [x] Navegação com teclas de seta
-      - [x] Coordenadas da célula selecionada (opcional: elemento dedicado)
-    - [x] **Barra de ferramentas**:
-      - [x] Formatação (negrito, itálico, sublinhado, alinhamento, cor de texto, cor de fundo, fonte, tamanho)
-      - [x] Seleção de tipo de célula
-      - [x] Alternar quebra de linha - *Implementado: SpreadsheetToolbar component*
-      - [x] Redefinir tamanhos de colunas/linhas - *Implementado: SpreadsheetToolbar component*
-    - [x] Importação de tabelas Markdown via textarea e botão "Importar"
-    - [x] Anexos: Botão "Adicionar Anexo" - *Implementado*
-    - [x] Ações: Botões "Salvar Tudo", "Cancelar", "Maximizar/Restaurar", "Checklist", "Etiquetas", "Mover", "Ajuda"
-    - [x] Barra lateral: Botões "Copiar Planilha", "Arquivar Planilha", "Compartilhar", "Excluir Planilha"
-    - [x] Responsividade: Rolagem horizontal para telas menores
-  - [x] Exibir colunas/linhas na área de trabalho com rolagem interna - *Implementado na Fase 2*
-  - [x] Arrastar planilhas para reordenar no bloco - *Implementado na Fase 2*
-  - [x] Arrastar planilhas entre blocos - *Implementado: Hook useDragBetweenBlocks*
-  - [x] Menu de contexto: Editar, Abrir, Copiar, Colar, Excluir - *Implementado através dos botões dos modals*
-  - [x] Arquivar planilhas - *Implementado*
-  - [x] Excluir planilhas - *Implementado na Fase 2*
-
-### RF05: Ajuste Automático de Blocos
-- [x] **5.1. Implementar ajuste automático**:
-  - [x] Parâmetro `blockAutoAdjustToSpreadsheet` em `CalendarioSettings` - *Estrutura existe no tipo*
-  - [x] Ajustar largura (soma de `column.width` + 40px) e altura (`rowCount * 40px + 80px`) - *Implementado: Hook useBlockAutoAdjust*
-  - [x] Retornar ao padrão (`defaultBlockWidth`, `defaultBlockHeight`) quando desativado - *Implementado: Hook useBlockAutoAdjust*
-  - [x] Aplicar estilos dinâmicos em `BlockComponent.tsx` - *Implementado: Integrado no BlockComponent*
-
-### RF03: Área de Trabalho (Inserir Arquivo)
-- [x] **3.7. Botão "Inserir Arquivo" nos modals**:
-  - [x] Adicionar arquivos em cartões e planilhas - *Implementado*
-  - [x] Exibir imagens como miniaturas (`FileItemComponent.tsx`) - *Implementado na Fase 2*
-  - [x] Exibir outros arquivos como ícone com nome/extensão - *Implementado na Fase 2*
-  - [x] Suportar anexos em comentários de cartões - *Implementado: Sistema de comentários com anexos*
-  - [x] Permitir remover anexos - *Implementado*
-
-### RF07: Suporte a Markdown (Inicial)
-- [x] **7.2. Blocos de anotações**:
-  - [x] Renderizar Markdown (negrito, itálico, listas, links, citações, código, imagens) - *Implementado na Fase 2*
-  - [x] Exibir código Markdown na edição - *Implementado na Fase 2*
-  - [x] Botões de formatação nos modais (Aa, negrito, itálico, lista, link, imagem, anexo, Markdown) - *Implementado*
-- [x] **3.1. Opção "Inserir texto em Markdown" nos blocos** - *Implementado na Fase 2*:
-  - [x] Renderizar Markdown inserido - *Implementado na Fase 2*
-- [x] **3.3. Importação de tabelas Markdown**:
-  - [x] Campo para colar Markdown e botão "Importar" - *Implementado*
-
-### RNF08: Interface Responsiva e Intuitiva
-- [x] **8.1. Responsividade para cartões, planilhas** (TailwindCSS) - *Implementado na Fase 2*
-- [x] **8.1. Responsividade para modais** (TailwindCSS) - *Implementado*
-- [x] **8.3. Navegação por teclado** (Tab entre células, Enter para salvar) - *Implementado*
-- [x] **8.6. Renderização rápida de Markdown** (`react-markdown`) - *Implementado na Fase 2*
-
-### RF06: Salvamento (Cartões, Planilhas, Anexos, Comentários)
-- [x] **6.1. Salvar dados de cartões** (título, descrição, status) em JSON - *Implementado na Fase 2*
-- [x] **6.1. Salvar dados de cartões** (checklist, anexos, comentários) em JSON - *Implementado*
-- [x] **6.1. Salvar dados de planilhas** (título, colunas, linhas) em JSON - *Implementado na Fase 2*
-- [x] **6.1. Salvar dados de planilhas** (estilos) em JSON - *Implementado: Sistema de formatação*
-- [x] **6.1. Salvar anexos** (referências de arquivos) em JSON - *Implementado*
-- [x] **6.1. Validar campos obrigatórios** com feedback via toast - *Implementado na Fase 2*
-
-### Arquitetura de Software
-- [x] **Implementar `BaseDialog.tsx`** com layout de duas colunas e botões comuns - *Implementado*
-- [x] **Criar `CardDialog.tsx`** herdando de `BaseDialog.tsx` - *Implementado*
-- [x] **Criar `SpreadsheetDialog.tsx`** herdando de `BaseDialog.tsx` - *Implementado*
-- [x] **Desenvolver composables** para Markdown, anexos e salvamento - *Implementado: Hooks especializados*
-- [x] **Configurar `CalendarioContext.tsx`** para gerenciar estado - *Implementado e funcionando*
-
-## Resumo do Status Atualizado - FASE 3 PARTE 1
-
-**Itens Concluídos**: 85/85 (100%)
-**Itens Pendentes**: 0/85 (0%)
-
-### ✅ FASE 3 - PARTE 1 COMPLETAMENTE FINALIZADA!
+### Sistema de Barra Lateral
+- [x] Botões de ação organizados verticalmente
+- [x] Ícones consistentes com Lucide React
+- [x] Popups integrados para cada funcionalidade
 
 ---
 
-# CHECKLIST FASE 3 - PARTE 2: Melhorias nos Modais e Experiência Trello-like
+## FASE 3 - PARTE 2 ✅ 90% CONCLUÍDA
 
-## Status de Implementação (Atualizado em 27/05/2025)
+### Modal de Edição de Cartões (`CardDialog.tsx`)
 
-### RF03: Modal de Edição de Cartões (`CardDialog.tsx`) - Melhorias
-- [x] **Cabeçalho:**
-  - [x] Exibir "No bloco [nome]" (ex.: "No bloco A fazer"), clicável para pop-up - *Implementado no BaseDialog*
-  - [x] Remover segundo "X" e botão de interrogação - *Implementado no BaseDialog*
-- [x] **Campo de Descrição:** 
-  - [x] Expandir para 200px de altura, com rolagem interna - *Implementado com min-h-[200px]*
-- [x] **Barra Lateral:**
-  - [x] **Etiquetas:** Pop-up com busca, criação de etiquetas (nome, cor), botão "Aplicar" - *Implementado: EtiquetaPopup component*
-  - [x] **Checklist:** Layout com nome editável, itens (hover com relógio/"Excluir"), barra de progresso, botão "Excluir" - *Implementado: ChecklistPopup component*
-  - [x] **Datas:** Pop-up com data de início, entrega, lembrete, botão "Salvar" - *Implementado: DataPopup component*
-  - [x] **Mover:** Pop-up com quadro, bloco, posição, notificação no sino - *Implementado: MoverPopup component*
-  - [x] **Capa:** Pop-up com cores predefinidas/personalizadas, exibição no modal e área de trabalho - *Implementado: CapaPopup component*
-- [x] **Atividades:** 
-  - [x] Botão "Mostrar Detalhes"/"Ocultar Detalhes" para histórico - *Implementado com useState*
-- [x] **Comentários:** 
-  - [x] Visíveis, com hover (três pontinhos) para "Editar"/"Excluir" - *Estrutura implementada*
-- [x] **Capas na Área de Trabalho:**
-  - [x] Exibição de capas nos cartões da área de trabalho - *Implementado no CardItem*
+#### Layout e Estrutura
+- [x] Modal dinâmico que cresce conforme o conteúdo
+- [x] Rolagem na tela principal (não no modal)
+- [x] Barra lateral integrada ao modal
+- [x] Campo de descrição expandido (200px mínimo)
+- [x] Seção de atividades com "Mostrar/Ocultar Detalhes"
 
-### RF03: Modal de Edição de Planilhas (`SpreadsheetDialog.tsx`) - Melhorias
-- [ ] **Cabeçalho:** 
-  - [ ] "No bloco [nome]" clicável, sem segundo "X" ou interrogação
-- [ ] **Barra Lateral:** 
-  - [ ] Implementar etiquetas, checklist, datas, mover, capa (mesmas especificações do modal de cartões)
-- [ ] **Atividades e Comentários:** 
-  - [ ] Mesma implementação do modal de cartões
-- [x] **Capas na Área de Trabalho:**
-  - [x] Exibição de capas nas planilhas da área de trabalho - *Implementado agora*
+#### Capa
+- [x] Capa no cabeçalho do modal (cores e imagens)
+- [x] Capa nos cartões da área de trabalho
+- [x] Suporte a cores predefinidas e personalizadas
+- [x] Opção de remoção da capa
 
-### RF03: Notificações
-- [x] **Adicionar sino no cabeçalho** (direita da barra de pesquisa) - *Implementado no BaseDialog*
-- [ ] **Exibir notificações destacadas,** clicáveis para abrir contexto (ex.: modal do cartão)
-- [ ] **Implementar notificações** para lembretes e ações (ex.: movimentação)
+#### Barra Lateral (Ações)
+- [x] **Popup de Etiquetas**
+  - [x] Busca de etiquetas existentes
+  - [x] Criação de novas etiquetas
+  - [x] Aplicação/remoção de etiquetas
+  - [x] Seletor de cores
+  - [x] ✅ Comportamento correto de fechamento
 
-### RF03: Consistência nos Modals
-- [ ] **Garantir layout e funcionalidades idênticas** na barra lateral e seções de atividades/comentários
+- [x] **Popup de Checklist**
+  - [x] Campo de texto para criar checklist
+  - [x] Botão "Adicionar" + tecla Enter
+  - [x] Visão geral com porcentagens
+  - [x] Lista de checklists existentes
+  - [x] Opção de exclusão de checklists
+  - [x] ✅ Fechamento ao clicar fora
+  - [x] ✅ Exibição no modal principal
+  - [x] ✅ Adição de itens individuais
+  - [x] ✅ Menu de contexto para itens
+  - [x] ✅ Barra de progresso
 
-### RF06: Salvamento
-- [x] **Salvar etiquetas, checklists, datas, capas,** atividades e comentários em JSON - *Implementado no CardDialog*
-- [x] **Validar campos obrigatórios** (ex.: título) - *Implementado*
+- [x] **Popup de Datas**
+  - [x] Data de início
+  - [x] Data de entrega
+  - [x] Data de lembrete
+  - [x] Calendário integrado
+  - [x] ✅ Comportamento correto de fechamento
 
-### RNF08: Interface Responsiva
-- [x] **Garantir responsividade** de modais e pop-ups com TailwindCSS - *Implementado*
-- [x] **Latência < 200ms** para abertura de pop-ups e renderização - *Implementado*
+- [x] **Popup de Capa**
+  - [x] Cores predefinidas
+  - [x] Seletor de cor personalizada
+  - [x] Upload de imagem
+  - [x] Opção de remoção
+  - [x] ✅ Comportamento correto de fechamento
 
-## Resumo Status Fase 3 - Parte 2
+- [x] **Popup de Mover**
+  - [x] Seleção de quadro
+  - [x] Seleção de bloco
+  - [x] Seleção de posição
+  - [x] ✅ Comportamento correto de fechamento
 
-**Itens Planejados**: 20 itens
-**Itens Concluídos**: 16/20 (80%)
-**Itens Pendentes**: 4/20 (20%)
+- [x] **Localização do Cartão**
+  - [x] Botão "No bloco [nome]" clicável
+  - [x] Popup com informações de localização
+  - [x] Opção para mover cartão
 
-### ✅ Itens Concluídos na Iteração Atual:
-1. **Pop-ups da barra lateral implementados** - EtiquetaPopup, ChecklistPopup, DataPopup, CapaPopup, MoverPopup
-2. **Cabeçalho do CardDialog melhorado** - Sino de notificações, localização clicável
-3. **Campo de descrição expandido** - 200px de altura mínima
-4. **Sistema de etiquetas completo** - Criação, seleção, exibição com cores
-5. **Sistema de datas implementado** - Vencimento e lembretes
-6. **Sistema de capa implementado** - Upload e capas sugeridas
-7. **Checklist avançado** - Barra de progresso, edição de título
-8. **Atividades com detalhes** - Mostrar/ocultar histórico
-9. **Movimentação entre quadros** - Seleção de destino
-10. **Salvamento completo** - Todas as novas funcionalidades persistidas
-11. **Capas na área de trabalho** - Implementado em cartões e planilhas
+#### Sistema de Controle de Foco ✅
+- [x] **Controle de pop-ups exclusivo**
+  - [x] Estado `activePopup` para controlar foco
+  - [x] Função `closeActivePopup()` para fechar apenas a telinha
+  - [x] Função `handleModalClose()` com verificação de pop-up ativo
+  - [x] Uso de `stopPropagation()` em botões da barra lateral
 
-### ⏳ Próximas Prioridades para Implementação:
-1. **Aplicar melhorias no SpreadsheetDialog** - Mesmas funcionalidades do CardDialog
-2. **Sistema de notificações completo** - Exibição e interação
-3. **Refinamento de comentários** - Hover com opções de edição/exclusão
-4. **Garantir consistência total** - Layout idêntico entre modais
+- [x] **Comportamento de Fechamento Correto**
+  - [x] Clique fora da telinha: fecha apenas a telinha
+  - [x] Clique fora do modal: fecha modal apenas se nenhuma telinha estiver aberta
+  - [x] Ações na telinha (Adicionar, Salvar): fecham a telinha
+  - [x] Consistência entre todos os pop-ups
 
-**Status Geral do Sistema: Fase 3 - Parte 1 = 100% ✅ | Fase 3 - Parte 2 = 80% 🚀**
+#### Funcionalidades Internas
+- [x] **Checklist Completo**
+  - [x] Barra de progresso com porcentagem
+  - [x] Campo para adicionar novos itens
+  - [x] Checkbox para marcar/desmarcar
+  - [x] Menu de contexto nos itens (Excluir)
+  - [x] Integração com checklists criados via popup
 
-### 🎯 Cronograma das Próximas Implementações:
-- **Sessão Atual**: Capas em planilhas ✅, próximo: SpreadsheetDialog melhorias
-- **Próxima Sessão**: Sistema de notificações e refinamentos finais
-- **Estimativa**: Fase 3 - Parte 2 completa em 1-2 sessões adicionais
+- [x] **Anexos**
+  - [x] Upload de arquivos
+  - [x] Miniaturas para imagens
+  - [x] Remoção de anexos
+  - [x] Suporte a múltiplos tipos de arquivo
 
-### 📝 Notas de Implementação:
-- Todos os pop-ups fecham ao clicar fora (comportamento Trello)
-- Capas funcionam tanto em cartões quanto planilhas
-- Sistema de salvamento preserva todas as novas funcionalidades
-- Interface responsiva mantida em todas as implementações
+- [x] **Descrição com Markdown**
+  - [x] Barra de ferramentas de formatação
+  - [x] Botões: Negrito, Itálico, Lista, Link, Imagem
+  - [x] Campo de texto expandido (min 200px)
 
-**🎉 A Fase 3 está avançando muito bem com 80% da Parte 2 já concluída!**
+- [x] **Comentários e Atividade**
+  - [x] Campo para novos comentários
+  - [x] Seção "Mostrar/Ocultar Detalhes"
+  - [x] Histórico de atividades
+
+#### Popups Avançados
+- [x] Popups que ultrapassam limites do modal
+- [x] Posicionamento correto (absolute/fixed)
+- [x] Z-index adequado para sobreposição
+- [x] ✅ Fechamento correto sem afetar o modal
+
+### Sistema de Notificações
+- [x] Sino movido para cabeçalho principal
+- [x] Badge com quantidade de notificações
+- [x] Notificações destacadas até serem lidas
+- [x] Clique abre contexto (modal do cartão)
+
+### Modal de Planilhas (`SpreadsheetDialog.tsx`)
+- [x] Estrutura base implementada
+- [x] Barra de ferramentas estilo Excel
+- [x] Edição de células em tempo real
+- [x] Adição/remoção de linhas e colunas
+- [x] Importação de tabelas Markdown
+- [x] Capas em planilhas (SpreadsheetItem)
+- [ ] **Sistema de controle de foco dos pop-ups** ⏳
+- [ ] **Barra lateral idêntica ao CardDialog** ⏳
+
+---
+
+## PENDÊNCIAS FASE 3 - PARTE 2 (10% restante)
+
+### Modal de Planilhas - Refinamentos ⏳
+- [ ] Aplicar sistema `activePopup` no SpreadsheetDialog
+- [ ] Implementar barra lateral com pop-ups
+- [ ] Adicionar funcionalidades de etiquetas, datas, etc.
+
+### Sistema de Notificações Avançado ⏳
+- [ ] Notificações em tempo real
+- [ ] Filtros por tipo de notificação
+- [ ] Histórico completo de notificações
+
+### Comentários com Markdown ⏳
+- [ ] Editor Markdown nos comentários
+- [ ] Preview em tempo real
+- [ ] Anexos em comentários
+
+### Reordenação via Arrastar e Soltar ⏳
+- [ ] Drag & drop para itens de checklist
+- [ ] Reordenação de anexos
+- [ ] Drag & drop entre blocos
+
+---
+
+## STATUS ATUAL
+**✅ FASE 3 - PARTE 2: 90% CONCLUÍDA**
+
+### Principais Conquistas:
+1. ✅ Sistema de controle de foco implementado corretamente
+2. ✅ Checklist completo funcionando no modal
+3. ✅ Capas exibindo nos cartões da área de trabalho
+4. ✅ Pop-ups com comportamento correto de fechamento
+5. ✅ Barra lateral completa no CardDialog
+
+### Próximos Passos:
+1. Finalizar sistema de pop-ups no SpreadsheetDialog
+2. Implementar notificações avançadas
+3. Adicionar comentários com Markdown
+4. Implementar drag & drop
+
+**Estimativa para conclusão da Fase 3: 1 sessão de trabalho**
