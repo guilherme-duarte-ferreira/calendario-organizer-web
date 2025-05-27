@@ -29,19 +29,20 @@ interface ChecklistPopupProps {
   onClose: () => void;
   checklists: Checklist[];
   onUpdateChecklists: (checklists: Checklist[]) => void;
+  onChecklistCreated?: (checklist: Checklist) => void;
 }
 
 export default function ChecklistPopup({
   isOpen,
   onClose,
-  checklists = [], // Default to empty array
-  onUpdateChecklists
+  checklists = [],
+  onUpdateChecklists,
+  onChecklistCreated
 }: ChecklistPopupProps) {
   const [newChecklistTitle, setNewChecklistTitle] = useState("");
 
   if (!isOpen) return null;
 
-  // Safely handle checklists array
   const safeChecklists = Array.isArray(checklists) ? checklists : [];
   
   const totalItems = safeChecklists.reduce((acc, checklist) => acc + (checklist.items?.length || 0), 0);
@@ -59,8 +60,14 @@ export default function ChecklistPopup({
     };
 
     onUpdateChecklists([...safeChecklists, newChecklist]);
+    
+    // Notifica o componente pai sobre a criação
+    if (onChecklistCreated) {
+      onChecklistCreated(newChecklist);
+    }
+    
     setNewChecklistTitle("");
-    onClose(); // Fecha a telinha após criar
+    onClose(); // Fecha após criar
   };
 
   const handleDeleteChecklist = (checklistId: string) => {
@@ -72,12 +79,18 @@ export default function ChecklistPopup({
     return (checklist.items.filter(item => item.completed).length / checklist.items.length) * 100;
   };
 
+  const handleClickOutside = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
     <>
       {/* Overlay para fechar ao clicar fora */}
       <div 
         className="fixed inset-0 z-[9998]" 
-        onClick={onClose}
+        onClick={handleClickOutside}
       />
       
       <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]">

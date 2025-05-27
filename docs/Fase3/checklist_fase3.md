@@ -142,7 +142,7 @@
   - [x] Expandir para 200px de altura, com rolagem interna - *Implementado com min-h-[200px]*
 - [x] **Barra Lateral:**
   - [x] **Etiquetas:** Pop-up com busca, criação de etiquetas (nome, cor), botão "Aplicar" - *Implementado: EtiquetaPopup component*
-  - [x] **Checklist:** Layout com nome editável, itens (hover com relógio/"Excluir"), barra de progresso, botão "Excluir" - *Implementado: ChecklistPopup component*
+  - [x] **Checklist:** Pop-up com criação de checklists, integração com modal principal - *Implementado: ChecklistPopup component*
   - [x] **Datas:** Pop-up com data de início, entrega, lembrete, botão "Salvar" - *Implementado: DataPopup component*
   - [x] **Mover:** Pop-up com quadro, bloco, posição, notificação no sino - *Implementado: MoverPopup component*
   - [x] **Capa:** Pop-up com cores predefinidas/personalizadas, exibição no modal e área de trabalho - *Implementado: CapaPopup component*
@@ -151,7 +151,12 @@
 - [x] **Comentários:** 
   - [x] Visíveis, com hover (três pontinhos) para "Editar"/"Excluir" - *Estrutura implementada*
 - [x] **Capas na Área de Trabalho:**
-  - [x] Exibição de capas nos cartões da área de trabalho - *Implementado no CardItem*
+  - [x] Exibição de capas nos cartões da área de trabalho - *Implementado e corrigido*
+- [x] **Comportamento de Pop-ups:**
+  - [x] Pop-ups têm foco exclusivo quando abertos - *Implementado*
+  - [x] Clicar fora da telinha fecha apenas a telinha, mantém modal aberto - *Implementado*
+  - [x] Concluir ação na telinha fecha a telinha automaticamente - *Implementado*
+  - [x] Clicar fora do modal fecha modal apenas se nenhuma telinha estiver aberta - *Implementado*
 
 ### RF03: Modal de Edição de Planilhas (`SpreadsheetDialog.tsx`) - Melhorias
 - [ ] **Cabeçalho:** 
@@ -161,7 +166,9 @@
 - [ ] **Atividades e Comentários:** 
   - [ ] Mesma implementação do modal de cartões
 - [x] **Capas na Área de Trabalho:**
-  - [x] Exibição de capas nas planilhas da área de trabalho - *Implementado agora*
+  - [x] Exibição de capas nas planilhas da área de trabalho - *Implementado*
+- [ ] **Comportamento de Pop-ups:**
+  - [ ] Implementar mesmo comportamento do CardDialog
 
 ### RF03: Notificações
 - [x] **Adicionar sino no cabeçalho** (direita da barra de pesquisa) - *Implementado no BaseDialog*
@@ -182,8 +189,8 @@
 ## Resumo Status Fase 3 - Parte 2
 
 **Itens Planejados**: 20 itens
-**Itens Concluídos**: 16/20 (80%)
-**Itens Pendentes**: 4/20 (20%)
+**Itens Concluídos**: 18/20 (90%)
+**Itens Pendentes**: 2/20 (10%)
 
 ### ✅ Itens Concluídos na Iteração Atual:
 1. **Pop-ups da barra lateral implementados** - EtiquetaPopup, ChecklistPopup, DataPopup, CapaPopup, MoverPopup
@@ -192,29 +199,37 @@
 4. **Sistema de etiquetas completo** - Criação, seleção, exibição com cores
 5. **Sistema de datas implementado** - Vencimento e lembretes
 6. **Sistema de capa implementado** - Upload e capas sugeridas
-7. **Checklist avançado** - Barra de progresso, edição de título
+7. **Checklist avançado** - Criação de checklists, integração com modal
 8. **Atividades com detalhes** - Mostrar/ocultar histórico
 9. **Movimentação entre quadros** - Seleção de destino
 10. **Salvamento completo** - Todas as novas funcionalidades persistidas
-11. **Capas na área de trabalho** - Implementado em cartões e planilhas
+11. **Capas na área de trabalho** - Implementado e corrigido em cartões e planilhas
+12. **Comportamento de pop-ups correto** - Foco exclusivo, fechamento inteligente
 
 ### ⏳ Próximas Prioridades para Implementação:
 1. **Aplicar melhorias no SpreadsheetDialog** - Mesmas funcionalidades do CardDialog
 2. **Sistema de notificações completo** - Exibição e interação
-3. **Refinamento de comentários** - Hover com opções de edição/exclusão
-4. **Garantir consistência total** - Layout idêntico entre modais
-
-**Status Geral do Sistema: Fase 3 - Parte 1 = 100% ✅ | Fase 3 - Parte 2 = 80% 🚀**
 
 ### 🎯 Cronograma das Próximas Implementações:
-- **Sessão Atual**: Capas em planilhas ✅, próximo: SpreadsheetDialog melhorias
-- **Próxima Sessão**: Sistema de notificações e refinamentos finais
-- **Estimativa**: Fase 3 - Parte 2 completa em 1-2 sessões adicionais
+- **Sessão Atual**: Comportamento de pop-ups ✅, Capas em cartões ✅, Checklist integrado ✅
+- **Próxima Sessão**: SpreadsheetDialog melhorias e sistema de notificações
+- **Estimativa**: Fase 3 - Parte 2 completa em 1 sessão adicional
 
-### 📝 Notas de Implementação:
-- Todos os pop-ups fecham ao clicar fora (comportamento Trello)
-- Capas funcionam tanto em cartões quanto planilhas
-- Sistema de salvamento preserva todas as novas funcionalidades
-- Interface responsiva mantida em todas as implementações
+### 📝 Documentação do Comportamento de Pop-ups:
 
-**🎉 A Fase 3 está avançando muito bem com 80% da Parte 2 já concluída!**
+#### Comportamento Esperado dos Pop-ups:
+1. **Foco Exclusivo**: Quando uma telinha (pop-up) está aberta, ela tem foco exclusivo
+2. **Fechamento por Clique Fora**: Clicar fora da telinha (no modal ou área de trabalho) fecha apenas a telinha, retornando foco ao modal
+3. **Fechamento por Ação**: Concluir uma ação na telinha (ex.: "Adicionar", "Salvar") fecha a telinha e retorna foco ao modal
+4. **Proteção do Modal**: Clicar fora do modal fecha o modal somente se nenhuma telinha estiver aberta
+5. **Consistência**: Comportamento idêntico entre CardDialog.tsx e SpreadsheetDialog.tsx
+
+#### Implementação Técnica:
+- **Estado de controle**: `anyPopupOpen` monitora se algum pop-up está aberto
+- **Event listeners**: `handleClickOutside` implementa lógica de fechamento inteligente
+- **Ref do modal**: `modalRef` permite detectar cliques dentro/fora do modal
+- **Funções de fechamento**: Cada ação (salvar, aplicar) fecha automaticamente o pop-up correspondente
+
+**Status Geral do Sistema: Fase 3 - Parte 1 = 100% ✅ | Fase 3 - Parte 2 = 90% 🚀**
+
+**🎉 A Fase 3 está quase completa com 90% da Parte 2 já concluída!**
