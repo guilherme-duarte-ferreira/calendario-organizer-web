@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Card } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -37,6 +36,7 @@ import DataPopup from "./popups/DataPopup";
 import CapaPopup from "./popups/CapaPopup";
 import ChecklistPopup from "./popups/ChecklistPopup";
 import MoverPopup from "./popups/MoverPopup";
+import LocalizacaoCartao from "./popups/LocalizacaoCartao";
 
 interface CardDialogProps {
   card: Card;
@@ -70,6 +70,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const [showCapaPopup, setShowCapaPopup] = useState(false);
   const [showChecklistPopup, setShowChecklistPopup] = useState(false);
   const [showMoverPopup, setShowMoverPopup] = useState(false);
+  const [showLocalizacaoPopup, setShowLocalizacaoPopup] = useState(false);
   
   // Estados para funcionalidades
   const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([
@@ -82,6 +83,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const [dueDate, setDueDate] = useState<Date | null>(card.dueDate ? new Date(card.dueDate) : null);
   const [reminderDate, setReminderDate] = useState<Date | null>(card.reminderDate ? new Date(card.reminderDate) : null);
   const [capa, setCapa] = useState<string | undefined>(card.capa);
+  const [capaColor, setCapaColor] = useState<string | undefined>();
 
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -104,7 +106,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         etiquetas: selectedEtiquetas,
         dueDate: dueDate?.toISOString(),
         reminderDate: reminderDate?.toISOString(),
-        capa,
+        capa: capaColor ? undefined : capa, // Se tem cor, remove imagem
         updatedAt: new Date().toISOString(),
       };
 
@@ -187,17 +189,29 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
 
   const handleSetCapa = (imageUrl: string) => {
     setCapa(imageUrl);
+    setCapaColor(undefined); // Remove cor se definir imagem
     toast.success("Capa definida!");
+  };
+
+  const handleSetCapaColor = (color: string) => {
+    setCapaColor(color);
+    setCapa(undefined); // Remove imagem se definir cor
+    toast.success("Cor da capa definida!");
   };
 
   const handleRemoveCapa = () => {
     setCapa(undefined);
+    setCapaColor(undefined);
     toast.success("Capa removida!");
   };
 
   const handleMove = (boardId: string, blockId: string, position: number) => {
     // Implementar lógica de mover
     toast.success("Cartão movido!");
+  };
+
+  const handleLocationClick = () => {
+    setShowLocalizacaoPopup(true);
   };
 
   const formatText = (format: string) => {
@@ -242,8 +256,23 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           onClose={() => setShowEtiquetaPopup(false)}
           etiquetas={etiquetas}
           selectedEtiquetas={selectedEtiquetas}
-          onToggleEtiqueta={handleToggleEtiqueta}
-          onCreateEtiqueta={handleCreateEtiqueta}
+          onToggleEtiqueta={(etiquetaId: string) => {
+            setSelectedEtiquetas(prev => 
+              prev.includes(etiquetaId) 
+                ? prev.filter(id => id !== etiquetaId)
+                : [...prev, etiquetaId]
+            );
+          }}
+          onCreateEtiqueta={(name: string, color: string) => {
+            const newEtiqueta: Etiqueta = {
+              id: Date.now().toString(),
+              name,
+              color
+            };
+            setEtiquetas(prev => [...prev, newEtiqueta]);
+            setSelectedEtiquetas(prev => [...prev, newEtiqueta.id]);
+            toast.success(`Etiqueta "${name}" criada!`);
+          }}
         />
       </div>
       
@@ -278,7 +307,14 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         <DataPopup
           isOpen={showDataPopup}
           onClose={() => setShowDataPopup(false)}
-          onSetDate={handleSetDate}
+          onSetDate={(date: Date | null, type: 'due' | 'reminder') => {
+            if (type === 'due') {
+              setDueDate(date);
+            } else {
+              setReminderDate(date);
+            }
+            toast.success(date ? "Data definida!" : "Data removida!");
+          }}
           dueDate={dueDate}
           reminderDate={reminderDate}
         />
@@ -308,8 +344,10 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           isOpen={showCapaPopup}
           onClose={() => setShowCapaPopup(false)}
           onSetCapa={handleSetCapa}
+          onSetCapaColor={handleSetCapaColor}
           onRemoveCapa={handleRemoveCapa}
           currentCapa={capa}
+          currentCapaColor={capaColor}
         />
       </div>
       
@@ -329,6 +367,8 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           isOpen={showMoverPopup}
           onClose={() => setShowMoverPopup(false)}
           onMove={handleMove}
+          currentBoardId={boards.find(b => b.blocks.some(block => block.items.some(item => item.id === card.id)))?.id}
+          currentBlockId={boards.flatMap(b => b.blocks).find(block => block.items.some(item => item.id === card.id))?.id}
         />
       </div>
       
@@ -351,284 +391,328 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   );
 
   return (
-    <BaseDialog
-      isOpen={isOpen}
-      onClose={onClose}
-      title={title || "Novo Cartão"}
-      location={blockName || "A FAZER"}
-      onSave={handleSave}
-      onArchive={handleArchive}
-      onDelete={handleDelete}
-      isMaximized={isMaximized}
-      onToggleMaximize={() => setIsMaximized(!isMaximized)}
-      isSaving={isSaving}
-      sidebarContent={sidebarContent}
-    >
-      <div className="space-y-6">
-        <input
-          ref={fileInputRef}
-          type="file"
-          className="hidden"
-          onChange={handleFileUpload}
-          multiple
-        />
+    <>
+      <LocalizacaoCartao
+        isOpen={showLocalizacaoPopup}
+        onClose={() => setShowLocalizacaoPopup(false)}
+        cardId={card.id}
+        onMover={() => setShowMoverPopup(true)}
+      />
 
-        {/* Capa */}
-        {capa && (
-          <div className="relative">
-            <img 
-              src={capa} 
-              alt="Capa do cartão" 
-              className="w-full h-32 object-cover rounded-lg"
-            />
-          </div>
-        )}
-
-        {/* Título */}
-        <div>
-          <Input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Título do cartão..."
-            className="text-lg font-semibold border-0 px-0 focus-visible:ring-0"
+      <BaseDialog
+        isOpen={isOpen}
+        onClose={onClose}
+        title={title || "Novo Cartão"}
+        location={blockName || "A FAZER"}
+        onLocationClick={handleLocationClick}
+        onSave={handleSave}
+        onArchive={handleArchive}
+        onDelete={handleDelete}
+        isMaximized={isMaximized}
+        onToggleMaximize={() => setIsMaximized(!isMaximized)}
+        isSaving={isSaving}
+        sidebarContent={sidebarContent}
+        capa={capa}
+        capaColor={capaColor}
+      >
+        <div className="space-y-6">
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const newAttachment = {
+                  id: Date.now().toString(),
+                  name: file.name,
+                  fileType: file.type.startsWith('image/') ? 'image' : 'file',
+                  url: URL.createObjectURL(file),
+                  thumbnail: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined
+                };
+                setAttachments([...attachments, newAttachment]);
+                toast.success(`Arquivo "${file.name}" adicionado!`);
+              }
+            }}
+            multiple
           />
-        </div>
 
-        {/* Etiquetas */}
-        {selectedEtiquetas.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {selectedEtiquetas.map(etiquetaId => {
-              const etiqueta = etiquetas.find(e => e.id === etiquetaId);
-              if (!etiqueta) return null;
-              return (
-                <Badge 
-                  key={etiqueta.id} 
-                  className="text-white text-xs"
-                  style={{ backgroundColor: etiqueta.color }}
-                >
-                  {etiqueta.name}
-                </Badge>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Datas */}
-        {(dueDate || reminderDate) && (
-          <div className="flex flex-wrap gap-2">
-            {dueDate && (
-              <Badge variant="destructive" className="text-xs">
-                <Clock size={12} className="mr-1" />
-                Vencimento: {dueDate.toLocaleDateString()}
-              </Badge>
-            )}
-            {reminderDate && (
-              <Badge variant="secondary" className="text-xs">
-                <Clock size={12} className="mr-1" />
-                Lembrete: {reminderDate.toLocaleDateString()}
-              </Badge>
-            )}
-          </div>
-        )}
-
-        {/* Descrição */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <List size={16} />
-            <h3 className="font-semibold text-sm">Descrição</h3>
-          </div>
-          
-          <div className="border rounded-md">
-            <div className="flex items-center gap-2 border-b px-3 py-2 text-sm">
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                Aa ▼
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-6 px-1 font-bold text-xs"
-                onClick={() => formatText('bold')}
-              >
-                <Bold size={12} />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-6 px-1 italic text-xs"
-                onClick={() => formatText('italic')}
-              >
-                <Italic size={12} />
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                <MoreHorizontal size={12} />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-6 px-1 text-xs"
-                onClick={() => formatText('list')}
-              >
-                <List size={12} />
-                ▼
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                <Link size={12} />
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                <Image size={12} />
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                <Plus size={12} />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-6 px-1 text-xs ml-auto"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Paperclip size={12} />
-              </Button>
-            </div>
-            
-            <Textarea
-              ref={descriptionRef}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Precisa de ajuda com a formatação? Digite /help."
-              className="border-0 resize-none min-h-[200px] focus-visible:ring-0"
+          {/* Título */}
+          <div>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Título do cartão..."
+              className="text-lg font-semibold border-0 px-0 focus-visible:ring-0"
             />
           </div>
-        </div>
 
-        {/* Anexos */}
-        {attachments.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Paperclip size={16} />
-              <h3 className="font-semibold text-sm">Anexos</h3>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              {attachments.map((attachment) => (
-                <div key={attachment.id} className="relative group border rounded-md p-2">
-                  {attachment.fileType === 'image' && attachment.thumbnail ? (
-                    <div className="aspect-video bg-muted rounded overflow-hidden">
-                      <img 
-                        src={attachment.thumbnail} 
-                        alt={attachment.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="aspect-video bg-muted rounded flex items-center justify-center">
-                      <FileText size={24} className="text-muted-foreground" />
-                    </div>
-                  )}
-                  <p className="text-xs mt-1 truncate">{attachment.name}</p>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => removeAttachment(attachment.id)}
+          {/* Etiquetas */}
+          {selectedEtiquetas.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedEtiquetas.map(etiquetaId => {
+                const etiqueta = etiquetas.find(e => e.id === etiquetaId);
+                if (!etiqueta) return null;
+                return (
+                  <Badge 
+                    key={etiqueta.id} 
+                    className="text-white text-xs"
+                    style={{ backgroundColor: etiqueta.color }}
                   >
-                    <X size={12} />
-                  </Button>
-                </div>
-              ))}
+                    {etiqueta.name}
+                  </Badge>
+                );
+              })}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Checklist */}
-        {checklist.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <CheckSquare size={16} />
-              <h3 className="font-semibold text-sm">Checklist</h3>
-              <div className="text-xs text-muted-foreground">
-                {checklist.filter(item => item.completed).length}/{checklist.length}
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              {checklist.slice(0, 3).map((item) => (
-                <div key={item.id} className="flex items-center gap-2">
-                  <Checkbox
-                    checked={item.completed}
-                    onCheckedChange={(checked) => {
-                      const updatedChecklist = checklist.map(checkItem => 
-                        checkItem.id === item.id ? { ...checkItem, completed: !!checked } : checkItem
-                      );
-                      setChecklist(updatedChecklist);
-                    }}
-                  />
-                  <span className={`text-sm ${item.completed ? 'line-through text-muted-foreground' : ''}`}>
-                    {item.text || 'Item sem texto'}
-                  </span>
-                </div>
-              ))}
-              {checklist.length > 3 && (
-                <p className="text-xs text-muted-foreground">
-                  ... e mais {checklist.length - 3} itens
-                </p>
+          {/* Datas */}
+          {(dueDate || reminderDate) && (
+            <div className="flex flex-wrap gap-2">
+              {dueDate && (
+                <Badge variant="destructive" className="text-xs">
+                  <Clock size={12} className="mr-1" />
+                  Vencimento: {dueDate.toLocaleDateString()}
+                </Badge>
+              )}
+              {reminderDate && (
+                <Badge variant="secondary" className="text-xs">
+                  <Clock size={12} className="mr-1" />
+                  Lembrete: {reminderDate.toLocaleDateString()}
+                </Badge>
               )}
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Atividade */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
+          {/* Descrição */}
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
               <List size={16} />
-              <h3 className="font-semibold text-sm">Atividade</h3>
+              <h3 className="font-semibold text-sm">Descrição</h3>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowActivityDetails(!showActivityDetails)}
-              className="text-xs"
-            >
-              {showActivityDetails ? (
-                <>
-                  <ChevronUp size={14} className="mr-1" />
-                  Ocultar Detalhes
-                </>
-              ) : (
-                <>
-                  <ChevronDown size={14} className="mr-1" />
-                  Mostrar Detalhes
-                </>
-              )}
-            </Button>
+            
+            <div className="border rounded-md">
+              <div className="flex items-center gap-2 border-b px-3 py-2 text-sm">
+                <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
+                  Aa ▼
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-1 font-bold text-xs"
+                  onClick={() => {
+                    const textarea = descriptionRef.current;
+                    if (!textarea) return;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const selectedText = description.substring(start, end);
+                    const formattedText = `**${selectedText}**`;
+                    const newDescription = description.substring(0, start) + formattedText + description.substring(end);
+                    setDescription(newDescription);
+                  }}
+                >
+                  <Bold size={12} />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-1 italic text-xs"
+                  onClick={() => {
+                    const textarea = descriptionRef.current;
+                    if (!textarea) return;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const selectedText = description.substring(start, end);
+                    const formattedText = `*${selectedText}*`;
+                    const newDescription = description.substring(0, start) + formattedText + description.substring(end);
+                    setDescription(newDescription);
+                  }}
+                >
+                  <Italic size={12} />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
+                  <MoreHorizontal size={12} />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-1 text-xs"
+                  onClick={() => {
+                    const textarea = descriptionRef.current;
+                    if (!textarea) return;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const selectedText = description.substring(start, end);
+                    const formattedText = selectedText.split('\n').map(line => `- ${line}`).join('\n');
+                    const newDescription = description.substring(0, start) + formattedText + description.substring(end);
+                    setDescription(newDescription);
+                  }}
+                >
+                  <List size={12} />
+                  ▼
+                </Button>
+                <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
+                  <Link size={12} />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
+                  <Image size={12} />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
+                  <Plus size={12} />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 px-1 text-xs ml-auto"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Paperclip size={12} />
+                </Button>
+              </div>
+              
+              <Textarea
+                ref={descriptionRef}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Precisa de ajuda com a formatação? Digite /help."
+                className="border-0 resize-none min-h-[200px] focus-visible:ring-0"
+              />
+            </div>
           </div>
-          
-          <div className="flex items-center gap-2 bg-muted rounded-md px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-gray-300"></div>
-            <Input
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Escrever um comentário..."
-              className="border-0 bg-transparent focus-visible:ring-0"
-            />
-          </div>
-          
-          {showActivityDetails && (
+
+          {/* Anexos */}
+          {attachments.length > 0 && (
             <div className="space-y-2">
-              <div className="flex items-start gap-3 bg-muted rounded-md px-3 py-2">
-                <div className="w-8 h-8 rounded-full bg-gray-300 mt-1"></div>
-                <div>
-                  <p className="text-sm">
-                    <strong>Sistema</strong> criou este cartão
-                    <br />
-                    <span className="text-xs text-muted-foreground">há poucos minutos</span>
-                  </p>
-                </div>
+              <div className="flex items-center gap-2">
+                <Paperclip size={16} />
+                <h3 className="font-semibold text-sm">Anexos</h3>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2">
+                {attachments.map((attachment) => (
+                  <div key={attachment.id} className="relative group border rounded-md p-2">
+                    {attachment.fileType === 'image' && attachment.thumbnail ? (
+                      <div className="aspect-video bg-muted rounded overflow-hidden">
+                        <img 
+                          src={attachment.thumbnail} 
+                          alt={attachment.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="aspect-video bg-muted rounded flex items-center justify-center">
+                        <FileText size={24} className="text-muted-foreground" />
+                      </div>
+                    )}
+                    <p className="text-xs mt-1 truncate">{attachment.name}</p>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="absolute top-1 right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => {
+                        setAttachments(attachments.filter(att => att.id !== attachment.id));
+                        toast.success("Anexo removido!");
+                      }}
+                    >
+                      <X size={12} />
+                    </Button>
+                  </div>
+                ))}
               </div>
             </div>
           )}
+
+          {/* Checklist */}
+          {checklist.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckSquare size={16} />
+                <h3 className="font-semibold text-sm">Checklist</h3>
+                <div className="text-xs text-muted-foreground">
+                  {checklist.filter(item => item.completed).length}/{checklist.length}
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                {checklist.slice(0, 3).map((item) => (
+                  <div key={item.id} className="flex items-center gap-2">
+                    <Checkbox
+                      checked={item.completed}
+                      onCheckedChange={(checked) => {
+                        const updatedChecklist = checklist.map(checkItem => 
+                          checkItem.id === item.id ? { ...checkItem, completed: !!checked } : checkItem
+                        );
+                        setChecklist(updatedChecklist);
+                      }}
+                    />
+                    <span className={`text-sm ${item.completed ? 'line-through text-muted-foreground' : ''}`}>
+                      {item.text || 'Item sem texto'}
+                    </span>
+                  </div>
+                ))}
+                {checklist.length > 3 && (
+                  <p className="text-xs text-muted-foreground">
+                    ... e mais {checklist.length - 3} itens
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Atividade */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <List size={16} />
+                <h3 className="font-semibold text-sm">Atividade</h3>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowActivityDetails(!showActivityDetails)}
+                className="text-xs"
+              >
+                {showActivityDetails ? (
+                  <>
+                    <ChevronUp size={14} className="mr-1" />
+                    Ocultar Detalhes
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown size={14} className="mr-1" />
+                    Mostrar Detalhes
+                  </>
+                )}
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-2 bg-muted rounded-md px-3 py-2">
+              <div className="w-8 h-8 rounded-full bg-gray-300"></div>
+              <Input
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Escrever um comentário..."
+                className="border-0 bg-transparent focus-visible:ring-0"
+              />
+            </div>
+            
+            {showActivityDetails && (
+              <div className="space-y-2">
+                <div className="flex items-start gap-3 bg-muted rounded-md px-3 py-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-300 mt-1"></div>
+                  <div>
+                    <p className="text-sm">
+                      <strong>Sistema</strong> criou este cartão
+                      <br />
+                      <span className="text-xs text-muted-foreground">há poucos minutos</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </BaseDialog>
+      </BaseDialog>
+    </>
   );
 }

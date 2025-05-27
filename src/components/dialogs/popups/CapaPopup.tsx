@@ -1,14 +1,17 @@
 
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { X, Upload, Image, Trash2 } from "lucide-react";
+import { X, Upload, Image, Trash2, Palette } from "lucide-react";
+import CoresCapa from "./CoresCapa";
 
 interface CapaPopupProps {
   isOpen: boolean;
   onClose: () => void;
   onSetCapa: (imageUrl: string) => void;
+  onSetCapaColor: (color: string) => void;
   onRemoveCapa: () => void;
   currentCapa?: string;
+  currentCapaColor?: string;
 }
 
 const capasSugeridas = [
@@ -24,10 +27,13 @@ export default function CapaPopup({
   isOpen,
   onClose,
   onSetCapa,
+  onSetCapaColor,
   onRemoveCapa,
-  currentCapa
+  currentCapa,
+  currentCapaColor
 }: CapaPopupProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showCoresCapa, setShowCoresCapa] = useState(false);
 
   if (!isOpen) return null;
 
@@ -39,8 +45,17 @@ export default function CapaPopup({
     }
   };
 
+  const handleSelectColor = (color: string) => {
+    if (color === "") {
+      onRemoveCapa();
+    } else {
+      onSetCapaColor(color);
+    }
+    setShowCoresCapa(false);
+  };
+
   return (
-    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-50">
+    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]">
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Capa</h3>
@@ -59,13 +74,17 @@ export default function CapaPopup({
           className="hidden"
         />
 
-        {currentCapa && (
+        {(currentCapa || currentCapaColor) && (
           <div className="mb-4">
             <div className="relative">
-              <img 
-                src={currentCapa} 
-                alt="Capa atual" 
-                className="w-full h-24 object-cover rounded"
+              <div 
+                className="w-full h-24 rounded"
+                style={{
+                  backgroundColor: currentCapaColor || undefined,
+                  backgroundImage: currentCapa && !currentCapaColor ? `url(${currentCapa})` : undefined,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
               />
               <Button
                 variant="destructive"
@@ -89,6 +108,22 @@ export default function CapaPopup({
             <Upload size={14} className="mr-2" />
             Fazer upload
           </Button>
+
+          <div className="relative">
+            <Button
+              variant="outline"
+              onClick={() => setShowCoresCapa(!showCoresCapa)}
+              className="w-full text-xs h-8"
+            >
+              <Palette size={14} className="mr-2" />
+              Cores
+            </Button>
+            <CoresCapa
+              isOpen={showCoresCapa}
+              onClose={() => setShowCoresCapa(false)}
+              onSelectColor={handleSelectColor}
+            />
+          </div>
 
           <div>
             <h4 className="text-xs font-medium mb-2">Capas sugeridas</h4>

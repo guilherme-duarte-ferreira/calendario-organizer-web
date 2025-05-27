@@ -34,6 +34,8 @@ interface BaseDialogProps {
   showNotifications?: boolean;
   isSaving?: boolean;
   className?: string;
+  capa?: string;
+  capaColor?: string;
 }
 
 export default function BaseDialog({
@@ -59,6 +61,8 @@ export default function BaseDialog({
   showNotifications = true,
   isSaving = false,
   className,
+  capa,
+  capaColor,
 }: BaseDialogProps) {
   
   const handleSave = () => {
@@ -79,12 +83,34 @@ export default function BaseDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
         className={cn(
-          "max-w-4xl w-full h-[85vh] flex flex-col p-0 gap-0",
-          isMaximized && "max-w-[95vw] w-[95vw] h-[95vh]",
+          "max-w-4xl w-full max-h-none h-auto flex flex-col p-0 gap-0 overflow-visible",
+          isMaximized && "max-w-[95vw] w-[95vw]",
           className
         )}
-        style={{ fontSize: "14px", lineHeight: "1.3" }}
+        style={{ 
+          fontSize: "14px", 
+          lineHeight: "1.3",
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          maxHeight: "none",
+          height: "auto"
+        }}
       >
+        {/* Capa - se existir */}
+        {(capa || capaColor) && (
+          <div 
+            className="w-full h-32 rounded-t-lg"
+            style={{
+              backgroundColor: capaColor || undefined,
+              backgroundImage: capa && !capaColor ? `url(${capa})` : undefined,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          />
+        )}
+
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b bg-background">
           <DialogHeader className="flex-1">
@@ -113,16 +139,6 @@ export default function BaseDialog({
           
           {/* Header Actions */}
           <div className="flex items-center gap-2">
-            {showNotifications && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onNotificationClick}
-                className="h-8 w-8"
-              >
-                <Bell size={16} />
-              </Button>
-            )}
             {showMaximize && onToggleMaximize && (
               <Button
                 variant="ghost"
@@ -145,10 +161,10 @@ export default function BaseDialog({
         </div>
 
         {/* Content Area */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex">
           {/* Main Content */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 flex flex-col">
+            <div className="p-6 space-y-6">
               {children}
             </div>
             
@@ -192,10 +208,12 @@ export default function BaseDialog({
             </DialogFooter>
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar - agora flui com o conteúdo */}
           {sidebarContent && (
-            <div className="w-56 border-l bg-muted/30 p-4 overflow-y-auto">
-              {sidebarContent}
+            <div className="w-56 border-l bg-muted/30 p-4">
+              <div className="sticky top-4">
+                {sidebarContent}
+              </div>
             </div>
           )}
         </div>
