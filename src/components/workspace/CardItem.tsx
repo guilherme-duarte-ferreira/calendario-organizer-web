@@ -121,16 +121,16 @@ export default function CardItem({ card, onResize }: CardItemProps) {
   return (
     <>
       <div
-        className={`calendario-card bg-white border rounded-md shadow-sm hover:shadow-md transition-shadow overflow-hidden cursor-pointer ${card.status === 'completed' ? 'border-green-500 bg-green-50 opacity-75' : ''}`}
+        className={`calendario-card bg-white border rounded-md shadow-sm hover:shadow-md transition-shadow overflow-hidden ${card.status === 'completed' ? 'border-green-500 bg-green-50 opacity-75' : ''}`}
         onClick={handleOpenModal}
       >
-        {/* Capa do cartão - CORRIGIDA PARA APARECER SEMPRE */}
+        {/* Capa do cartão */}
         {(card.capa || card.capaColor) && (
           <div 
             className="card-cover h-8 w-full"
             style={{
-              backgroundColor: card.capaColor || undefined,
-              backgroundImage: card.capa && !card.capaColor ? `url(${card.capa})` : undefined,
+              backgroundColor: card.capaColor,
+              backgroundImage: card.capa ? `url(${card.capa})` : undefined,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}

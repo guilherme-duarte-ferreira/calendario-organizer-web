@@ -88,7 +88,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const [showActivityDetails, setShowActivityDetails] = useState(false);
   const [newChecklistItem, setNewChecklistItem] = useState("");
   
-  // SISTEMA DE CONTROLE DE FOCO EXCLUSIVO - Estados dos popups
+  // Estados dos popups - com controle de foco exclusivo
   const [activePopup, setActivePopup] = useState<string | null>(null);
   
   // Estados para funcionalidades
@@ -107,30 +107,18 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Função para fechar apenas a telinha ativa (pop-up)
+  // Função para fechar apenas a telinha ativa
   const closeActivePopup = () => {
     setActivePopup(null);
   };
 
-  // Função personalizada para fechar o modal - CONTROLE DE FOCO EXCLUSIVO
+  // Função personalizada para fechar o modal - só fecha se não há popup ativo
   const handleModalClose = () => {
     if (activePopup) {
-      // Se há um pop-up ativo, fecha apenas o pop-up
       closeActivePopup();
-      return;
+    } else {
+      onClose();
     }
-    // Se não há pop-up ativo, fecha o modal
-    onClose();
-  };
-
-  // Handler para interceptar cliques fora do modal
-  const handleInteractOutside = (event: Event) => {
-    if (activePopup) {
-      // Se há pop-up ativo, previne o fechamento do modal
-      event.preventDefault();
-      return;
-    }
-    // Se não há pop-up ativo, permite fechamento do modal
   };
 
   const handleSave = async () => {
@@ -214,7 +202,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     setEtiquetas(prev => [...prev, newEtiqueta]);
     setSelectedEtiquetas(prev => [...prev, newEtiqueta.id]);
     toast.success(`Etiqueta "${name}" criada!`);
-    closeActivePopup(); // Fecha apenas o pop-up, modal permanece aberto
+    closeActivePopup();
   };
 
   const handleSetDate = (date: Date | null, type: 'due' | 'reminder') => {
@@ -224,28 +212,28 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       setReminderDate(date);
     }
     toast.success(date ? "Data definida!" : "Data removida!");
-    closeActivePopup(); // Fecha apenas o pop-up, modal permanece aberto
+    closeActivePopup();
   };
 
   const handleSetCapa = (imageUrl: string) => {
     setCapa(imageUrl);
     setCapaColor(undefined);
     toast.success("Capa definida!");
-    closeActivePopup(); // Fecha apenas o pop-up, modal permanece aberto
+    closeActivePopup();
   };
 
   const handleSetCapaColor = (color: string) => {
     setCapaColor(color);
     setCapa(undefined);
     toast.success("Cor da capa definida!");
-    closeActivePopup(); // Fecha apenas o pop-up, modal permanece aberto
+    closeActivePopup();
   };
 
   const handleRemoveCapa = () => {
     setCapa(undefined);
     setCapaColor(undefined);
     toast.success("Capa removida!");
-    closeActivePopup(); // Fecha apenas o pop-up, modal permanece aberto
+    closeActivePopup();
   };
 
   const handleUpdateChecklists = (newChecklists: Checklist[]) => {
@@ -260,12 +248,12 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       }))
     );
     setChecklistItems(allItems);
-    closeActivePopup(); // Fecha apenas o pop-up, modal permanece aberto
+    closeActivePopup();
   };
 
   const handleMove = (boardId: string, blockId: string, position: number) => {
     toast.success("Cartão movido!");
-    closeActivePopup(); // Fecha apenas o pop-up, modal permanece aberto
+    closeActivePopup();
   };
 
   const addChecklistItem = () => {
@@ -280,7 +268,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     setChecklistItems([...checklistItems, newItem]);
     setNewChecklistItem("");
     toast.success("Item adicionado ao checklist!");
-    // Modal permanece aberto
   };
 
   const toggleChecklistItem = (itemId: string) => {
@@ -289,13 +276,11 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         item.id === itemId ? { ...item, completed: !item.completed } : item
       )
     );
-    // Modal permanece aberto
   };
 
   const removeChecklistItem = (itemId: string) => {
     setChecklistItems(prev => prev.filter(item => item.id !== itemId));
     toast.success("Item removido!");
-    // Modal permanece aberto
   };
 
   const getChecklistProgress = () => {
@@ -503,7 +488,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     <BaseDialog
       isOpen={isOpen}
       onClose={handleModalClose}
-      onInteractOutside={handleInteractOutside}
       title={title || "Novo Cartão"}
       location={blockName || "A FAZER"}
       onLocationClick={() => setActivePopup('localizacao')}
@@ -516,8 +500,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       sidebarContent={sidebarContent}
       capa={capa}
       capaColor={capaColor}
-      className="min-w-[320px] w-auto md:max-w-2xl"
-      style={{ maxHeight: 'none', overflowY: 'visible' }}
     >
       <div className="space-y-6">
         <input
@@ -696,7 +678,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           </div>
         )}
 
-        {/* Checklist - INTEGRAÇÃO COMPLETA */}
+        {/* Checklist */}
         {checklistItems.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
