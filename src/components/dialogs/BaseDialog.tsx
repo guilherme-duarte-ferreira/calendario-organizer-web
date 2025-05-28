@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 interface BaseDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onInteractOutside?: (event: Event) => void;
   title: string;
   location?: string;
   onLocationClick?: () => void;
@@ -34,6 +35,7 @@ interface BaseDialogProps {
   showNotifications?: boolean;
   isSaving?: boolean;
   className?: string;
+  style?: React.CSSProperties;
   capa?: string;
   capaColor?: string;
 }
@@ -41,6 +43,7 @@ interface BaseDialogProps {
 export default function BaseDialog({
   isOpen,
   onClose,
+  onInteractOutside,
   title,
   location,
   onLocationClick,
@@ -61,6 +64,7 @@ export default function BaseDialog({
   showNotifications = true,
   isSaving = false,
   className,
+  style,
   capa,
   capaColor,
 }: BaseDialogProps) {
@@ -95,8 +99,11 @@ export default function BaseDialog({
           left: "50%",
           transform: "translate(-50%, -50%)",
           maxHeight: "none",
-          height: "auto"
+          height: "auto",
+          overflowY: "visible",
+          ...style
         }}
+        onInteractOutside={onInteractOutside}
       >
         {/* Capa - se existir */}
         {(capa || capaColor) && (
