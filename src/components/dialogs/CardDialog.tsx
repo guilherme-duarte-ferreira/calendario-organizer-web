@@ -60,17 +60,16 @@ interface Etiqueta {
   color: string;
 }
 
-interface ChecklistItem {
+interface ChecklistItemLocal {
   id: string;
   text: string;
   completed: boolean;
-  dueDate?: string;
 }
 
-interface Checklist {
+interface ChecklistLocal {
   id: string;
   title: string;
-  items: ChecklistItem[];
+  items: ChecklistItemLocal[];
 }
 
 export default function CardDialog({ card, isOpen, onClose, blockName }: CardDialogProps) {
@@ -80,7 +79,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const [description, setDescription] = useState(card.description || "");
   const [status, setStatus] = useState(card.status);
   const [checklistItems, setChecklistItems] = useState(card.checklist || []);
-  const [checklists, setChecklists] = useState<Checklist[]>([]);
+  const [checklists, setChecklists] = useState<ChecklistLocal[]>([]);
   const [attachments, setAttachments] = useState(card.attachments || []);
   const [isMaximized, setIsMaximized] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -88,7 +87,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const [showActivityDetails, setShowActivityDetails] = useState(false);
   const [newChecklistItem, setNewChecklistItem] = useState("");
   
-  // Estados dos popups - com controle de foco exclusivo
+  // Sistema de controle de foco exclusivo para pop-ups
   const [activePopup, setActivePopup] = useState<string | null>(null);
   
   // Estados para funcionalidades
@@ -118,6 +117,13 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       closeActivePopup();
     } else {
       onClose();
+    }
+  };
+
+  // Intercepta tentativas de fechar o modal quando há popup ativo
+  const handleDialogInteractOutside = (event: Event) => {
+    if (activePopup) {
+      event.preventDefault();
     }
   };
 
@@ -236,15 +242,14 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     closeActivePopup();
   };
 
-  const handleUpdateChecklists = (newChecklists: Checklist[]) => {
+  const handleUpdateChecklists = (newChecklists: ChecklistLocal[]) => {
     setChecklists(newChecklists);
     // Converter checklists para o formato do card
-    const allItems: ChecklistItem[] = newChecklists.flatMap(checklist => 
+    const allItems: ChecklistItemLocal[] = newChecklists.flatMap(checklist => 
       checklist.items.map(item => ({
         id: item.id,
         text: `${checklist.title}: ${item.text}`,
-        completed: item.completed,
-        dueDate: item.dueDate
+        completed: item.completed
       }))
     );
     setChecklistItems(allItems);
@@ -259,7 +264,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const addChecklistItem = () => {
     if (!newChecklistItem.trim()) return;
 
-    const newItem: ChecklistItem = {
+    const newItem: ChecklistItemLocal = {
       id: Date.now().toString(),
       text: newChecklistItem.trim(),
       completed: false
@@ -488,6 +493,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     <BaseDialog
       isOpen={isOpen}
       onClose={handleModalClose}
+      onInteractOutside={handleDialogInteractOutside}
       title={title || "Novo Cartão"}
       location={blockName || "A FAZER"}
       onLocationClick={() => setActivePopup('localizacao')}

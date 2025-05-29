@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 interface BaseDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onInteractOutside?: (event: Event) => void;
   title: string;
   location?: string;
   onLocationClick?: () => void;
@@ -41,6 +42,7 @@ interface BaseDialogProps {
 export default function BaseDialog({
   isOpen,
   onClose,
+  onInteractOutside,
   title,
   location,
   onLocationClick,
@@ -83,7 +85,8 @@ export default function BaseDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
         className={cn(
-          "max-w-4xl w-full max-h-none h-auto flex flex-col p-0 gap-0 overflow-visible",
+          "max-w-4xl w-full flex flex-col p-0 gap-0 overflow-visible",
+          "max-h-none h-auto",
           isMaximized && "max-w-[95vw] w-[95vw]",
           className
         )}
@@ -95,8 +98,10 @@ export default function BaseDialog({
           left: "50%",
           transform: "translate(-50%, -50%)",
           maxHeight: "none",
-          height: "auto"
+          height: "auto",
+          overflowY: "visible"
         }}
+        onInteractOutside={onInteractOutside}
       >
         {/* Capa - se existir */}
         {(capa || capaColor) && (
