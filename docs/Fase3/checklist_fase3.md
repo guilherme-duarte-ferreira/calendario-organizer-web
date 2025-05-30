@@ -1,4 +1,3 @@
-
 # CHECKLIST FASE 3 - Sistema Calendário
 
 ## FASE 3 - PARTE 1 ✅ CONCLUÍDA
@@ -338,3 +337,28 @@
 - ✅ Sistema de backup automático
 
 A Fase 3 está 95% implementada com todas as funcionalidades principais funcionando corretamente. Os 5% restantes são refinamentos específicos (TipTap, drag-and-drop avançado) que podem ser finalizados antes da transição para a Fase 4.
+
+## I. PARA RESOLVER/FINALIZAR AGORA (Refinamento Final da Fase 3)
+
+### A. Modal de Edição (`CardDialog.tsx` e `SpreadsheetDialog.tsx`)
+
+1.  **Hierarquia de Fechamento de Pop-ups (Prioridade Alta):**
+    * [x] **Problema Principal:** O clique fora da área de um pop-up específico (Etiquetas, Checklist, Datas, Mover, Capa, etc.) ou em áreas inesperadas do modal NÃO está fechando APENAS o pop-up ativo de forma consistente.
+    * [x] **Requisito:** Garantir que, quando um pop-up estiver aberto SOBRE um modal (`CardDialog` ou `SpreadsheetDialog`):
+        * [x] Um clique em **qualquer área visível do modal principal** que esteja FORA do conteúdo do pop-up ativo deve fechar APENAS o pop-up ativo (o modal principal permanece aberto).
+        * [x] Um clique TOTALMENTE FORA do modal de edição (por exemplo, na área de trabalho) deve fechar APENAS o pop-up ativo, mantendo o modal de edição aberto.
+        * [x] O clique no botão "X" (ou equivalente de fechamento) DENTRO do pop-up deve fechar APENAS o pop-up.
+        * [x] A tecla "Escape" deve fechar APENAS o pop-up ativo. Se nenhum pop-up estiver ativo, "Escape" deve fechar o modal principal.
+        * [x] Assegurar que o foco retorne corretamente ao elemento apropriado no modal de edição após fechar um pop-up.
+        * [x] Verificar consistência deste comportamento para TODOS os pop-ups de ação da barra lateral.
+
+    * [+] **Funcionalidade Adicional:** Implementação de `data-popup` para identificação precisa dos pop-ups ativos.
+        * [x] Adicionado atributo `data-popup` em todos os pop-ups (Etiquetas, Checklist, Datas, Mover, Capa)
+        * [x] Z-index consistente (`z-[9999]`) em todos os pop-ups
+        * [x] Sistema de identificação unificado para controle de fechamento
+
+    * [+] **Funcionalidade Adicional:** Sistema de gerenciamento de foco com `lastFocusedElement` para melhor acessibilidade.
+        * [x] Implementado em `CardDialog.tsx` e `SpreadsheetDialog.tsx`
+        * [x] Salva o último elemento focado antes de abrir um pop-up
+        * [x] Restaura o foco corretamente após fechar o pop-up
+        * [x] Tratamento de casos especiais (elemento removido do DOM)

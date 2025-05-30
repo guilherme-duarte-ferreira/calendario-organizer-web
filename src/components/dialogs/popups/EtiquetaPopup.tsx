@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,7 +52,7 @@ export default function EtiquetaPopup({
   };
 
   return (
-    <div className="absolute top-full left-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-50">
+    <div className="absolute top-full left-0 mt-2 w-72 bg-white border rounded-lg shadow-lg z-[9999]" data-popup="etiquetas">
       <div className="p-3 border-b">
         <div className="flex items-center justify-between mb-2">
           <h3 className="font-medium text-sm">Etiquetas</h3>

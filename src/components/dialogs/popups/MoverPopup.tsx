@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -39,7 +38,7 @@ export default function MoverPopup({
   };
 
   return (
-    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-50">
+    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]" data-popup="mover">
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Mover cartão</h3>

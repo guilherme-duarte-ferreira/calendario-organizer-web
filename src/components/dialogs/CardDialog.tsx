@@ -1,5 +1,4 @@
-
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
 import BaseDialog from "./BaseDialog";
@@ -89,6 +88,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   
   // Sistema de controle de foco exclusivo para pop-ups
   const [activePopup, setActivePopup] = useState<string | null>(null);
+  const [lastFocusedElement, setLastFocusedElement] = useState<HTMLElement | null>(null);
   
   // Estados para funcionalidades
   const [etiquetas, setEtiquetas] = useState<Etiqueta[]>([
@@ -106,12 +106,29 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Função para fechar apenas a telinha ativa
-  const closeActivePopup = () => {
-    setActivePopup(null);
+  // Função para abrir um pop-up e salvar o elemento que tinha foco
+  const openPopup = (popupName: string, triggerElement?: HTMLElement) => {
+    if (document.activeElement && document.activeElement !== document.body) {
+      setLastFocusedElement(document.activeElement as HTMLElement);
+    } else if (triggerElement) {
+      setLastFocusedElement(triggerElement);
+    }
+    setActivePopup(popupName);
   };
 
-  // Função personalizada para fechar o modal - só fecha se não há popup ativo
+  // Função para fechar o pop-up ativo e restaurar o foco
+  const closeActivePopup = () => {
+    setActivePopup(null);
+    // Atraso pequeno para garantir que o DOM atualizou antes de tentar focar
+    setTimeout(() => {
+      if (lastFocusedElement && document.body.contains(lastFocusedElement)) {
+        lastFocusedElement.focus();
+      }
+      setLastFocusedElement(null);
+    }, 0);
+  };
+
+  // Função para lidar com o fechamento do modal
   const handleModalClose = () => {
     if (activePopup) {
       closeActivePopup();
@@ -120,12 +137,47 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     }
   };
 
-  // Intercepta tentativas de fechar o modal quando há popup ativo
+  // Função para lidar com interações fora do modal
   const handleDialogInteractOutside = (event: Event) => {
     if (activePopup) {
       event.preventDefault();
+      closeActivePopup();
     }
   };
+
+  // Função para lidar com cliques dentro do modal
+  const handleModalClick = (event: React.MouseEvent) => {
+    if (activePopup) {
+      // Verifica se o clique foi fora do pop-up ativo
+      const popupElement = document.querySelector(`[data-popup="${activePopup}"]`);
+      if (popupElement && !popupElement.contains(event.target as Node)) {
+        event.preventDefault();
+        closeActivePopup();
+      }
+    }
+  };
+
+  // Efeito para lidar com a tecla Escape
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (activePopup) {
+          event.stopPropagation();
+          closeActivePopup();
+        } else if (isOpen) {
+          onClose();
+        }
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activePopup, isOpen, onClose]);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -318,6 +370,14 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     setDescription(newDescription);
   };
 
+  const handleSelectEtiqueta = (etiquetaId: string) => {
+    setSelectedEtiquetas(prev => 
+      prev.includes(etiquetaId) 
+        ? prev.filter(id => id !== etiquetaId)
+        : [...prev, etiquetaId]
+    );
+  };
+
   const sidebarContent = (
     <div className="space-y-2">
       <div className="relative">
@@ -327,7 +387,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           className="w-full justify-start"
           onClick={(e) => {
             e.stopPropagation();
-            setActivePopup(activePopup === 'etiquetas' ? null : 'etiquetas');
+            openPopup('etiquetas', e.currentTarget as HTMLElement);
           }}
         >
           <Tag size={16} className="mr-2" />
@@ -338,13 +398,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           onClose={closeActivePopup}
           etiquetas={etiquetas}
           selectedEtiquetas={selectedEtiquetas}
-          onToggleEtiqueta={(etiquetaId: string) => {
-            setSelectedEtiquetas(prev => 
-              prev.includes(etiquetaId) 
-                ? prev.filter(id => id !== etiquetaId)
-                : [...prev, etiquetaId]
-            );
-          }}
+          onToggleEtiqueta={handleSelectEtiqueta}
           onCreateEtiqueta={handleCreateEtiqueta}
         />
       </div>
@@ -356,7 +410,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           className="w-full justify-start"
           onClick={(e) => {
             e.stopPropagation();
-            setActivePopup(activePopup === 'checklist' ? null : 'checklist');
+            openPopup('checklist', e.currentTarget as HTMLElement);
           }}
         >
           <CheckSquare size={16} className="mr-2" />
@@ -377,7 +431,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           className="w-full justify-start"
           onClick={(e) => {
             e.stopPropagation();
-            setActivePopup(activePopup === 'datas' ? null : 'datas');
+            openPopup('datas', e.currentTarget as HTMLElement);
           }}
         >
           <Clock size={16} className="mr-2" />
@@ -412,7 +466,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           className="w-full justify-start"
           onClick={(e) => {
             e.stopPropagation();
-            setActivePopup(activePopup === 'capa' ? null : 'capa');
+            openPopup('capa', e.currentTarget as HTMLElement);
           }}
         >
           <ImageIcon size={16} className="mr-2" />
@@ -438,7 +492,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
           className="w-full justify-start"
           onClick={(e) => {
             e.stopPropagation();
-            setActivePopup(activePopup === 'mover' ? null : 'mover');
+            openPopup('mover', e.currentTarget as HTMLElement);
           }}
         >
           <ArrowRight size={16} className="mr-2" />
@@ -497,7 +551,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       onInteractOutside={handleDialogInteractOutside}
       title={title || "Novo Cartão"}
       location={blockName}
-      onLocationClick={() => setActivePopup('mover')}
+      onLocationClick={() => openPopup('localizacao', document.activeElement as HTMLElement)}
       onSave={handleSave}
       onArchive={handleArchive}
       onDelete={handleDelete}
@@ -508,7 +562,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       capa={capa}
       capaColor={capaColor}
     >
-      <div className="space-y-6">
+      <div className="space-y-6" onClick={handleModalClick}>
         <input
           ref={fileInputRef}
           type="file"
@@ -525,7 +579,8 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
             cardId={card.id}
             onMover={() => {
               closeActivePopup();
-              setActivePopup('mover');
+              const moverButton = document.querySelector<HTMLElement>('[aria-label="Mover"]');
+              openPopup('mover', moverButton || undefined);
             }}
           />
         )}
@@ -548,7 +603,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
               if (!etiqueta) return null;
               return (
                 <Badge 
-                  key={etiqueta.id} 
+                  variant="default"
                   className="text-white text-xs"
                   style={{ backgroundColor: etiqueta.color }}
                 >

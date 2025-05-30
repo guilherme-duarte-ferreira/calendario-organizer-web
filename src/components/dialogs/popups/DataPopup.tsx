@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -42,7 +41,7 @@ export default function DataPopup({
   };
 
   return (
-    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-50">
+    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]" data-popup="datas">
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Datas</h3>

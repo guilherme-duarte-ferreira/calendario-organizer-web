@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { X, Upload, Image, Trash2, Palette } from "lucide-react";
@@ -55,7 +54,7 @@ export default function CapaPopup({
   };
 
   return (
-    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]">
+    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]" data-popup="capa">
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Capa</h3>
