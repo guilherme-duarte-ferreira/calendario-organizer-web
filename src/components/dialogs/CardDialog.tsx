@@ -463,6 +463,16 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         Copiar
       </Button>
       
+      <Button 
+        variant="secondary" 
+        size="sm" 
+        className="w-full justify-start"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Share size={16} className="mr-2" />
+        Compartilhar
+      </Button>
+      
       <Separator className="my-4" />
       
       <Button 
@@ -477,15 +487,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         <Archive size={16} className="mr-2" />
         Arquivar
       </Button>
-      <Button 
-        variant="secondary" 
-        size="sm" 
-        className="w-full justify-start"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Share size={16} className="mr-2" />
-        Compartilhar
-      </Button>
     </div>
   );
 
@@ -495,8 +496,8 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       onClose={handleModalClose}
       onInteractOutside={handleDialogInteractOutside}
       title={title || "Novo Cartão"}
-      location={blockName || "A FAZER"}
-      onLocationClick={() => setActivePopup('localizacao')}
+      location={blockName}
+      onLocationClick={() => setActivePopup('mover')}
       onSave={handleSave}
       onArchive={handleArchive}
       onDelete={handleDelete}

@@ -8,7 +8,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Maximize2, Minimize2, Archive, Trash2, Bell } from "lucide-react";
+import { X, Maximize2, Minimize2, Archive, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BaseDialogProps {
@@ -24,7 +24,6 @@ interface BaseDialogProps {
   onCancel?: () => void;
   onArchive?: () => void;
   onDelete?: () => void;
-  onNotificationClick?: () => void;
   isMaximized?: boolean;
   onToggleMaximize?: () => void;
   saveButtonText?: string;
@@ -32,7 +31,6 @@ interface BaseDialogProps {
   showArchive?: boolean;
   showDelete?: boolean;
   showMaximize?: boolean;
-  showNotifications?: boolean;
   isSaving?: boolean;
   className?: string;
   capa?: string;
@@ -52,7 +50,6 @@ export default function BaseDialog({
   onCancel,
   onArchive,
   onDelete,
-  onNotificationClick,
   isMaximized = false,
   onToggleMaximize,
   saveButtonText = "Salvar",
@@ -60,7 +57,6 @@ export default function BaseDialog({
   showArchive = true,
   showDelete = true,
   showMaximize = true,
-  showNotifications = true,
   isSaving = false,
   className,
   capa,
@@ -86,8 +82,8 @@ export default function BaseDialog({
       <DialogContent 
         className={cn(
           "max-w-4xl w-full flex flex-col p-0 gap-0 overflow-visible",
-          "max-h-none h-auto",
-          isMaximized && "max-w-[95vw] w-[95vw]",
+          "max-h-none h-auto min-h-[400px]",
+          isMaximized && "max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh]",
           className
         )}
         style={{ 
@@ -97,9 +93,7 @@ export default function BaseDialog({
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          maxHeight: "none",
-          height: "auto",
-          overflowY: "visible"
+          overflowY: isMaximized ? "auto" : "visible"
         }}
         onInteractOutside={onInteractOutside}
       >
@@ -166,10 +160,13 @@ export default function BaseDialog({
         </div>
 
         {/* Content Area */}
-        <div className="flex">
+        <div className="flex flex-1 min-h-0">
           {/* Main Content */}
-          <div className="flex-1 flex flex-col">
-            <div className="p-6 space-y-6">
+          <div className="flex-1 flex flex-col min-h-0">
+            <div className={cn(
+              "p-6 space-y-6 flex-1",
+              isMaximized ? "overflow-y-auto" : ""
+            )}>
               {children}
             </div>
             
