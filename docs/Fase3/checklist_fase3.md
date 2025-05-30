@@ -140,8 +140,8 @@
 - [x] Adição/remoção de linhas e colunas
 - [x] Importação de tabelas Markdown
 - [x] Capas em planilhas (SpreadsheetItem)
-- [ ] **Sistema de controle de foco dos pop-ups** ⚠️ PENDENTE
-- [ ] **Barra lateral idêntica ao CardDialog** ⚠️ PENDENTE
+- [x] **Sistema de controle de foco dos pop-ups**
+- [x] **Barra lateral idêntica ao CardDialog**
 
 ---
 
@@ -178,38 +178,61 @@
 - [x] Menu de contexto nos itens de checklist
 - [x] Confirmação de exclusão com dialog
 
+### [+] Sistema de Etiquetas Completo
+- [x] Criação de etiquetas personalizadas
+- [x] Seleção de cores para etiquetas
+- [x] Aplicação/remoção de etiquetas nos cartões
+- [x] Preview de etiquetas nos cartões da área de trabalho
+
+### [+] Sistema de Datas e Calendário
+- [x] Data de início, entrega e lembrete
+- [x] Calendário integrado para seleção
+- [x] Exibição de datas nos cartões
+
+### [+] Sistema de Anexos Robusto
+- [x] Upload múltiplo de arquivos
+- [x] Preview de imagens
+- [x] Gerenciamento completo de anexos
+- [x] Integração com storage local
+
 ---
 
 ## STATUS ATUAL
-**✅ FASE 3 - PARTE 2: 100% CONCLUÍDA**
+**✅ FASE 3: 100% CONCLUÍDA**
 
 ### ✅ Principais Conquistas:
-1. ✅ Sistema de controle de foco implementado e funcionando
+1. ✅ Sistema de controle de foco implementado e funcionando em ambos modais
 2. ✅ Modal de edição com comportamento correto de fechamento
 3. ✅ Pop-ups com hierarquia de fechamento em cascata
 4. ✅ Barra de rolagem na área de trabalho (não no modal)
 5. ✅ Checklist completamente funcional e sincronizado
-6. ✅ Sistema de capas funcionando
-7. ✅ Funcionalidades básicas dos pop-ups implementadas
+6. ✅ Sistema de capas funcionando em cartões e planilhas
+7. ✅ Todas as funcionalidades dos pop-ups implementadas
 8. ✅ Sistema de anexos e markdown funcionando
-9. ✅ Sistema de notificações básico
+9. ✅ Sistema de notificações implementado
 10. ✅ Terminologia padronizada na documentação
+11. ✅ SpreadsheetDialog com barra lateral e controle de foco
+12. ✅ Sistema de etiquetas completo
+13. ✅ Sistema de datas e calendário integrado
 
-### 🔄 Próximos Passos (Fase 3 - Parte 3):
-1. **SpreadsheetDialog**: Aplicar sistema de controle de foco
-2. **SpreadsheetDialog**: Implementar barra lateral idêntica ao CardDialog
-3. **Refinamentos finais**: Sistema de notificações avançado
-4. **Comentários**: Implementar Markdown nos comentários
-5. **Reordenação**: Implementar arrastar e soltar
+### 🔄 Próximos Passos (Fase 4):
+1. **Arrastar e Soltar**: Implementar reordenação de cartões entre blocos
+2. **Notificações Avançadas**: Sistema de lembretes baseado em datas
+3. **Comentários Markdown**: Implementar formatação avançada nos comentários
+4. **Exportação**: Sistema de exportação para PDF/Excel
+5. **Temas**: Sistema de temas personalizáveis
 
-**Estimativa para conclusão completa da Fase 3: 1-2 sessões de trabalho**
+**Estimativa para início da Fase 4: Próxima sessão de trabalho**
 
 ### 📊 Métricas de Progresso:
 - **CardDialog**: 100% completo ✅
 - **Sistema de Controle de Foco**: 100% completo ✅
-- **SpreadsheetDialog**: 80% completo (falta barra lateral e sistema de foco)
-- **Sistema de Pop-ups**: 100% completo para CardDialog ✅
+- **SpreadsheetDialog**: 100% completo ✅
+- **Sistema de Pop-ups**: 100% completo ✅
 - **Funcionalidades Auxiliares**: 100% completo ✅
+- **Sistema de Capas**: 100% completo ✅
+- **Sistema de Etiquetas**: 100% completo ✅
+- **Sistema de Checklist**: 100% completo ✅
 
 ---
 
@@ -221,11 +244,20 @@
 - Função `handleModalClose()` verifica se há pop-up ativo antes de fechar modal
 - `handleDialogInteractOutside` previne fechamento do modal quando pop-up está ativo
 - Uso de `stopPropagation()` em botões da barra lateral
+- Implementado em ambos CardDialog.tsx e SpreadsheetDialog.tsx
 
 ### Arquivos Principais:
 - ✅ `src/components/dialogs/CardDialog.tsx` - 100% implementado
-- ✅ `src/components/dialogs/BaseDialog.tsx` - Atualizado com suporte a interceptação
-- ✅ `src/components/dialogs/popups/ChecklistPopup.tsx` - Funcionando perfeitamente
-- ⏳ `src/components/dialogs/SpreadsheetDialog.tsx` - Próximo a ser atualizado
+- ✅ `src/components/dialogs/BaseDialog.tsx` - Atualizado com suporte completo
+- ✅ `src/components/dialogs/SpreadsheetDialog.tsx` - 100% implementado
+- ✅ `src/components/dialogs/popups/*` - Todos os pop-ups implementados
+- ✅ `src/components/workspace/CardItem.tsx` - Sistema de capas e status
+- ✅ `src/components/workspace/SpreadsheetItem.tsx` - Capas em planilhas
 
-O CardDialog.tsx está agora completamente funcional com o sistema de controle de foco implementado, proporcionando a experiência de usuário desejada inspirada no Trello!
+### Sistema de Storage e Persistência:
+- ✅ Integração completa com localStorage via storage.ts
+- ✅ Persistência de checklists, etiquetas, capas e anexos
+- ✅ Sincronização em tempo real entre componentes
+- ✅ Sistema de backup automático
+
+A Fase 3 está completamente implementada com todas as funcionalidades principais e auxiliares funcionando corretamente. O sistema de controle de foco resolve definitivamente os problemas de fechamento de modais e pop-ups, proporcionando a experiência de usuário desejada inspirada no Trello!
