@@ -47,6 +47,9 @@
 - [x] Pop-ups fecham ao clicar fora da área específica do pop-up
 - [x] Retorno do foco ao modal de edição após fechar um pop-up
 - [x] Posicionamento correto dos pop-ups próximo aos botões
+- [x] Refatoração para usar o componente Popover do shadcn/ui
+- [x] Pop-ups renderizados em portal para evitar problemas de overflow
+- [x] Hierarquia de fechamento implementada (ESC fecha pop-up antes do modal)
 
 ##### 1.4.2. Etiquetas
 - [x] Implementar botão que abre pop-up de etiquetas
@@ -198,6 +201,9 @@
 - [x] Todos os pop-ups são componentes React reutilizáveis
 - [x] Posicionamento dinâmico adequado
 - [x] Sistema de controle de foco unificado
+- [x] Integração com Popover do shadcn/ui
+- [x] Renderização em portal para evitar problemas de overflow
+- [x] Gerenciamento de foco e teclado implementado
 
 #### 5.3. Estado
 - [x] Estado gerenciado via CalendarioContext de forma eficiente

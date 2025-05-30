@@ -45,6 +45,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import EtiquetaPopupContent from "./popups/EtiquetaPopupContent";
 
 interface CardDialogProps {
   card: Card;
@@ -381,26 +383,22 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const sidebarContent = (
     <div className="space-y-2">
       <div className="relative">
-        <Button 
-          variant="secondary" 
-          size="sm" 
-          className="w-full justify-start"
-          onClick={(e) => {
-            e.stopPropagation();
-            openPopup('etiquetas', e.currentTarget as HTMLElement);
-          }}
-        >
-          <Tag size={16} className="mr-2" />
-          Etiquetas
-        </Button>
-        <EtiquetaPopup
-          isOpen={activePopup === 'etiquetas'}
-          onClose={closeActivePopup}
-          etiquetas={etiquetas}
-          selectedEtiquetas={selectedEtiquetas}
-          onToggleEtiqueta={handleSelectEtiqueta}
-          onCreateEtiqueta={handleCreateEtiqueta}
-        />
+        <Popover open={activePopup === 'etiquetas'} onOpenChange={(open) => setActivePopup(open ? 'etiquetas' : null)}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="text-xs">
+              <Tag size={14} className="mr-2" />
+              Etiquetas
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0" align="start">
+            <EtiquetaPopupContent
+              etiquetas={etiquetas}
+              selectedEtiquetas={selectedEtiquetas}
+              onToggleEtiqueta={handleSelectEtiqueta}
+              onCreateEtiqueta={handleCreateEtiqueta}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       
       <div className="relative">
@@ -603,6 +601,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
               if (!etiqueta) return null;
               return (
                 <Badge 
+                  key={etiquetaId}
                   variant="default"
                   className="text-white text-xs"
                   style={{ backgroundColor: etiqueta.color }}
@@ -618,13 +617,21 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         {(dueDate || reminderDate) && (
           <div className="flex flex-wrap gap-2">
             {dueDate && (
-              <Badge variant="destructive" className="text-xs">
+              <Badge 
+                key="dueDate"
+                variant="destructive" 
+                className="text-xs"
+              >
                 <Clock size={12} className="mr-1" />
                 Vencimento: {dueDate.toLocaleDateString()}
               </Badge>
             )}
             {reminderDate && (
-              <Badge variant="secondary" className="text-xs">
+              <Badge 
+                key="reminderDate"
+                variant="secondary" 
+                className="text-xs"
+              >
                 <Clock size={12} className="mr-1" />
                 Lembrete: {reminderDate.toLocaleDateString()}
               </Badge>
