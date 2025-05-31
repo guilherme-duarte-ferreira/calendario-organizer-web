@@ -312,9 +312,13 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     closeActivePopup();
   };
 
-  const handleMove = (boardId: string, blockId: string, position: number) => {
-    toast.success("Cartão movido!");
-    closeActivePopup();
+  const handleMoveCard = (boardId: string, blockId: string, position: number) => {
+    const currentItem = boards.flatMap(b => b.blocks).flatMap(bl => bl.items).find(it => it.id === card.id);
+    if (currentItem) {
+      const updatedItem = { ...currentItem, blockId, order: position, updatedAt: new Date().toISOString() };
+      updateItem(updatedItem);
+      toast.success("Cartão movido!");
+    }
   };
 
   const addChecklistItem = () => {
@@ -501,25 +505,30 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       <Separator className="my-4" />
       
       <div className="relative">
-        <Button 
-          variant="secondary" 
-          size="sm" 
-          className="w-full justify-start"
-          onClick={(e) => {
-            e.stopPropagation();
-            openPopup('mover', e.currentTarget as HTMLElement);
-          }}
-        >
-          <ArrowRight size={16} className="mr-2" />
-          Mover
-        </Button>
-        <MoverPopup
-          isOpen={activePopup === 'mover'}
-          onClose={closeActivePopup}
-          onMove={handleMove}
-          currentBoardId={boards.find(b => b.blocks.some(block => block.items.some(item => item.id === card.id)))?.id}
-          currentBlockId={boards.flatMap(b => b.blocks).find(block => block.items.some(item => item.id === card.id))?.id}
-        />
+        <Popover open={activePopup === 'moverAction'} onOpenChange={(open) => setActivePopup(open ? 'moverAction' : null)}>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={(e) => {
+                e.stopPropagation();
+                openPopup('moverAction', e.currentTarget as HTMLElement);
+              }}
+            >
+              <ArrowRight size={16} className="mr-2" />
+              Mover
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0 w-80" align="start" data-popup="moverAction">
+            <MoverPopup
+              onClosePopup={closeActivePopup}
+              onMove={handleMoveCard}
+              currentBoardId={boards.find(b => b.blocks.some(block => block.items.some(item => item.id === card.id)))?.id}
+              currentBlockId={boards.flatMap(b => b.blocks).find(block => block.items.some(item => item.id === card.id))?.id}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       
       <Button 
@@ -595,7 +604,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
             onMover={() => {
               closeActivePopup();
               const moverButton = document.querySelector<HTMLElement>('[aria-label="Mover"]');
-              openPopup('mover', moverButton || undefined);
+              openPopup('moverAction', moverButton || undefined);
             }}
           />
         )}
