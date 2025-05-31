@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import EtiquetaPopupContent from "./popups/EtiquetaPopupContent";
+import DataPopupContent from "./popups/DataPopupContent";
 
 interface CardDialogProps {
   card: Card;
@@ -428,25 +429,30 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       </div>
       
       <div className="relative">
-        <Button 
-          variant="secondary" 
-          size="sm" 
-          className="w-full justify-start"
-          onClick={(e) => {
-            e.stopPropagation();
-            openPopup('datas', e.currentTarget as HTMLElement);
-          }}
-        >
-          <Clock size={16} className="mr-2" />
-          Datas
-        </Button>
-        <DataPopup
-          isOpen={activePopup === 'datas'}
-          onClose={closeActivePopup}
-          onSetDate={handleSetDate}
-          dueDate={dueDate}
-          reminderDate={reminderDate}
-        />
+        <Popover open={activePopup === 'datas'} onOpenChange={(open) => setActivePopup(open ? 'datas' : null)}>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={(e) => {
+                e.stopPropagation();
+                openPopup('datas', e.currentTarget as HTMLElement);
+              }}
+            >
+              <Clock size={16} className="mr-2" />
+              Datas
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0 w-80" align="start" data-popup="datas">
+            <DataPopupContent
+              onClosePopup={closeActivePopup}
+              onSetDate={handleSetDate}
+              dueDate={dueDate}
+              reminderDate={reminderDate}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       
       <Button 
