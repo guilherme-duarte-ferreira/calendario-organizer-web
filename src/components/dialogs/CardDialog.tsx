@@ -402,24 +402,29 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       </div>
       
       <div className="relative">
-        <Button 
-          variant="secondary" 
-          size="sm" 
-          className="w-full justify-start"
-          onClick={(e) => {
-            e.stopPropagation();
-            openPopup('checklist', e.currentTarget as HTMLElement);
-          }}
-        >
-          <CheckSquare size={16} className="mr-2" />
-          Checklist
-        </Button>
-        <ChecklistPopup
-          isOpen={activePopup === 'checklist'}
-          onClose={closeActivePopup}
-          checklists={checklists}
-          onUpdateChecklists={handleUpdateChecklists}
-        />
+        <Popover open={activePopup === 'checklist'} onOpenChange={(open) => setActivePopup(open ? 'checklist' : null)}>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={(e) => {
+                e.stopPropagation();
+                openPopup('checklist', e.currentTarget as HTMLElement);
+              }}
+            >
+              <CheckSquare size={16} className="mr-2" />
+              Checklist
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0 w-80" align="start" data-popup="checklist">
+            <ChecklistPopup
+              checklists={checklists}
+              onUpdateChecklists={handleUpdateChecklists}
+              onClosePopup={closeActivePopup}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       
       <div className="relative">
