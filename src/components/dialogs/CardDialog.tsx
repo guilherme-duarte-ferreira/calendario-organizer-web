@@ -35,7 +35,6 @@ import {
 import { toast } from "sonner";
 import EtiquetaPopup from "./popups/EtiquetaPopup";
 import DataPopup from "./popups/DataPopup";
-import CapaPopup from "./popups/CapaPopup";
 import ChecklistPopup from "./popups/ChecklistPopup";
 import MoverPopup from "./popups/MoverPopup";
 import LocalizacaoCartao from "./popups/LocalizacaoCartao";
@@ -48,6 +47,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import EtiquetaPopupContent from "./popups/EtiquetaPopupContent";
 import DataPopupContent from "./popups/DataPopupContent";
+import CapaPopupContent from "./popups/CapaPopupContent";
+import CapaPopup from "./popups/CapaPopup";
 
 interface CardDialogProps {
   card: Card;
@@ -469,27 +470,32 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       </Button>
 
       <div className="relative">
-        <Button 
-          variant="secondary" 
-          size="sm" 
-          className="w-full justify-start"
-          onClick={(e) => {
-            e.stopPropagation();
-            openPopup('capa', e.currentTarget as HTMLElement);
-          }}
-        >
-          <ImageIcon size={16} className="mr-2" />
-          Capa
-        </Button>
-        <CapaPopup
-          isOpen={activePopup === 'capa'}
-          onClose={closeActivePopup}
-          onSetCapa={handleSetCapa}
-          onSetCapaColor={handleSetCapaColor}
-          onRemoveCapa={handleRemoveCapa}
-          currentCapa={capa}
-          currentCapaColor={capaColor}
-        />
+        <Popover open={activePopup === 'capa'} onOpenChange={(open) => setActivePopup(open ? 'capa' : null)}>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={(e) => {
+                e.stopPropagation();
+                openPopup('capa', e.currentTarget as HTMLElement);
+              }}
+            >
+              <ImageIcon size={16} className="mr-2" />
+              Capa
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-0 w-80" align="start" data-popup="capa">
+            <CapaPopup
+              onClosePopup={closeActivePopup}
+              onSetCapa={handleSetCapa}
+              onSetCapaColor={handleSetCapaColor}
+              onRemoveCapa={handleRemoveCapa}
+              currentCapa={capa}
+              currentCapaColor={capaColor}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       
       <Separator className="my-4" />

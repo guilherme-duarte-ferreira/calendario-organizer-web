@@ -2,10 +2,10 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { X, Upload, Image, Trash2, Palette } from "lucide-react";
 import CoresCapa from "./CoresCapa";
+import { PopoverClose } from "@/components/ui/popover";
 
 interface CapaPopupProps {
-  isOpen: boolean;
-  onClose: () => void;
+  onClosePopup?: () => void;
   onSetCapa: (imageUrl: string) => void;
   onSetCapaColor: (color: string) => void;
   onRemoveCapa: () => void;
@@ -23,8 +23,7 @@ const capasSugeridas = [
 ];
 
 export default function CapaPopup({
-  isOpen,
-  onClose,
+  onClosePopup,
   onSetCapa,
   onSetCapaColor,
   onRemoveCapa,
@@ -34,13 +33,12 @@ export default function CapaPopup({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showCoresCapa, setShowCoresCapa] = useState(false);
 
-  if (!isOpen) return null;
-
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const imageUrl = URL.createObjectURL(file);
       onSetCapa(imageUrl);
+      if (onClosePopup) onClosePopup();
     }
   };
 
@@ -51,16 +49,19 @@ export default function CapaPopup({
       onSetCapaColor(color);
     }
     setShowCoresCapa(false);
+    if (onClosePopup) onClosePopup();
   };
 
   return (
-    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]" data-popup="capa">
+    <>
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Capa</h3>
-          <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 p-0">
-            <X size={14} />
-          </Button>
+          <PopoverClose asChild>
+            <Button variant="ghost" size="sm" onClick={onClosePopup} className="h-6 w-6 p-0">
+              <X size={14} />
+            </Button>
+          </PopoverClose>
         </div>
       </div>
 
@@ -88,7 +89,10 @@ export default function CapaPopup({
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={onRemoveCapa}
+                onClick={() => {
+                  onRemoveCapa();
+                  if (onClosePopup) onClosePopup();
+                }}
                 className="absolute top-2 right-2 h-6 w-6 p-0"
               >
                 <Trash2 size={12} />
@@ -117,11 +121,13 @@ export default function CapaPopup({
               <Palette size={14} className="mr-2" />
               Cores
             </Button>
-            <CoresCapa
-              isOpen={showCoresCapa}
-              onClose={() => setShowCoresCapa(false)}
-              onSelectColor={handleSelectColor}
-            />
+            {showCoresCapa && (
+              <CoresCapa
+                isOpen={showCoresCapa}
+                onClose={() => setShowCoresCapa(false)}
+                onSelectColor={handleSelectColor}
+              />
+            )}
           </div>
 
           <div>
@@ -130,7 +136,10 @@ export default function CapaPopup({
               {capasSugeridas.map((capa, index) => (
                 <button
                   key={index}
-                  onClick={() => onSetCapa(capa)}
+                  onClick={() => {
+                    onSetCapa(capa);
+                    if (onClosePopup) onClosePopup();
+                  }}
                   className="relative overflow-hidden rounded hover:opacity-80 transition-opacity"
                 >
                   <img 
@@ -144,6 +153,6 @@ export default function CapaPopup({
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
