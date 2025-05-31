@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Card } from "@/types/calendario";
+import { Card, Board, Block, Spreadsheet, MarkdownNote, FileItem } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
 import BaseDialog from "./BaseDialog";
 import { Button } from "@/components/ui/button";
@@ -47,7 +47,6 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import EtiquetaPopupContent from "./popups/EtiquetaPopupContent";
 import DataPopupContent from "./popups/DataPopupContent";
-import CapaPopupContent from "./popups/CapaPopupContent";
 import CapaPopup from "./popups/CapaPopup";
 
 interface CardDialogProps {
@@ -76,7 +75,7 @@ interface ChecklistLocal {
 }
 
 export default function CardDialog({ card, isOpen, onClose, blockName }: CardDialogProps) {
-  const { updateItem, deleteItem, boards } = useCalendario();
+  const { updateItem, deleteItem, boards, updateBlocksOrder } = useCalendario();
   
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description || "");
@@ -312,45 +311,111 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     closeActivePopup();
   };
 
-  const handleMoveCard = (boardId: string, blockId: string, position: number) => {
-    const currentItem = boards.flatMap(b => b.blocks).flatMap(bl => bl.items).find(it => it.id === card.id);
-    if (currentItem) {
-      const updatedItem = { ...currentItem, blockId, order: position, updatedAt: new Date().toISOString() };
-      updateItem(updatedItem);
-      toast.success("Cartão movido!");
+  const handleMoveCard = (targetBoardId: string, targetBlockId: string, newOrderInTarget: number) => {
+    const cardToMoveId = card.id;
+    const cardType = card.type; // 'card'
+
+    let sourceBoard: Board | undefined;
+    let sourceBlock: Block | undefined;
+    let itemIndexInSourceBlock = -1;
+    let originalItem: Card | Spreadsheet | MarkdownNote | FileItem | undefined;
+
+    // 1. Encontrar o quadro e bloco de origem e o item
+    for (const b of boards) {
+      for (const bl of b.blocks) {
+        const index = bl.items.findIndex(it => it.id === cardToMoveId);
+        if (index !== -1) {
+          sourceBoard = b;
+          sourceBlock = bl;
+          itemIndexInSourceBlock = index;
+          originalItem = bl.items[index];
+          break;
+        }
+      }
+      if (sourceBoard) break;
     }
+
+    if (!sourceBoard || !sourceBlock || !originalItem) {
+      toast.error("Erro ao localizar o cartão de origem.");
+      return;
+    }
+
+    const targetBoard = boards.find(b => b.id === targetBoardId);
+    if (!targetBoard) {
+      toast.error("Quadro de destino não encontrado.");
+      return;
+    }
+    const targetBlock = targetBoard.blocks.find(b => b.id === targetBlockId);
+    if (!targetBlock) {
+      toast.error("Bloco de destino não encontrado.");
+      return;
+    }
+
+    // Se movendo para o mesmo bloco e mesma posição (newOrderInTarget é 0-indexado)
+    if (sourceBlock.id === targetBlock.id && sourceBoard.id === targetBoard.id && itemIndexInSourceBlock === newOrderInTarget) {
+      toast.info("O cartão já está na posição desejada.");
+      return;
+    }
+
+    let newBoardsState = JSON.parse(JSON.stringify(boards)) as Board[]; // Deep clone para evitar mutação direta
+
+    // 2. Remover o item do bloco de origem
+    const srcBoardIndex = newBoardsState.findIndex(b => b.id === sourceBoard!.id);
+    const srcBlockIndex = newBoardsState[srcBoardIndex].blocks.findIndex(b => b.id === sourceBlock!.id);
+    const [movedItem] = newBoardsState[srcBoardIndex].blocks[srcBlockIndex].items.splice(itemIndexInSourceBlock, 1);
+
+    // Reordenar itens no bloco de origem
+    newBoardsState[srcBoardIndex].blocks[srcBlockIndex].items.forEach((it, idx) => {
+      it.order = idx;
+    });
+    newBoardsState[srcBoardIndex].updatedAt = new Date().toISOString();
+
+    // 3. Atualizar o item e adicionar ao bloco de destino
+    movedItem.blockId = targetBlockId;
+    movedItem.updatedAt = new Date().toISOString();
+
+    const tgtBoardIndex = newBoardsState.findIndex(b => b.id === targetBoardId);
+    const tgtBlockIndex = newBoardsState[tgtBoardIndex].blocks.findIndex(b => b.id === targetBlockId);
+    
+    // Garantir que newOrderInTarget está dentro dos limites
+    const targetItemsCount = newBoardsState[tgtBoardIndex].blocks[tgtBlockIndex].items.length;
+    const insertAtIndex = Math.max(0, Math.min(newOrderInTarget, targetItemsCount));
+    
+    newBoardsState[tgtBoardIndex].blocks[tgtBlockIndex].items.splice(insertAtIndex, 0, movedItem);
+
+    // Reordenar itens no bloco de destino
+    newBoardsState[tgtBoardIndex].blocks[tgtBlockIndex].items.forEach((it, idx) => {
+      it.order = idx;
+    });
+    newBoardsState[tgtBoardIndex].updatedAt = new Date().toISOString();
+
+    // 4. Atualizar o estado global dos quadros
+    updateBlocksOrder(newBoardsState);
+
+    const itemTitle = movedItem.type === 'card' || movedItem.type === 'spreadsheet' 
+      ? (movedItem as Card | Spreadsheet).title 
+      : 'Item';
+    
+    toast.success(`${itemTitle} movido para "${targetBlock.name}" no quadro "${targetBoard.name}".`);
   };
 
-  const addChecklistItem = () => {
-    if (!newChecklistItem.trim()) return;
+  // Encontrar sourceBoard e sourceBlock para passar como props para MoverPopup
+  let sourceBoard, sourceBlock;
+  for (const b of boards) {
+    const blk = b.blocks.find(block => block.items.some(item => item.id === card.id));
+    if (blk) {
+      sourceBoard = b;
+      sourceBlock = blk;
+      break;
+    }
+  }
 
-    const newItem: ChecklistItemLocal = {
-      id: Date.now().toString(),
-      text: newChecklistItem.trim(),
-      completed: false
-    };
-
-    setChecklistItems([...checklistItems, newItem]);
-    setNewChecklistItem("");
-    toast.success("Item adicionado ao checklist!");
-  };
-
-  const toggleChecklistItem = (itemId: string) => {
-    setChecklistItems(prev => 
-      prev.map(item => 
-        item.id === itemId ? { ...item, completed: !item.completed } : item
-      )
+  const handleSelectEtiqueta = (etiquetaId: string) => {
+    setSelectedEtiquetas(prev => 
+      prev.includes(etiquetaId) 
+        ? prev.filter(id => id !== etiquetaId)
+        : [...prev, etiquetaId]
     );
-  };
-
-  const removeChecklistItem = (itemId: string) => {
-    setChecklistItems(prev => prev.filter(item => item.id !== itemId));
-    toast.success("Item removido!");
-  };
-
-  const getChecklistProgress = () => {
-    if (checklistItems.length === 0) return 0;
-    return (checklistItems.filter(item => item.completed).length / checklistItems.length) * 100;
   };
 
   const formatText = (format: string) => {
@@ -378,12 +443,36 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     setDescription(newDescription);
   };
 
-  const handleSelectEtiqueta = (etiquetaId: string) => {
-    setSelectedEtiquetas(prev => 
-      prev.includes(etiquetaId) 
-        ? prev.filter(id => id !== etiquetaId)
-        : [...prev, etiquetaId]
+  const getChecklistProgress = () => {
+    if (checklistItems.length === 0) return 0;
+    return (checklistItems.filter(item => item.completed).length / checklistItems.length) * 100;
+  };
+
+  const addChecklistItem = () => {
+    if (!newChecklistItem.trim()) return;
+
+    const newItem: ChecklistItemLocal = {
+      id: Date.now().toString(),
+      text: newChecklistItem.trim(),
+      completed: false
+    };
+
+    setChecklistItems([...checklistItems, newItem]);
+    setNewChecklistItem("");
+    toast.success("Item adicionado ao checklist!");
+  };
+
+  const toggleChecklistItem = (itemId: string) => {
+    setChecklistItems(prev => 
+      prev.map(item => 
+        item.id === itemId ? { ...item, completed: !item.completed } : item
+      )
     );
+  };
+
+  const removeChecklistItem = (itemId: string) => {
+    setChecklistItems(prev => prev.filter(item => item.id !== itemId));
+    toast.success("Item removido!");
   };
 
   const sidebarContent = (
@@ -524,8 +613,8 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
             <MoverPopup
               onClosePopup={closeActivePopup}
               onMove={handleMoveCard}
-              currentBoardId={boards.find(b => b.blocks.some(block => block.items.some(item => item.id === card.id)))?.id}
-              currentBlockId={boards.flatMap(b => b.blocks).find(block => block.items.some(item => item.id === card.id))?.id}
+              currentBoardId={sourceBoard?.id}
+              currentBlockId={sourceBlock?.id}
             />
           </PopoverContent>
         </Popover>

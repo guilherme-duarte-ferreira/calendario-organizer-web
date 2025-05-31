@@ -38,18 +38,20 @@ export default function CapaPopup({
       const file = e.target.files[0];
       const imageUrl = URL.createObjectURL(file);
       onSetCapa(imageUrl);
-      if (onClosePopup) onClosePopup();
     }
   };
 
-  const handleSelectColor = (color: string) => {
+  const handleSelectColorForCapaPopup = (color: string) => {
     if (color === "") {
       onRemoveCapa();
     } else {
       onSetCapaColor(color);
     }
     setShowCoresCapa(false);
-    if (onClosePopup) onClosePopup();
+  };
+  
+  const handleMainRemoveCapa = () => {
+    onRemoveCapa();
   };
 
   return (
@@ -89,10 +91,7 @@ export default function CapaPopup({
               <Button
                 variant="destructive"
                 size="sm"
-                onClick={() => {
-                  onRemoveCapa();
-                  if (onClosePopup) onClosePopup();
-                }}
+                onClick={handleMainRemoveCapa} 
                 className="absolute top-2 right-2 h-6 w-6 p-0"
               >
                 <Trash2 size={12} />
@@ -125,7 +124,7 @@ export default function CapaPopup({
               <CoresCapa
                 isOpen={showCoresCapa}
                 onClose={() => setShowCoresCapa(false)}
-                onSelectColor={handleSelectColor}
+                onSelectColor={handleSelectColorForCapaPopup}
               />
             )}
           </div>
@@ -133,17 +132,14 @@ export default function CapaPopup({
           <div>
             <h4 className="text-xs font-medium mb-2">Capas sugeridas</h4>
             <div className="grid grid-cols-2 gap-2">
-              {capasSugeridas.map((capa, index) => (
+              {capasSugeridas.map((capaUrl, index) => (
                 <button
                   key={index}
-                  onClick={() => {
-                    onSetCapa(capa);
-                    if (onClosePopup) onClosePopup();
-                  }}
+                  onClick={() => onSetCapa(capaUrl)}
                   className="relative overflow-hidden rounded hover:opacity-80 transition-opacity"
                 >
                   <img 
-                    src={capa} 
+                    src={capaUrl} 
                     alt={`Capa ${index + 1}`}
                     className="w-full h-16 object-cover"
                   />
