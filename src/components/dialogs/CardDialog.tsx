@@ -280,21 +280,18 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
     setCapa(imageUrl);
     setCapaColor(undefined);
     toast.success("Capa definida!");
-    closeActivePopup();
   };
 
   const handleSetCapaColor = (color: string) => {
     setCapaColor(color);
     setCapa(undefined);
     toast.success("Cor da capa definida!");
-    closeActivePopup();
   };
 
   const handleRemoveCapa = () => {
     setCapa(undefined);
     setCapaColor(undefined);
     toast.success("Capa removida!");
-    closeActivePopup();
   };
 
   const handleUpdateChecklists = (newChecklists: ChecklistLocal[]) => {
