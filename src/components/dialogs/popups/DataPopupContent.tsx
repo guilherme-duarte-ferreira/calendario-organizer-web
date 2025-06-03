@@ -1,3 +1,10 @@
+/**
+ * @file DataPopupContent.tsx
+ * @description Componente para selecionar datas de vencimento e lembretes usando um calendário.
+ * Permite definir ou remover essas datas.
+ * Projetado para ser usado como conteúdo de um Popover.
+ */
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -6,6 +13,9 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { PopoverClose } from "@/components/ui/popover";
 
+/**
+ * Props necessárias para o componente DataPopupContent
+ */
 interface DataPopupContentProps {
   onClosePopup?: () => void;
   onSetDate: (date: Date | null, type: 'due' | 'reminder') => void;
@@ -19,26 +29,43 @@ export default function DataPopupContent({
   dueDate,
   reminderDate
 }: DataPopupContentProps) {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(dueDate || reminderDate || new Date());
+  // Estado para a data selecionada no calendário
+  // Inicializa com dueDate, reminderDate, ou a data atual como fallback
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    dueDate || reminderDate || new Date()
+  );
 
+  /**
+   * Define a data de vencimento usando a data selecionada no calendário
+   * NOTA: Este pop-up NÃO fecha automaticamente ao definir uma data
+   */
   const handleSetDueDate = () => {
     if (selectedDate) {
       onSetDate(selectedDate, 'due');
     }
   };
 
+  /**
+   * Define a data de lembrete usando a data selecionada no calendário
+   * NOTA: Este pop-up NÃO fecha automaticamente ao definir uma data
+   */
   const handleSetReminder = () => {
     if (selectedDate) {
       onSetDate(selectedDate, 'reminder');
     }
   };
 
+  /**
+   * Remove uma data (vencimento ou lembrete)
+   * NOTA: Este pop-up NÃO fecha automaticamente ao remover uma data
+   */
   const handleRemoveDate = (type: 'due' | 'reminder') => {
     onSetDate(null, type);
   };
 
   return (
     <>
+      {/* Cabeçalho do Pop-up */}
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Datas</h3>
@@ -51,6 +78,7 @@ export default function DataPopupContent({
       </div>
 
       <div className="p-3">
+        {/* Componente Calendário para seleção de data */}
         <Calendar
           mode="single"
           selected={selectedDate}
@@ -60,64 +88,68 @@ export default function DataPopupContent({
         />
 
         <div className="space-y-3 mt-4">
+          {/* Seção Data de Vencimento */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Data de Vencimento</span>
+              <div className="flex items-center gap-2">
+                <Clock size={14} />
+                <span className="text-sm font-medium">Data de Vencimento</span>
+              </div>
               {dueDate && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => handleRemoveDate('due')}
-                  className="h-6 text-xs text-red-600"
+                  className="h-6 text-xs"
                 >
                   Remover
                 </Button>
               )}
             </div>
             {dueDate ? (
-              <div className="flex items-center gap-2 p-2 bg-red-50 rounded border">
-                <CalendarIcon size={14} className="text-red-600" />
-                <span className="text-sm">{format(dueDate, "dd 'de' MMMM", { locale: ptBR })}</span>
+              <div className="text-sm text-muted-foreground">
+                {dueDate.toLocaleDateString()}
               </div>
             ) : (
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleSetDueDate}
                 className="w-full text-xs h-8"
-                disabled={!selectedDate}
               >
-                Definir Vencimento
+                Definir Data de Vencimento
               </Button>
             )}
           </div>
 
+          {/* Seção Lembrete */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Lembrete</span>
+              <div className="flex items-center gap-2">
+                <Clock size={14} />
+                <span className="text-sm font-medium">Lembrete</span>
+              </div>
               {reminderDate && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => handleRemoveDate('reminder')}
-                  className="h-6 text-xs text-red-600"
+                  className="h-6 text-xs"
                 >
                   Remover
                 </Button>
               )}
             </div>
             {reminderDate ? (
-              <div className="flex items-center gap-2 p-2 bg-yellow-50 rounded border">
-                <Clock size={14} className="text-yellow-600" />
-                <span className="text-sm">{format(reminderDate, "dd 'de' MMMM", { locale: ptBR })}</span>
+              <div className="text-sm text-muted-foreground">
+                {reminderDate.toLocaleDateString()}
               </div>
             ) : (
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={handleSetReminder}
                 className="w-full text-xs h-8"
-                disabled={!selectedDate}
               >
                 Definir Lembrete
               </Button>

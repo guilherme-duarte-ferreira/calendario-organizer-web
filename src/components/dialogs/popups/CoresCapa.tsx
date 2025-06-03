@@ -1,40 +1,53 @@
+/**
+ * @file CoresCapa.tsx
+ * @description Sub-pop-up para selecionar uma cor predefinida ou personalizada para a capa.
+ * É renderizado e posicionado dentro do CapaPopup.tsx.
+ * Seu fechamento é local (não fecha o CapaPopup principal).
+ */
+
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { X, Palette } from "lucide-react";
+import { X } from "lucide-react";
 
+/**
+ * Props necessárias para o componente CoresCapa
+ */
 interface CoresCapaProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSelectColor: (color: string) => void;
+  isOpen: boolean;  // Controla a visibilidade do sub-pop-up
+  onClose: () => void;  // Função para fechar este sub-pop-up
+  onSelectColor: (color: string) => void;  // Callback para enviar a cor selecionada para o CapaPopup
 }
 
+// Lista de cores predefinidas para a capa
 const CORES_PREDEFINIDAS = [
-  "#ef4444", // red-500
-  "#f97316", // orange-500
-  "#eab308", // yellow-500
-  "#22c55e", // green-500
-  "#3b82f6", // blue-500
-  "#8b5cf6", // violet-500
-  "#ec4899", // pink-500
-  "#06b6d4", // cyan-500
-  "#84cc16", // lime-500
-  "#f59e0b", // amber-500
-  "#6366f1", // indigo-500
-  "#14b8a6", // teal-500
+  "#ef4444", // vermelho
+  "#f97316", // laranja
+  "#f59e0b", // amarelo
+  "#84cc16", // verde claro
+  "#16a34a", // verde
+  "#0ea5e9", // azul claro
+  "#3b82f6", // azul
+  "#8b5cf6", // roxo
+  "#d946ef", // rosa
+  "#ec4899", // magenta
 ];
 
 export default function CoresCapa({
   isOpen,
   onClose,
-  onSelectColor,
+  onSelectColor
 }: CoresCapaProps) {
+  // Não renderiza nada se não estiver aberto
   if (!isOpen) return null;
 
   return (
+    // Este div usa posicionamento absoluto para se posicionar em relação ao seu contêiner no CapaPopup
     <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]">
+      {/* Cabeçalho do Sub-pop-up */}
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Cores da Capa</h3>
+          {/* Botão 'X' local para fechar apenas este sub-pop-up */}
           <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 p-0">
             <X size={14} />
           </Button>
@@ -42,37 +55,37 @@ export default function CoresCapa({
       </div>
 
       <div className="p-3">
+        {/* Grid de Cores Predefinidas */}
         <div className="grid grid-cols-6 gap-2">
-          {CORES_PREDEFINIDAS.map((cor, index) => (
+          {CORES_PREDEFINIDAS.map((cor) => (
             <button
-              key={index}
-              onClick={() => onSelectColor(cor)}
-              className="w-12 h-8 rounded hover:opacity-80 transition-opacity border-2 border-gray-200 hover:border-gray-400"
+              key={cor}
+              className="w-8 h-8 rounded hover:ring-2 hover:ring-offset-2 hover:ring-primary transition-all"
               style={{ backgroundColor: cor }}
-              title={`Cor ${index + 1}`}
+              onClick={() => onSelectColor(cor)}
             />
           ))}
         </div>
 
+        {/* Seletor de Cor Personalizada */}
         <div className="mt-4">
           <label className="text-xs font-medium text-muted-foreground block mb-2">
-            Cor personalizada
+            Cor Personalizada
           </label>
           <input
             type="color"
+            className="w-full h-8 rounded cursor-pointer"
             onChange={(e) => onSelectColor(e.target.value)}
-            className="w-full h-8 rounded border cursor-pointer"
-            title="Escolher cor personalizada"
           />
         </div>
 
+        {/* Botão Remover Cor */}
         <Button
           variant="outline"
           size="sm"
           onClick={() => onSelectColor("")}
-          className="w-full mt-3"
+          className="w-full mt-4 text-xs h-8"
         >
-          <Palette size={14} className="mr-2" />
           Remover cor
         </Button>
       </div>

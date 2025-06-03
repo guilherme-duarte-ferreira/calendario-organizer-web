@@ -1,74 +1,100 @@
+/**
+ * @file MoverPopup.tsx
+ * @description Pop-up para selecionar um novo destino (Quadro, Bloco, Posição) para um cartão/item.
+ * Contém selects interdependentes e aciona a lógica de movimentação.
+ * Projetado para ser usado como conteúdo de um Popover, tanto pela barra lateral quanto pelo cabeçalho do modal.
+ */
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X } from "lucide-react";
-import { useCalendario } from "@/contexts/CalendarioContext";
 import { PopoverClose } from "@/components/ui/popover";
+import { useCalendario } from "@/contexts/CalendarioContext";
 
+/**
+ * Props necessárias para o componente MoverPopup
+ */
 interface MoverPopupProps {
-  onClosePopup?: () => void;
-  onMove: (boardId: string, blockId: string, position: number) => void;
-  currentBoardId?: string;
-  currentBlockId?: string;
+  onClosePopup: () => void;  // Função para fechar o Popover
+  onMove: (boardId: string, blockId: string, position: number) => void;  // Callback para executar a movimentação
+  currentBoardId?: string;   // ID do quadro atual do item (para seleção inicial)
+  currentBlockId?: string;   // ID do bloco atual do item (para seleção inicial)
 }
 
 export default function MoverPopup({
   onClosePopup,
   onMove,
   currentBoardId,
-  currentBlockId,
+  currentBlockId
 }: MoverPopupProps) {
   const { boards } = useCalendario();
-  
+
+  // --- ESTADOS INTERNOS ---
+  // Estado para o quadro selecionado
   const initialBoardId = currentBoardId || boards.find(b => !b.archived)?.id || "";
   const [selectedBoard, setSelectedBoard] = useState<string>(initialBoardId);
-
+  
+  /**
+   * Função para determinar o bloco inicial com base no quadro e no bloco atual
+   * Se o bloco atual estiver no quadro selecionado, usa ele
+   * Caso contrário, usa o primeiro bloco do quadro
+   */
   const getInitialBlockId = (boardId: string, cBlockId?: string) => {
     const board = boards.find(b => b.id === boardId);
     if (!board) return "";
-    if (cBlockId && board.blocks.some(b => b.id === cBlockId && !b.archived)) {
+    
+    // Se o bloco atual está neste quadro, usa ele
+    if (cBlockId && board.blocks.some(b => b.id === cBlockId)) {
       return cBlockId;
     }
+    
+    // Caso contrário, usa o primeiro bloco não arquivado
     return board.blocks.find(b => !b.archived)?.id || "";
   };
 
+  // Estado para o bloco selecionado
   const [selectedBlock, setSelectedBlock] = useState<string>(getInitialBlockId(initialBoardId, currentBlockId));
+  
+  // Estado para a posição selecionada (0-indexed)
   const [selectedPosition, setSelectedPosition] = useState<string>("0");
 
+  // --- EFEITOS (useEffect) ---
+  /**
+   * Atualiza a seleção de bloco e reseta a posição quando o quadro muda
+   */
   useEffect(() => {
-    console.log('MoverPopup - selectedBoard changed:', selectedBoard);
-    const boardData = boards.find(b => b.id === selectedBoard);
-    let newInitialBlock = "";
-    if (boardData) {
-      const activeBlocks = boardData.blocks.filter(b => !b.archived);
-      if (activeBlocks.length > 0) {
-        newInitialBlock = (currentBlockId && activeBlocks.some(b => b.id === currentBlockId))
-          ? currentBlockId
-          : activeBlocks[0].id;
-      }
-    }
-    console.log('MoverPopup - setting new block:', newInitialBlock);
-    setSelectedBlock(newInitialBlock);
+    const newBlockId = getInitialBlockId(selectedBoard, currentBlockId);
+    setSelectedBlock(newBlockId);
     setSelectedPosition("0");
   }, [selectedBoard, boards, currentBlockId]);
 
+  /**
+   * Reseta a posição quando o bloco muda
+   */
   useEffect(() => {
-    console.log('MoverPopup - selectedBlock changed:', selectedBlock);
     setSelectedPosition("0");
   }, [selectedBlock]);
 
+  // --- DADOS DERIVADOS PARA OS SELECTS ---
+  // Dados do quadro selecionado
   const selectedBoardData = boards.find(board => board.id === selectedBoard);
+  
+  // Lista de blocos ativos no quadro selecionado
   const activeBlocksInSelectedBoard = selectedBoardData?.blocks.filter(b => !b.archived) || [];
-  const selectedBlockData = activeBlocksInSelectedBoard.find(block => block.id === selectedBlock);
-  const itemCountInSelectedBlock = selectedBlockData?.items.filter(item => !item.archived).length || 0;
+  
+  // Dados do bloco selecionado
+  const selectedBlockData = activeBlocksInSelectedBoard.find(b => b.id === selectedBlock);
+  
+  // Quantidade de itens no bloco selecionado
+  const itemCountInSelectedBlock = selectedBlockData?.items.length || 0;
 
+  /**
+   * Handler para o botão "Mover"
+   * Chama a prop onMove e depois onClosePopup
+   */
   const handleInternalMove = () => {
     if (selectedBoard && selectedBlock) {
-      console.log('MoverPopup - moving card to:', {
-        board: selectedBoard,
-        block: selectedBlock,
-        position: parseInt(selectedPosition)
-      });
       onMove(selectedBoard, selectedBlock, parseInt(selectedPosition));
       if (onClosePopup) onClosePopup();
     }
@@ -76,9 +102,10 @@ export default function MoverPopup({
 
   return (
     <>
+      {/* Cabeçalho do Pop-up */}
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
-          <h3 className="font-medium text-sm">Mover cartão</h3>
+          <h3 className="font-medium text-sm">Mover Cartão</h3>
           <PopoverClose asChild>
             <Button variant="ghost" size="sm" onClick={onClosePopup} className="h-6 w-6 p-0">
               <X size={14} />
@@ -88,44 +115,39 @@ export default function MoverPopup({
       </div>
 
       <div className="p-3 space-y-4">
+        {/* Seletor de Quadro */}
         <div>
-          <label htmlFor="mover-board-select" className="text-xs font-medium text-muted-foreground">Quadro</label>
-          <Select 
-            value={selectedBoard} 
-            onValueChange={(value) => {
-              console.log('MoverPopup - board selected:', value);
-              setSelectedBoard(value);
-            }}
-          >
-            <SelectTrigger id="mover-board-select" className="w-full mt-1">
+          <label className="text-xs font-medium text-muted-foreground block mb-2">
+            Quadro
+          </label>
+          <Select value={selectedBoard} onValueChange={setSelectedBoard}>
+            <SelectTrigger>
               <SelectValue placeholder="Selecione um quadro" />
             </SelectTrigger>
             <SelectContent>
-              {boards.filter(b => !b.archived).map((board) => (
-                <SelectItem key={board.id} value={board.id}>
-                  {board.name}
-                </SelectItem>
-              ))}
+              {boards
+                .filter(board => !board.archived)
+                .map(board => (
+                  <SelectItem key={board.id} value={board.id}>
+                    {board.name}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>
 
+        {/* Seletor de Bloco/Lista */}
         {selectedBoardData && (
           <div>
-            <label htmlFor="mover-block-select" className="text-xs font-medium text-muted-foreground">Lista</label>
-            <Select 
-              value={selectedBlock} 
-              onValueChange={(value) => {
-                console.log('MoverPopup - block selected:', value);
-                setSelectedBlock(value);
-              }}
-              disabled={activeBlocksInSelectedBoard.length === 0}
-            >
-              <SelectTrigger id="mover-block-select" className="w-full mt-1">
-                <SelectValue placeholder={activeBlocksInSelectedBoard.length === 0 ? "Nenhuma lista disponível" : "Selecione uma lista"} />
+            <label className="text-xs font-medium text-muted-foreground block mb-2">
+              Bloco
+            </label>
+            <Select value={selectedBlock} onValueChange={setSelectedBlock}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um bloco" />
               </SelectTrigger>
               <SelectContent>
-                {activeBlocksInSelectedBoard.map((block) => (
+                {activeBlocksInSelectedBoard.map(block => (
                   <SelectItem key={block.id} value={block.id}>
                     {block.name}
                   </SelectItem>
@@ -135,25 +157,20 @@ export default function MoverPopup({
           </div>
         )}
 
+        {/* Seletor de Posição */}
         {selectedBlockData && (
           <div>
-            <label htmlFor="mover-position-select" className="text-xs font-medium text-muted-foreground">Posição</label>
-            <Select 
-              value={selectedPosition} 
-              onValueChange={(value) => {
-                console.log('MoverPopup - position selected:', value);
-                setSelectedPosition(value);
-              }}
-            >
-              <SelectTrigger id="mover-position-select" className="w-full mt-1">
-                <SelectValue />
+            <label className="text-xs font-medium text-muted-foreground block mb-2">
+              Posição
+            </label>
+            <Select value={selectedPosition} onValueChange={setSelectedPosition}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione uma posição" />
               </SelectTrigger>
               <SelectContent>
                 {Array.from({ length: itemCountInSelectedBlock + 1 }, (_, i) => (
-                  <SelectItem key={i.toString()} value={i.toString()}>
-                    {i + 1}
-                    {i === 0 ? " (Primeira)" : ""}
-                    {i === itemCountInSelectedBlock ? ` (${itemCountInSelectedBlock + 1} - Última)` : ""}
+                  <SelectItem key={i} value={i.toString()}>
+                    {i === 0 ? "No topo" : `Após o ${i}° item`}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -161,15 +178,10 @@ export default function MoverPopup({
           </div>
         )}
 
-        <Button 
-          onClick={handleInternalMove} 
-          disabled={
-            !selectedBoard || 
-            !selectedBlock || 
-            (selectedBlock === currentBlockId && 
-             selectedBoard === currentBoardId && 
-             parseInt(selectedPosition) === 0)
-          }
+        {/* Botão de Ação "Mover" */}
+        <Button
+          onClick={handleInternalMove}
+          disabled={!selectedBoard || !selectedBlock}
           className="w-full"
         >
           Mover

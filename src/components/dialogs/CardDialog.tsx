@@ -1,3 +1,11 @@
+/**
+ * @file CardDialog.tsx
+ * @description Modal para visualização e edição detalhada de um "Card".
+ * Responsável por gerenciar o estado do cartão (título, descrição, etiquetas, datas, capa, etc.)
+ * e controlar a abertura/fechamento e funcionalidade de múltiplos sub-pop-ups de ação.
+ * Utiliza BaseDialog para a estrutura visual e implementa a lógica específica do cartão.
+ */
+
 import React, { useState, useRef, useEffect } from "react";
 import { Card, Board, Block, Spreadsheet, MarkdownNote, FileItem } from "@/types/calendario";
 import { useCalendario } from "@/contexts/CalendarioContext";
@@ -48,34 +56,48 @@ import EtiquetaPopupContent from "./popups/EtiquetaPopupContent";
 import DataPopupContent from "./popups/DataPopupContent";
 import CapaPopup from "./popups/CapaPopup";
 
+/**
+ * Props necessárias para renderizar o CardDialog
+ */
 interface CardDialogProps {
-  card: Card;
-  isOpen: boolean;
-  onClose: () => void;
-  blockName?: string;
+  card: Card;              // Dados do cartão a ser editado
+  isOpen: boolean;         // Controla a visibilidade do modal
+  onClose: () => void;     // Função chamada ao fechar o modal
+  blockName?: string;      // Nome do bloco onde o cartão está localizado
 }
 
+/**
+ * Representa uma etiqueta que pode ser associada ao cartão
+ */
 interface Etiqueta {
-  id: string;
-  name: string;
-  color: string;
+  id: string;      // Identificador único da etiqueta
+  name: string;    // Nome da etiqueta
+  color: string;   // Cor da etiqueta em formato hexadecimal
 }
 
+/**
+ * Representa um item individual de uma checklist
+ */
 interface ChecklistItemLocal {
-  id: string;
-  text: string;
-  completed: boolean;
+  id: string;      // Identificador único do item
+  text: string;    // Texto descritivo do item
+  completed: boolean; // Estado de conclusão do item
 }
 
+/**
+ * Representa uma checklist completa com título e lista de itens
+ */
 interface ChecklistLocal {
-  id: string;
-  title: string;
-  items: ChecklistItemLocal[];
+  id: string;              // Identificador único da checklist
+  title: string;           // Título da checklist
+  items: ChecklistItemLocal[]; // Lista de itens da checklist
 }
 
 export default function CardDialog({ card, isOpen, onClose, blockName: initialBlockName }: CardDialogProps) {
   const { updateItem, deleteItem, boards, updateBlocksOrder } = useCalendario();
   
+  // === ESTADOS DO COMPONENTE ===
+  // Estados para os dados do cartão (editáveis)
   const [title, setTitle] = useState(card.title);
   const [description, setDescription] = useState(card.description || "");
   const [status, setStatus] = useState(card.status);
@@ -88,8 +110,10 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
   const [showActivityDetails, setShowActivityDetails] = useState(false);
   const [newChecklistItem, setNewChecklistItem] = useState("");
   
-  // Sistema de controle de foco exclusivo para pop-ups
+  // --- Sistema de Controle de Pop-ups Aninhados ---
+  // activePopup: Armazena a string identificadora do pop-up atualmente visível
   const [activePopup, setActivePopup] = useState<string | null>(null);
+  // lastFocusedElement: Armazena o elemento DOM que disparou o último pop-up aberto
   const [lastFocusedElement, setLastFocusedElement] = useState<HTMLElement | null>(null);
   
   // Estados para funcionalidades
@@ -105,12 +129,19 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
   const [capa, setCapa] = useState<string | undefined>(card.capa);
   const [capaColor, setCapaColor] = useState<string | undefined>(card.capaColor);
   const [currentBlockName, setCurrentBlockName] = useState(initialBlockName);
+  // Estilos CSS calculados para posicionar o MoverPopup do cabeçalho
   const [moverHeaderPopoverStyle, setMoverHeaderPopoverStyle] = useState<React.CSSProperties>({});
 
+  // Refs para elementos do DOM
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Função para abrir um pop-up e salvar o elemento que tinha foco
+  // === FUNÇÕES DE CONTROLE DE POP-UP ===
+  /**
+   * Abre um pop-up especificado e salva o elemento que o disparou
+   * @param popupName - A string chave que identifica o pop-up a ser aberto
+   * @param triggerElement - O elemento HTML que disparou a abertura do pop-up
+   */
   const openPopup = (popupName: string, triggerElement?: HTMLElement) => {
     if (document.activeElement && document.activeElement !== document.body) {
       setLastFocusedElement(document.activeElement as HTMLElement);
@@ -120,10 +151,11 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     setActivePopup(popupName);
   };
 
-  // Função para fechar o pop-up ativo e restaurar o foco
+  /**
+   * Fecha o pop-up atualmente ativo e restaura o foco
+   */
   const closeActivePopup = () => {
     setActivePopup(null);
-    // Atraso pequeno para garantir que o DOM atualizou antes de tentar focar
     setTimeout(() => {
       if (lastFocusedElement && document.body.contains(lastFocusedElement)) {
         lastFocusedElement.focus();
@@ -132,7 +164,11 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }, 0);
   };
 
-  // Função para lidar com o fechamento do modal
+  // === HANDLERS DE EVENTOS DO MODAL ===
+  /**
+   * Chamado quando o BaseDialog detecta uma tentativa de fechamento
+   * Se um pop-up estiver ativo, fecha o pop-up. Caso contrário, fecha o modal principal
+   */
   const handleModalClose = () => {
     if (activePopup) {
       closeActivePopup();
@@ -141,7 +177,10 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }
   };
 
-  // Função para lidar com interações fora do modal
+  /**
+   * Chamado quando ocorre um clique fora do conteúdo do Dialog
+   * Usado para fechar o pop-up ativo, prevenindo o fechamento do modal principal
+   */
   const handleDialogInteractOutside = (event: Event) => {
     if (activePopup) {
       event.preventDefault();
@@ -149,10 +188,12 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }
   };
 
-  // Função para lidar com cliques dentro do modal
+  /**
+   * Chamado por cliques dentro da área principal do modal
+   * Tenta fechar um pop-up ativo se o clique foi fora da área específica desse pop-up
+   */
   const handleModalClick = (event: React.MouseEvent) => {
     if (activePopup) {
-      // Verifica se o clique foi fora do pop-up ativo
       const popupElement = document.querySelector(`[data-popup="${activePopup}"]`);
       if (popupElement && !popupElement.contains(event.target as Node)) {
         event.preventDefault();
@@ -161,7 +202,11 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }
   };
 
-  // Efeito para lidar com a tecla Escape
+  // === EFEITOS (useEffect) ===
+  /**
+   * Efeito para lidar com a tecla Escape
+   * Fecha o pop-up ativo ou o modal principal
+   */
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -183,9 +228,10 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     };
   }, [activePopup, isOpen, onClose]);
 
-  // Atualizar currentBlockName se o cartão for movido e o initialBlockName mudar
+  /**
+   * Atualiza o nome do bloco exibido no cabeçalho se o cartão for movido
+   */
   useEffect(() => {
-    // Encontrar o nome do bloco atual do cartão a partir dos 'boards'
     let foundBlockName = initialBlockName;
     for (const board of boards) {
       const block = board.blocks.find(b => b.items.some(item => item.id === card.id));
@@ -197,7 +243,10 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     setCurrentBlockName(foundBlockName);
   }, [boards, card.id, initialBlockName]);
 
-  // useEffect para calcular o posicionamento do MoverPopup
+  /**
+   * Calcula e define o estilo de posicionamento para o MoverPopup do cabeçalho
+   * Disparado quando 'moverHeader' se torna o activePopup e lastFocusedElement está definido
+   */
   useEffect(() => {
     if (activePopup === 'moverHeader' && lastFocusedElement) {
       const triggerRect = lastFocusedElement.getBoundingClientRect();
@@ -215,6 +264,10 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }
   }, [activePopup, lastFocusedElement]);
 
+  // === HANDLERS DE AÇÕES PRINCIPAIS ===
+  /**
+   * Salva as alterações do cartão no estado global
+   */
   const handleSave = async () => {
     if (!title.trim()) {
       toast.error("O título é obrigatório");
@@ -248,6 +301,9 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }
   };
 
+  /**
+   * Arquivar o cartão atual
+   */
   const handleArchive = () => {
     const updatedCard: Card = {
       ...card,
@@ -259,6 +315,9 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     onClose();
   };
 
+  /**
+   * Excluir o cartão atual após confirmação
+   */
   const handleDelete = () => {
     if (window.confirm(`Tem certeza que deseja excluir o cartão "${card.title}"?`)) {
       deleteItem(card.id, "card");
@@ -267,6 +326,11 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }
   };
 
+  // === HANDLERS PARA AÇÕES DOS POP-UPS ===
+  /**
+   * Manipula o upload de arquivos para o cartão
+   * Cria um novo anexo com URL temporária e thumbnail (se for imagem)
+   */
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -282,11 +346,17 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }
   };
 
+  /**
+   * Remove um anexo específico do cartão
+   */
   const removeAttachment = (attachmentId: string) => {
     setAttachments(attachments.filter(att => att.id !== attachmentId));
     toast.success("Anexo removido!");
   };
 
+  /**
+   * Cria uma nova etiqueta e a associa ao cartão
+   */
   const handleCreateEtiqueta = (name: string, color: string) => {
     const newEtiqueta: Etiqueta = {
       id: Date.now().toString(),
@@ -299,6 +369,9 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     closeActivePopup();
   };
 
+  /**
+   * Define ou remove uma data (vencimento ou lembrete) do cartão
+   */
   const handleSetDate = (date: Date | null, type: 'due' | 'reminder') => {
     if (type === 'due') {
       setDueDate(date);
@@ -309,24 +382,36 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     closeActivePopup();
   };
 
+  /**
+   * Define uma imagem como capa do cartão
+   */
   const handleSetCapa = (imageUrl: string) => {
     setCapa(imageUrl);
     setCapaColor(undefined);
     toast.success("Capa definida!");
   };
 
+  /**
+   * Define uma cor como capa do cartão
+   */
   const handleSetCapaColor = (color: string) => {
     setCapaColor(color);
     setCapa(undefined);
     toast.success("Cor da capa definida!");
   };
 
+  /**
+   * Remove a capa (imagem ou cor) do cartão
+   */
   const handleRemoveCapa = () => {
     setCapa(undefined);
     setCapaColor(undefined);
     toast.success("Capa removida!");
   };
 
+  /**
+   * Atualiza as checklists do cartão com novos dados
+   */
   const handleUpdateChecklists = (newChecklists: ChecklistLocal[]) => {
     setChecklists(newChecklists);
     // Converter checklists para o formato do card
@@ -341,6 +426,10 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     closeActivePopup();
   };
 
+  /**
+   * Move o cartão para um novo quadro, bloco e posição
+   * Contém a lógica de encontrar origem, clonar dados, remover, adicionar e reordenar
+   */
   const handleMoveCard = (targetBoardId: string, targetBlockId: string, newOrderInTarget: number) => {
     const cardToMoveId = card.id;
     const cardType = card.type; // 'card'
@@ -687,6 +776,11 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     </div>
   );
 
+  /**
+   * Handler para o clique no "botão variável" (nome do bloco) no cabeçalho
+   * Abre diretamente o MoverPopup ('moverHeader'), passando o botão clicado como referência
+   * para o cálculo de posicionamento
+   */
   const handleLocationClick = () => {
     const triggerBtn = document.querySelector('[data-testid="location-trigger-button"]') as HTMLElement;
     if (triggerBtn) {
@@ -1026,6 +1120,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
       </div>
 
       {/* Popover para Mover Cartão (acionado pelo clique no nome do bloco no cabeçalho) */}
+      {/* Este Popover usa o estilo manual para posicionamento */}
       <Popover 
         open={activePopup === 'moverHeader'} 
         onOpenChange={(open) => {
