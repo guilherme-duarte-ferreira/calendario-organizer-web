@@ -1,25 +1,20 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight } from "lucide-react";
 import { useCalendario } from "@/contexts/CalendarioContext";
 
 interface LocalizacaoCartaoProps {
-  isOpen: boolean;
-  onClose: () => void;
+  onClosePopup: () => void;
   cardId: string;
   onMover: () => void;
 }
 
 export default function LocalizacaoCartao({
-  isOpen,
-  onClose,
+  onClosePopup,
   cardId,
   onMover,
 }: LocalizacaoCartaoProps) {
   const { boards } = useCalendario();
-
-  if (!isOpen) return null;
 
   // Encontrar a localização atual do cartão
   let currentBoard = null;
@@ -40,11 +35,11 @@ export default function LocalizacaoCartao({
   }
 
   return (
-    <div className="absolute top-full left-0 mt-2 w-80 bg-white border rounded-lg shadow-lg z-[9999]">
+    <div className="w-full">
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Localização do Cartão</h3>
-          <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 p-0">
+          <Button variant="ghost" size="sm" onClick={onClosePopup} className="h-6 w-6 p-0">
             <X size={14} />
           </Button>
         </div>
@@ -77,7 +72,7 @@ export default function LocalizacaoCartao({
             <Button 
               onClick={() => {
                 onMover();
-                onClose();
+                onClosePopup();
               }}
               className="w-full"
             >

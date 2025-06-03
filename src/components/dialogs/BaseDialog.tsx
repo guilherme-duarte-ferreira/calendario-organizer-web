@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { X, Maximize2, Minimize2, Archive, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface BaseDialogProps {
   isOpen: boolean;
@@ -34,6 +35,12 @@ interface BaseDialogProps {
   className?: string;
   capa?: string;
   capaColor?: string;
+  
+  // Props para o Popover de Localização
+  showLocationPopover?: boolean;
+  isLocationPopoverOpen?: boolean;
+  onLocationPopoverOpenChange?: (open: boolean) => void;
+  locationPopoverContent?: React.ReactNode;
 }
 
 export default function BaseDialog({
@@ -60,6 +67,10 @@ export default function BaseDialog({
   className,
   capa,
   capaColor,
+  showLocationPopover = false,
+  isLocationPopoverOpen,
+  onLocationPopoverOpenChange,
+  locationPopoverContent,
 }: BaseDialogProps) {
   
   const handleSave = () => {
@@ -76,8 +87,10 @@ export default function BaseDialog({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent 
         hideDefaultCloseButton={true}
         className={cn(
@@ -88,8 +101,12 @@ export default function BaseDialog({
           className
         )}
         style={{ 
-          fontSize: "14px", 
-          lineHeight: "1.3"
+          fontSize: "14px",
+          lineHeight: "1.3",
+          backgroundImage: capa && !capaColor ? `url(${capa})` : undefined,
+          backgroundColor: capaColor || undefined,
+          backgroundSize: capa ? 'cover' : undefined,
+          backgroundPosition: capa ? 'center' : undefined,
         }}
         onInteractOutside={onInteractOutside}
       >
@@ -107,31 +124,62 @@ export default function BaseDialog({
         )}
 
         {/* Header Fixo */}
-        <div className="flex items-center justify-between p-4 border-b bg-background shrink-0">
-          <DialogHeader className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-green-500 text-lg font-semibold">
-                <i className="fas fa-check-circle"></i>
-              </span>
-              <DialogTitle className="text-base font-semibold">
-                {title}
-              </DialogTitle>
-            </div>
+        <div className="flex items-center p-4 border-b bg-background shrink-0 relative">
+          <div className="flex-1 min-w-0">
+            <DialogTitle className={cn("text-lg font-semibold truncate", { "text-white": capa || capaColor })}>
+              {title}
+            </DialogTitle>
             {location && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
-                <span>No bloco</span>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-auto py-0.5 px-2 text-xs font-semibold hover:bg-secondary/80"
-                  onClick={onLocationClick}
-                >
-                  {location}
-                </Button>
+              <div className="text-xs mt-1">
+                <span className={cn({ "text-gray-200": capa || capaColor, "text-muted-foreground": !capa && !capaColor })}>
+                  No bloco
+                </span>
+                {showLocationPopover && isLocationPopoverOpen !== undefined && onLocationPopoverOpenChange && locationPopoverContent ? (
+                  <Popover open={isLocationPopoverOpen} onOpenChange={onLocationPopoverOpenChange}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="link"
+                        className={cn(
+                          "h-auto p-0 ml-1 text-xs font-semibold underline",
+                          { 
+                            "text-white hover:text-gray-300": capa || capaColor,
+                            "text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300": !capa && !capaColor 
+                          }
+                        )}
+                        data-testid="location-trigger-button"
+                      >
+                        {location}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="p-0 w-80"
+                      align="start"
+                      side="bottom"
+                    >
+                      {locationPopoverContent}
+                    </PopoverContent>
+                  </Popover>
+                ) : (
+                  <Button
+                    variant="link"
+                    className={cn(
+                      "h-auto p-0 ml-1 text-xs font-semibold underline",
+                      { 
+                        "text-white hover:text-gray-300": capa || capaColor,
+                        "text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300": !capa && !capaColor 
+                      }
+                    )}
+                    onClick={onLocationClick}
+                    data-testid="location-trigger-button"
+                  >
+                    {location}
+                  </Button>
+                )}
               </div>
             )}
-          </DialogHeader>
+          </div>
           
+          {/* Botões de Ação (Fechar e Maximizar/Minimizar) */}
           <div className="flex items-center gap-2">
             {showMaximize && onToggleMaximize && (
               <Button variant="ghost" size="icon" onClick={onToggleMaximize} className="h-8 w-8">

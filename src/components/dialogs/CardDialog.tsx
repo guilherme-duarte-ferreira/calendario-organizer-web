@@ -74,7 +74,7 @@ interface ChecklistLocal {
   items: ChecklistItemLocal[];
 }
 
-export default function CardDialog({ card, isOpen, onClose, blockName }: CardDialogProps) {
+export default function CardDialog({ card, isOpen, onClose, blockName: initialBlockName }: CardDialogProps) {
   const { updateItem, deleteItem, boards, updateBlocksOrder } = useCalendario();
   
   const [title, setTitle] = useState(card.title);
@@ -105,6 +105,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
   const [reminderDate, setReminderDate] = useState<Date | null>(card.reminderDate ? new Date(card.reminderDate) : null);
   const [capa, setCapa] = useState<string | undefined>(card.capa);
   const [capaColor, setCapaColor] = useState<string | undefined>(card.capaColor);
+  const [currentBlockName, setCurrentBlockName] = useState(initialBlockName);
 
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -181,6 +182,20 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [activePopup, isOpen, onClose]);
+
+  // Atualizar currentBlockName se o cartão for movido e o initialBlockName mudar
+  useEffect(() => {
+    // Encontrar o nome do bloco atual do cartão a partir dos 'boards'
+    let foundBlockName = initialBlockName;
+    for (const board of boards) {
+      const block = board.blocks.find(b => b.items.some(item => item.id === card.id));
+      if (block) {
+        foundBlockName = block.name;
+        break;
+      }
+    }
+    setCurrentBlockName(foundBlockName);
+  }, [boards, card.id, initialBlockName]);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -660,17 +675,39 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
       onClose={handleModalClose}
       onInteractOutside={handleDialogInteractOutside}
       title={title || "Novo Cartão"}
-      location={blockName}
-      onLocationClick={() => openPopup('localizacao', document.activeElement as HTMLElement)}
+      location={currentBlockName}
       onSave={handleSave}
       onArchive={handleArchive}
       onDelete={handleDelete}
       isMaximized={isMaximized}
       onToggleMaximize={() => setIsMaximized(!isMaximized)}
+      showMaximize={true}
       isSaving={isSaving}
       sidebarContent={sidebarContent}
       capa={capa}
       capaColor={capaColor}
+
+      // Props para o Popover de Localização
+      showLocationPopover={true}
+      isLocationPopoverOpen={activePopup === 'localizacaoHeader'}
+      onLocationPopoverOpenChange={(open) => {
+        if (!open) {
+          closeActivePopup();
+        } else {
+          setActivePopup('localizacaoHeader');
+        }
+      }}
+      locationPopoverContent={
+        <LocalizacaoCartao
+          onClosePopup={closeActivePopup}
+          cardId={card.id}
+          onMover={() => {
+            closeActivePopup();
+            const moverButton = document.querySelector<HTMLElement>('[data-popup="moverAction"]');
+            openPopup('moverAction', moverButton || undefined);
+          }}
+        />
+      }
     >
       <div className="space-y-6" onClick={handleModalClick}>
         <input
@@ -684,8 +721,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName }: CardDia
         {/* Localização */}
         {activePopup === 'localizacao' && (
           <LocalizacaoCartao
-            isOpen={true}
-            onClose={closeActivePopup}
+            onClosePopup={closeActivePopup}
             cardId={card.id}
             onMover={() => {
               closeActivePopup();
