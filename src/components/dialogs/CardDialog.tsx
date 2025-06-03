@@ -37,7 +37,6 @@ import EtiquetaPopup from "./popups/EtiquetaPopup";
 import DataPopup from "./popups/DataPopup";
 import ChecklistPopup from "./popups/ChecklistPopup";
 import MoverPopup from "./popups/MoverPopup";
-import LocalizacaoCartao from "./popups/LocalizacaoCartao";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -669,6 +668,11 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     </div>
   );
 
+  const handleLocationClick = () => {
+    const triggerBtn = document.querySelector('[data-testid="location-trigger-button"]') as HTMLElement;
+    openPopup('moverHeader', triggerBtn || undefined);
+  };
+
   return (
     <BaseDialog
       isOpen={isOpen}
@@ -686,28 +690,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
       sidebarContent={sidebarContent}
       capa={capa}
       capaColor={capaColor}
-
-      // Props para o Popover de Localização
-      showLocationPopover={true}
-      isLocationPopoverOpen={activePopup === 'localizacaoHeader'}
-      onLocationPopoverOpenChange={(open) => {
-        if (!open) {
-          closeActivePopup();
-        } else {
-          setActivePopup('localizacaoHeader');
-        }
-      }}
-      locationPopoverContent={
-        <LocalizacaoCartao
-          onClosePopup={closeActivePopup}
-          cardId={card.id}
-          onMover={() => {
-            closeActivePopup();
-            const moverButton = document.querySelector<HTMLElement>('[data-popup="moverAction"]');
-            openPopup('moverAction', moverButton || undefined);
-          }}
-        />
-      }
+      onLocationClick={handleLocationClick}
     >
       <div className="space-y-6" onClick={handleModalClick}>
         <input
@@ -717,19 +700,6 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
           onChange={handleFileUpload}
           multiple
         />
-
-        {/* Localização */}
-        {activePopup === 'localizacao' && (
-          <LocalizacaoCartao
-            onClosePopup={closeActivePopup}
-            cardId={card.id}
-            onMover={() => {
-              closeActivePopup();
-              const moverButton = document.querySelector<HTMLElement>('[aria-label="Mover"]');
-              openPopup('moverAction', moverButton || undefined);
-            }}
-          />
-        )}
 
         {/* Título */}
         <div>
@@ -1029,6 +999,35 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
           )}
         </div>
       </div>
+
+      {/* Popover para Mover Cartão (acionado pelo clique no nome do bloco no cabeçalho) */}
+      <Popover 
+        open={activePopup === 'moverHeader'} 
+        onOpenChange={(open) => {
+          if (!open) {
+            closeActivePopup();
+          } else {
+            setActivePopup('moverHeader');
+          }
+        }}
+      >
+        <PopoverTrigger asChild>
+          <button style={{ display: 'none' }} aria-hidden="true" />
+        </PopoverTrigger>
+        <PopoverContent 
+          className="p-0 w-80" 
+          align="start" 
+          side="bottom" 
+          data-popup="moverHeader"
+        >
+          <MoverPopup
+            onClosePopup={closeActivePopup}
+            onMove={handleMoveCard}
+            currentBoardId={sourceBoard?.id}
+            currentBlockId={sourceBlock?.id}
+          />
+        </PopoverContent>
+      </Popover>
     </BaseDialog>
   );
 }

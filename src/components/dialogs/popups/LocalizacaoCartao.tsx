@@ -2,9 +2,10 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight } from "lucide-react";
 import { useCalendario } from "@/contexts/CalendarioContext";
+import { PopoverClose } from "@/components/ui/popover";
 
 interface LocalizacaoCartaoProps {
-  onClosePopup: () => void;
+  onClosePopup?: () => void;
   cardId: string;
   onMover: () => void;
 }
@@ -35,13 +36,15 @@ export default function LocalizacaoCartao({
   }
 
   return (
-    <div className="w-full">
+    <>
       <div className="p-3 border-b">
         <div className="flex items-center justify-between">
           <h3 className="font-medium text-sm">Localização do Cartão</h3>
-          <Button variant="ghost" size="sm" onClick={onClosePopup} className="h-6 w-6 p-0">
-            <X size={14} />
-          </Button>
+          <PopoverClose asChild>
+            <Button variant="ghost" size="sm" onClick={onClosePopup} className="h-6 w-6 p-0">
+              <X size={14} />
+            </Button>
+          </PopoverClose>
         </div>
       </div>
 
@@ -50,30 +53,27 @@ export default function LocalizacaoCartao({
           <>
             <div>
               <label className="text-xs font-medium text-muted-foreground">Quadro atual</label>
-              <div className="mt-1 p-2 bg-gray-50 rounded text-sm">
+              <div className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded text-sm">
                 {currentBoard.name}
               </div>
             </div>
 
             <div>
               <label className="text-xs font-medium text-muted-foreground">Bloco atual</label>
-              <div className="mt-1 p-2 bg-gray-50 rounded text-sm">
+              <div className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded text-sm">
                 {currentBlock.name}
               </div>
             </div>
 
             <div>
               <label className="text-xs font-medium text-muted-foreground">Posição</label>
-              <div className="mt-1 p-2 bg-gray-50 rounded text-sm">
+              <div className="mt-1 p-2 bg-gray-100 dark:bg-gray-700 rounded text-sm">
                 {cardPosition}° cartão na lista
               </div>
             </div>
 
-            <Button 
-              onClick={() => {
-                onMover();
-                onClosePopup();
-              }}
+            <Button
+              onClick={onMover}
               className="w-full"
             >
               <ArrowRight size={14} className="mr-2" />
@@ -86,6 +86,6 @@ export default function LocalizacaoCartao({
           </div>
         )}
       </div>
-    </div>
+    </>
   );
 }
