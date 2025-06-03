@@ -105,6 +105,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
   const [capa, setCapa] = useState<string | undefined>(card.capa);
   const [capaColor, setCapaColor] = useState<string | undefined>(card.capaColor);
   const [currentBlockName, setCurrentBlockName] = useState(initialBlockName);
+  const [moverHeaderPopoverStyle, setMoverHeaderPopoverStyle] = useState<React.CSSProperties>({});
 
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -195,6 +196,24 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }
     setCurrentBlockName(foundBlockName);
   }, [boards, card.id, initialBlockName]);
+
+  // useEffect para calcular o posicionamento do MoverPopup
+  useEffect(() => {
+    if (activePopup === 'moverHeader' && lastFocusedElement) {
+      const triggerRect = lastFocusedElement.getBoundingClientRect();
+      const scrollY = window.scrollY;
+
+      console.log("Calculando estilo para moverHeader. TriggerRect:", triggerRect);
+      
+      setMoverHeaderPopoverStyle({
+        position: 'fixed',
+        top: `${triggerRect.bottom + scrollY + 5}px`,
+        left: `${triggerRect.left}px`,
+        width: '320px',
+        zIndex: 1300,
+      });
+    }
+  }, [activePopup, lastFocusedElement]);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -670,7 +689,13 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
 
   const handleLocationClick = () => {
     const triggerBtn = document.querySelector('[data-testid="location-trigger-button"]') as HTMLElement;
-    openPopup('moverHeader', triggerBtn || undefined);
+    if (triggerBtn) {
+      console.log("Botão de localização clicado, abrindo moverHeader com trigger:", triggerBtn);
+      openPopup('moverHeader', triggerBtn);
+    } else {
+      console.error("Botão de localização (location-trigger-button) não encontrado!");
+      openPopup('moverHeader');
+    }
   };
 
   return (
@@ -1007,18 +1032,35 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
           if (!open) {
             closeActivePopup();
           } else {
+            // Se está abrindo, e o trigger foi o botão de localização, recalcula o estilo
+            if (lastFocusedElement && lastFocusedElement.dataset.testid === "location-trigger-button") {
+              const triggerRect = lastFocusedElement.getBoundingClientRect();
+              const scrollY = window.scrollY;
+              setMoverHeaderPopoverStyle({
+                position: 'fixed',
+                top: `${triggerRect.bottom + scrollY + 5}px`,
+                left: `${triggerRect.left}px`,
+                width: '320px',
+                zIndex: 1300,
+              });
+            }
             setActivePopup('moverHeader');
           }
         }}
       >
-        <PopoverTrigger asChild>
-          <button style={{ display: 'none' }} aria-hidden="true" />
+        <PopoverTrigger asChild> 
+          <button style={{ display: 'none' }} aria-hidden="true" /> 
         </PopoverTrigger>
         <PopoverContent 
-          className="p-0 w-80" 
-          align="start" 
-          side="bottom" 
+          className="p-0 w-80"
+          style={moverHeaderPopoverStyle}
           data-popup="moverHeader"
+          onOpenAutoFocus={(e) => e.preventDefault()} 
+          onPointerDownOutside={(e) => {
+            if (lastFocusedElement && lastFocusedElement.contains(e.target as Node)) {
+              e.preventDefault();
+            }
+          }}
         >
           <MoverPopup
             onClosePopup={closeActivePopup}
