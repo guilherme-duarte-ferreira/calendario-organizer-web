@@ -102,11 +102,7 @@ export default function BaseDialog({
         )}
         style={{ 
           fontSize: "14px",
-          lineHeight: "1.3",
-          backgroundImage: capa && !capaColor ? `url(${capa})` : undefined,
-          backgroundColor: capaColor || undefined,
-          backgroundSize: capa ? 'cover' : undefined,
-          backgroundPosition: capa ? 'center' : undefined,
+          lineHeight: "1.3"
         }}
         onInteractOutside={onInteractOutside}
       >
