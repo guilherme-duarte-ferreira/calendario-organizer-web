@@ -1,35 +1,44 @@
-# Lista Consolidada de Problemas e Pendências do Projeto Calendário
-
 ## I. PARA RESOLVER/FINALIZAR AGORA (Refinamento Final da Fase 3)
 
 ### A. Modal de Edição (`CardDialog.tsx` e `SpreadsheetDialog.tsx`)
 
 1.  **Hierarquia de Fechamento de Pop-ups (Prioridade Alta):**
-    * [ ] **Problema Principal:** O clique fora da área de um pop-up específico (Etiquetas, Checklist, Datas, Mover, Capa, etc.) ou em áreas inesperadas do modal NÃO está fechando APENAS o pop-up ativo de forma consistente.
-    * [ ] **Requisito:** Garantir que, quando um pop-up estiver aberto SOBRE um modal (`CardDialog` ou `SpreadsheetDialog`):
-        * Um clique em **qualquer área visível do modal principal** que esteja FORA do conteúdo do pop-up ativo deve fechar APENAS o pop-up ativo (o modal principal permanece aberto).
-        * Um clique TOTALMENTE FORA do modal de edição (por exemplo, na área de trabalho) deve fechar APENAS o pop-up ativo, mantendo o modal de edição aberto.
-        * O clique no botão "X" (ou equivalente de fechamento) DENTRO do pop-up deve fechar APENAS o pop-up.
-        * A tecla "Escape" deve fechar APENAS o pop-up ativo. Se nenhum pop-up estiver ativo, "Escape" deve fechar o modal principal.
-        * Assegurar que o foco retorne corretamente ao elemento apropriado no modal de edição após fechar um pop-up.
-        * Verificar consistência deste comportamento para TODOS os pop-ups de ação da barra lateral.
+    * [x] **Problema Principal:** O clique fora da área de um pop-up específico (Etiquetas, Checklist, Datas, Mover, Capa, etc.) ou em áreas inesperadas do modal NÃO está fechando APENAS o pop-up ativo de forma consistente.
+    * [x] **Requisito:** Garantir que, quando um pop-up estiver aberto SOBRE um modal (`CardDialog` ou `SpreadsheetDialog`):
+        * [x] Um clique em **qualquer área visível do modal principal** que esteja FORA do conteúdo do pop-up ativo deve fechar APENAS o pop-up ativo (o modal principal permanece aberto).
+        * [x] Um clique TOTALMENTE FORA do modal de edição (por exemplo, na área de trabalho) deve fechar APENAS o pop-up ativo, mantendo o modal de edição aberto.
+        * [x] O clique no botão "X" (ou equivalente de fechamento) DENTRO do pop-up deve fechar APENAS o pop-up.
+        * [x] A tecla "Escape" deve fechar APENAS o pop-up ativo. Se nenhum pop-up estiver ativo, "Escape" deve fechar o modal principal.
+        * [x] Assegurar que o foco retorne corretamente ao elemento apropriado no modal de edição após fechar um pop-up.
+        * [x] Verificar consistência deste comportamento para TODOS os pop-ups de ação da barra lateral.
+
+    * [+] **Funcionalidade Adicional:** Implementação de `data-popup` para identificação precisa dos pop-ups ativos.
+        * [x] Adicionado atributo `data-popup` em todos os pop-ups (Etiquetas, Checklist, Datas, Mover, Capa)
+        * [x] Z-index consistente (`z-[9999]`) em todos os pop-ups
+        * [x] Sistema de identificação unificado para controle de fechamento
+
+    * [+] **Funcionalidade Adicional:** Sistema de gerenciamento de foco com `lastFocusedElement` para melhor acessibilidade.
+        * [x] Implementado em `CardDialog.tsx` e `SpreadsheetDialog.tsx`
+        * [x] Salva o último elemento focado antes de abrir um pop-up
+        * [x] Restaura o foco corretamente após fechar o pop-up
+        * [x] Tratamento de casos especiais (elemento removido do DOM)
 
 2.  **Botão "X" de Fechamento do Modal (Consistência e Funcionalidade):**
-    * [ ] Garantir que haja APENAS UM botão "X" funcional e visível para fechar o modal de edição (`CardDialog` e `SpreadsheetDialog`), posicionado no canto superior direito.
-    * [ ] Remover quaisquer botões "X" duplicados, mal posicionados ou não funcionais.
+    * [x] Garantir que haja APENAS UM botão "X" funcional e visível para fechar o modal de edição (`CardDialog` e `SpreadsheetDialog`), posicionado no canto superior direito.
+    * [x] Remover quaisquer botões "X" duplicados, mal posicionados ou não funcionais.
 
 3.  **Maximização do Modal (`CardDialog` e `SpreadsheetDialog`):**
-    * [ ] **Problema:** Botão "Maximizar/Restaurar" não está funcional ou não implementado corretamente.
-    * [ ] Implementar a funcionalidade para que o modal ocupe toda a tela ao maximizar (ocultando a área de trabalho) e retorne ao tamanho normal ao restaurar.
-    * [ ] Garantir que o modal maximizado utilize uma barra de rolagem INTERNA para seu conteúdo, caso ele exceda a altura da viewport.
-    * [ ] Assegurar que as opções de fechamento ("X", "Cancelar", "Salvar") permaneçam funcionais e visíveis no modo maximizado.
+    * [x] **Problema:** Botão "Maximizar/Restaurar" não está funcional ou não implementado corretamente.
+    * [x] Implementar a funcionalidade para que o modal ocupe toda a tela ao maximizar (ocultando a área de trabalho) e retorne ao tamanho normal ao restaurar.
+    * [x] Garantir que o modal maximizado utilize uma barra de rolagem INTERNA para seu conteúdo, caso ele exceda a altura da viewport.
+    * [x] Assegurar que as opções de fechamento ("X", "Cancelar", "Salvar") permaneçam funcionais e visíveis no modo maximizado.
 
 4.  **Barra de Rolagem da PÁGINA para Modal Extenso (Layout):**
     * [ ] **Problema:** Quando o conteúdo do modal de edição (não maximizado) ultrapassa a altura da viewport, a PÁGINA principal (área de trabalho) não apresenta barra de rolagem, cortando parte do modal.
     * [ ] Implementar/corrigir para que a PÁGINA principal obtenha uma barra de rolagem vertical quando o modal de edição (em seu estado normal, não maximizado) for muito extenso para caber na tela. O modal em si (não maximizado) não deve ter rolagem interna, exceto para campos específicos como a descrição se configurado.
 
 5.  **Pop-up "No bloco X" (Cabeçalho dos Modais):**
-    * [ ] Corrigir o posicionamento do pop-up de "Mover" (referência HTML 4) que é acionado ao clicar no texto "No bloco [nome do bloco]". Ele deve aparecer corretamente sobreposto ao modal, e não de forma desalinhada ou abaixo dele.
+    * [x] Corrigir o posicionamento do pop-up de "Mover" (referência HTML 4) que é acionado ao clicar no texto "No bloco [nome do bloco]". Ele deve aparecer corretamente sobreposto ao modal, e não de forma desalinhada ou abaixo dele.
 
 6.  **Editor de Texto (TipTap) - Campo de Descrição e Outros:**
     * [ ] Substituir o `textarea` atual do campo de descrição (em `CardDialog.tsx` e, se aplicável, em `SpreadsheetDialog.tsx`) por um editor TipTap funcional.
