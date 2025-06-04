@@ -113,7 +113,7 @@ export default function BaseDialog({
         {/* Capa - se existir */}
         {(capa || capaColor) && (
           <div 
-            className="w-full h-32 rounded-t-lg"
+            className="w-full h-32 rounded-t-lg shrink-0"
             style={{
               backgroundColor: capaColor || undefined,
               backgroundImage: capa && !capaColor ? `url(${capa})` : undefined,
@@ -193,24 +193,15 @@ export default function BaseDialog({
         </div>
 
         {/* Content Area (Main + Sidebar) */}
-        <div className={cn(
-          "flex flex-1 min-h-0",
-          isMaximized ? "overflow-y-auto" : "overflow-visible"
-        )}>
-          {/* Main Content Scrollable */}
-          <div className={cn(
-            "flex-1 p-6 space-y-6",
-            isMaximized && "overflow-y-auto"
-          )}>
+        <div className="flex flex-1 min-h-0 overflow-y-auto">
+          {/* Main Content */}
+          <div className="flex-1 p-6 space-y-6">
             {children}
           </div>
 
           {/* Sidebar Content */}
           {sidebarContent && (
-            <div className={cn(
-              "w-56 border-l bg-muted/30 p-4 shrink-0",
-              isMaximized && "sticky top-0 h-full"
-            )}>
+            <div className="w-56 border-l bg-muted/30 p-4 shrink-0">
               {sidebarContent}
             </div>
           )}

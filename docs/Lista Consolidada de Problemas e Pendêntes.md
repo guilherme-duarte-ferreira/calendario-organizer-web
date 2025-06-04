@@ -34,8 +34,7 @@
     * [x] Assegurar que as opções de fechamento ("X", "Cancelar", "Salvar") permaneçam funcionais e visíveis no modo maximizado.
 
 4.  **Barra de Rolagem da PÁGINA para Modal Extenso (Layout):**
-    * [ ] **Problema:** Quando o conteúdo do modal de edição (não maximizado) ultrapassa a altura da viewport, a PÁGINA principal (área de trabalho) não apresenta barra de rolagem, cortando parte do modal.
-    * [ ] Implementar/corrigir para que a PÁGINA principal obtenha uma barra de rolagem vertical quando o modal de edição (em seu estado normal, não maximizado) for muito extenso para caber na tela. O modal em si (não maximizado) não deve ter rolagem interna, exceto para campos específicos como a descrição se configurado.
+    * [x] **Problema:** Quando o conteúdo do modal de edição (não maximizado) ultrapassa a altura da viewport, a PÁGINA principal (área de trabalho) não apresenta barra de rolagem, cortando parte do modal.
 
 5.  **Pop-up "No bloco X" (Cabeçalho dos Modais):**
     * [x] Corrigir o posicionamento do pop-up de "Mover" (referência HTML 4) que é acionado ao clicar no texto "No bloco [nome do bloco]". Ele deve aparecer corretamente sobreposto ao modal, e não de forma desalinhada ou abaixo dele.
