@@ -382,12 +382,33 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     closeActivePopup();
   };
 
+  // Função para salvar o estado atual do cartão (usada pelas funções de capa)
+  const saveCurrentCardState = (updates: Partial<Card>) => {
+    const cardToUpdate: Card = {
+      ...card,
+      title,
+      description,
+      status,
+      checklist: checklistItems,
+      attachments,
+      etiquetas: selectedEtiquetas,
+      dueDate: dueDate?.toISOString(),
+      reminderDate: reminderDate?.toISOString(),
+      capa,
+      capaColor,
+      ...updates, // Aplica as atualizações específicas (ex: nova capa)
+      updatedAt: new Date().toISOString(),
+    };
+    updateItem(cardToUpdate);
+  };
+
   /**
    * Define uma imagem como capa do cartão
    */
   const handleSetCapa = (imageUrl: string) => {
     setCapa(imageUrl);
     setCapaColor(undefined);
+    saveCurrentCardState({ capa: imageUrl, capaColor: undefined });
     toast.success("Capa definida!");
   };
 
@@ -397,7 +418,8 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
   const handleSetCapaColor = (color: string) => {
     setCapaColor(color);
     setCapa(undefined);
-    toast.success("Cor da capa definida!");
+    saveCurrentCardState({ capaColor: color, capa: undefined });
+    // O toast para esta ação é tratado no fechamento do CoresCapa.tsx
   };
 
   /**
@@ -406,6 +428,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
   const handleRemoveCapa = () => {
     setCapa(undefined);
     setCapaColor(undefined);
+    saveCurrentCardState({ capa: undefined, capaColor: undefined });
     toast.success("Capa removida!");
   };
 

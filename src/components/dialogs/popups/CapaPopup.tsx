@@ -47,7 +47,6 @@ export default function CapaPopup({
     } else {
       onSetCapaColor(color);
     }
-    setShowCoresCapa(false);
   };
   
   const handleMainRemoveCapa = () => {

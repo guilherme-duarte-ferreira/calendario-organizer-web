@@ -3,11 +3,13 @@
  * @description Sub-pop-up para selecionar uma cor predefinida ou personalizada para a capa.
  * É renderizado e posicionado dentro do CapaPopup.tsx.
  * Seu fechamento é local (não fecha o CapaPopup principal).
+ * Dispara uma notificação única ao ser fechado, apenas se uma nova cor foi selecionada.
  */
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 
 /**
  * Props necessárias para o componente CoresCapa
@@ -37,8 +39,39 @@ export default function CoresCapa({
   onClose,
   onSelectColor
 }: CoresCapaProps) {
+  // Estado para rastrear se o usuário fez alguma alteração de cor
+  const [hasChanged, setHasChanged] = useState(false);
+
+  // Efeito que executa uma função de limpeza quando o componente é desmontado (fechado).
+  // É aqui que a notificação será disparada.
+  useEffect(() => {
+    return () => {
+      if (hasChanged) {
+        toast.success("Cor da capa personalizada definida!");
+      }
+    };
+  }, [hasChanged]); // A função de limpeza será recriada se o estado 'hasChanged' mudar.
+
   // Não renderiza nada se não estiver aberto
   if (!isOpen) return null;
+
+  // Handler para o seletor de cor (<input type="color">)
+  const handleColorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHasChanged(true); // Marca que uma alteração ocorreu
+    onSelectColor(e.target.value); // Atualiza a cor para o preview em tempo real
+  };
+
+  // Handler para os botões de cores predefinidas
+  const handleSwatchClick = (cor: string) => {
+    setHasChanged(true); // Marca que uma alteração ocorreu
+    onSelectColor(cor); // Atualiza a cor para o preview
+  };
+
+  // Handler para o botão de remover cor
+  const handleRemoveClick = () => {
+    setHasChanged(true);
+    onSelectColor("");
+  };
 
   return (
     // Este div usa posicionamento absoluto para se posicionar em relação ao seu contêiner no CapaPopup
@@ -62,7 +95,7 @@ export default function CoresCapa({
               key={cor}
               className="w-8 h-8 rounded hover:ring-2 hover:ring-offset-2 hover:ring-primary transition-all"
               style={{ backgroundColor: cor }}
-              onClick={() => onSelectColor(cor)}
+              onClick={() => handleSwatchClick(cor)}
             />
           ))}
         </div>
@@ -75,7 +108,7 @@ export default function CoresCapa({
           <input
             type="color"
             className="w-full h-8 rounded cursor-pointer"
-            onChange={(e) => onSelectColor(e.target.value)}
+            onChange={handleColorInputChange}
           />
         </div>
 
@@ -83,7 +116,7 @@ export default function CoresCapa({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => onSelectColor("")}
+          onClick={handleRemoveClick}
           className="w-full mt-4 text-xs h-8"
         >
           Remover cor

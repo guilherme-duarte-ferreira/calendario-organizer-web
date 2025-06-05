@@ -122,12 +122,12 @@ export default function BaseDialog({
         {/* Header Fixo */}
         <div className="flex items-center p-4 border-b bg-background shrink-0 relative">
           <div className="flex-1 min-w-0">
-            <DialogTitle className={cn("text-lg font-semibold truncate", { "text-white": capa || capaColor })}>
+            <DialogTitle className="text-lg font-semibold truncate">
               {title}
             </DialogTitle>
             {location && (
               <div className="text-xs mt-1">
-                <span className={cn({ "text-gray-200": capa || capaColor, "text-muted-foreground": !capa && !capaColor })}>
+                <span className="text-muted-foreground">
                   No bloco
                 </span>
                 {showLocationPopover && isLocationPopoverOpen !== undefined && onLocationPopoverOpenChange && locationPopoverContent ? (
@@ -135,13 +135,7 @@ export default function BaseDialog({
                     <PopoverTrigger asChild>
                       <Button
                         variant="link"
-                        className={cn(
-                          "h-auto p-0 ml-1 text-xs font-semibold underline",
-                          { 
-                            "text-white hover:text-gray-300": capa || capaColor,
-                            "text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300": !capa && !capaColor 
-                          }
-                        )}
+                        className="h-auto p-0 ml-1 text-xs font-semibold underline text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                         data-testid="location-trigger-button"
                       >
                         {location}
@@ -151,6 +145,7 @@ export default function BaseDialog({
                       className="p-0 w-80"
                       align="start"
                       side="bottom"
+                      style={{ zIndex: 1400 }}
                     >
                       {locationPopoverContent}
                     </PopoverContent>
@@ -158,13 +153,7 @@ export default function BaseDialog({
                 ) : (
                   <Button
                     variant="link"
-                    className={cn(
-                      "h-auto p-0 ml-1 text-xs font-semibold underline",
-                      { 
-                        "text-white hover:text-gray-300": capa || capaColor,
-                        "text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300": !capa && !capaColor 
-                      }
-                    )}
+                    className="h-auto p-0 ml-1 text-xs font-semibold underline text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                     onClick={onLocationClick}
                     data-testid="location-trigger-button"
                   >

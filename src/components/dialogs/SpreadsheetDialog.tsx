@@ -269,24 +269,43 @@ export default function SpreadsheetDialog({
     closeActivePopup();
   };
 
+  // Função auxiliar para salvar o estado atual da planilha
+  const saveCurrentSpreadsheetState = (updates: Partial<Spreadsheet>) => {
+    const spreadsheetToUpdate: Spreadsheet = {
+      ...spreadsheet,
+      title,
+      columns,
+      rows,
+      capa,
+      capaColor,
+      ...updates,
+      lastEditedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    updateItem(spreadsheetToUpdate);
+  };
+
   const handleSetCapa = (imageUrl: string) => {
     setCapa(imageUrl);
     setCapaColor(undefined);
-    toast.success("Capa definida!");
+    saveCurrentSpreadsheetState({ capa: imageUrl, capaColor: undefined });
+    toast.success("Capa da planilha definida!");
     closeActivePopup();
   };
 
   const handleSetCapaColor = (color: string) => {
     setCapaColor(color);
     setCapa(undefined);
-    toast.success("Cor da capa definida!");
+    saveCurrentSpreadsheetState({ capaColor: color, capa: undefined });
+    // O toast é tratado ao fechar o pop-up de cores
     closeActivePopup();
   };
 
   const handleRemoveCapa = () => {
     setCapa(undefined);
     setCapaColor(undefined);
-    toast.success("Capa removida!");
+    saveCurrentSpreadsheetState({ capa: undefined, capaColor: undefined });
+    toast.success("Capa da planilha removida!");
     closeActivePopup();
   };
 
@@ -481,8 +500,7 @@ export default function SpreadsheetDialog({
           Checklist
         </Button>
         <ChecklistPopup
-          isOpen={activePopup === 'checklist'}
-          onClose={closeActivePopup}
+          onClosePopup={closeActivePopup}
           checklists={checklists}
           onUpdateChecklists={handleUpdateChecklists}
         />
@@ -537,8 +555,7 @@ export default function SpreadsheetDialog({
           Capa
         </Button>
         <CapaPopup
-          isOpen={activePopup === 'capa'}
-          onClose={closeActivePopup}
+          onClosePopup={closeActivePopup}
           onSetCapa={handleSetCapa}
           onSetCapaColor={handleSetCapaColor}
           onRemoveCapa={handleRemoveCapa}
@@ -563,11 +580,10 @@ export default function SpreadsheetDialog({
           Mover
         </Button>
         <MoverPopup
-          isOpen={activePopup === 'mover'}
-          onClose={closeActivePopup}
+          onClosePopup={closeActivePopup}
           onMove={handleMove}
-          currentBoardId={boards.find(b => b.blocks.some(block => block.items.some(item => item.id === spreadsheet.id)))?.id}
-          currentBlockId={boards.flatMap(b => b.blocks).find(block => block.items.some(item => item.id === spreadsheet.id))?.id}
+          currentBoardId={boards.find(b => b.blocks.some(block => block.id === spreadsheet.blockId))?.id}
+          currentBlockId={spreadsheet.blockId}
         />
       </div>
       
