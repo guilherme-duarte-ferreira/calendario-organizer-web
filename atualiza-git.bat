@@ -1,6 +1,6 @@
 @echo off
 
-:: Altere para o diretorio onde o script esta localizado
+:: Altera para o diretorio onde o script esta localizado
 cd /d %~dp0
 
 :menu
@@ -9,14 +9,15 @@ echo Diretorio atual: %cd%
 echo =====================================
 echo     GIT AUTOMATION MENU
 echo =====================================
-echo 1. Verificar status do repositorio
-echo 2. Adicionar todas as alteracoes
-echo 3. Fazer commit
-echo 4. Fazer push para o GitHub
-echo 5. Fazer pull do repositorio
-echo 6. Mostrar log de commits
-echo 7. Outras opcoes
-echo 8. Sair
+echo 1. Verificar status do repositorio (git status)
+echo 2. Adicionar todas as alteracoes (git add .)
+echo 3. Fazer commit (git commit -m "...")
+echo 4. Fazer push para o GitHub (git push)
+echo 5. Fazer pull do repositorio (git pull)
+echo 6. Mostrar log de commits (git log)
+echo 7. Obter link do projeto (git remote -v)
+echo 8. Outras opcoes
+echo 9. Sair
 echo =====================================
 set /p escolha="Escolha uma opcao: "
 
@@ -26,8 +27,9 @@ if %escolha%==3 goto commit
 if %escolha%==4 goto push
 if %escolha%==5 goto pull
 if %escolha%==6 goto log
-if %escolha%==7 goto outras_opcoes
-if %escolha%==8 goto fim
+if %escolha%==7 goto link
+if %escolha%==8 goto outras_opcoes
+if %escolha%==9 goto fim
 goto menu
 
 :status
@@ -72,20 +74,27 @@ git log
 pause
 goto menu
 
+:link
+echo Diretorio atual: %cd%
+echo Exibindo link do projeto remoto...
+git remote -v
+pause
+goto menu
+
 :outras_opcoes
 cls
 echo Outras opcoes
-echo =====================================
-echo 1. Restaurar arquivos deletados
-echo 2. Sincronizar com repositorio
-echo 3. Fazer fetch do repositorio
-echo 4. Fazer merge de branches
-echo 5. Inicializar um novo repositorio
-echo 6. Desfazer alteracoes
-echo 7. Descartar todas as alteracoes
-echo 8. Listar branches
+echo ========================================================
+echo 1. Restaurar arquivos deletados (git checkout -- .)
+echo 2. Sincronizar com repositorio (git fetch origin)
+echo 3. Fazer fetch do repositorio (git fetch)
+echo 4. Fazer merge de branches (git merge <branch>)
+echo 5. Inicializar um novo repositorio (git init)
+echo 6. Desfazer alteracoes (git reset)
+echo 7. Descartar todas as alteracoes (git checkout .)
+echo 8. Listar branches (git branch)
 echo 9. Voltar ao menu principal
-echo =====================================
+echo ========================================================
 set /p escolha_outras="Escolha uma opcao: "
 
 if %escolha_outras%==1 goto restaurar
@@ -118,8 +127,9 @@ pause
 goto outras_opcoes
 
 :merge
-echo Fazendo merge de branches...
-git merge
+set /p branch_merge="Digite o nome da branch para fazer merge: "
+echo Fazendo merge da branch %branch_merge%...
+git merge %branch_merge%
 pause
 goto outras_opcoes
 
@@ -129,9 +139,22 @@ git init
 pause
 goto outras_opcoes
 
+:reset
+set /p reset_options="Digite as opcoes para o reset (ex: HEAD~1): "
+echo Desfazendo alteracoes com 'git reset %reset_options%'
+git reset %reset_options%
+pause
+goto outras_opcoes
+
 :descartar
-echo Descartando todas as alteracoes...
+echo Descartando todas as alteracoes locais...
 git checkout .
+pause
+goto outras_opcoes
+
+:branch
+echo Listando todas as branches...
+git branch -a
 pause
 goto outras_opcoes
 
