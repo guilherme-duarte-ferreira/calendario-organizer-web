@@ -1,3 +1,88 @@
+==========================================
+Conteúdo de pendencia.md (caminho: docs\pente_fino\pendencia.md):
+==========================================
+6. **Editor de Texto (TipTap) - Campo de Descrição e Outros:**
+   Documento de Especificação Técnica e Plano de Implementação: Editor de Texto Rico (TipTap)  
+   Versão: 2.0  
+   Data: 06 de junho de 2025  
+   Autor: Inteligência Artificial (Assistente Gemini)
+
+   1.0 **Visão Geral e Objetivos**  
+   O objetivo desta implementação é substituir o componente `<textarea>` existente nos modais de edição (CardDialog.tsx e SpreadsheetDialog.tsx) por um editor de texto rico, WYSIWYG ("What You See Is What You Get"), utilizando a biblioteca TipTap.
+
+   A nova implementação deve replicar fielmente a aparência e o comportamento do protótipo "Editor de Propostas", focando em uma experiência de usuário fluida que alterna entre um modo de visualização limpo e um modo de edição completo.
+
+   2.0 **Arquitetura da Solução**  
+   Para garantir modularidade, manutenibilidade e reutilização de código, a solução será arquitetada da seguinte forma:
+
+   - **Componente Encapsulado (TipTapEditor.tsx):** Toda a lógica do editor, incluindo a inicialização do TipTap, gerenciamento de estado de edição (visualização/edição) e a renderização da barra de ferramentas e ações, será contida em um único componente reutilizável.
+   - **Integração Simples:** O CardDialog.tsx (e posteriormente o SpreadsheetDialog.tsx) irá importar e renderizar o componente TipTapEditor.tsx, passando o conteúdo atual da descrição e recebendo o novo conteúdo através de um callback (onChange). Isso manterá os modais limpos e focados em sua função principal.
+   - **Gerenciamento de Estado:** O estado do conteúdo do editor será mantido dentro do CardDialog.tsx (a variável description). O TipTapEditor.tsx receberá esse estado como prop e usará sua própria gestão interna para a edição. Ao salvar, ele chamará a função updateItem do CalendarioContext para persistir os dados.
+
+   3.0 **Componentes Principais a Serem Desenvolvidos**  
+   - **TipTapEditor.tsx (src/components/ui/):** O componente principal que encapsula a lógica. Ele gerenciará a alternância entre os modos de visualização e edição.
+   - **Toolbar.tsx (src/components/ui/):** Componente que renderiza a barra de ferramentas de formatação. Receberá a instância do editor TipTap como prop para interagir com o conteúdo.
+   - **Actionbar.tsx (src/components/ui/):** Componente para o rodapé do editor no modo de edição, contendo os botões "Salvar", "Cancelar" e "Copiar".
+
+   **Novo Checklist e Plano de Implementação Detalhado**  
+   Esta seção substitui o item 6 da "lista antiga".
+
+   **Fase 1: Fundação do Editor e Integração Inicial**  
+   Objetivo: Ter um editor funcional dentro do CardDialog que alterna entre visualização e edição, com uma barra de ferramentas básica e ações de salvar/cancelar.
+
+   - [x] 1.1. Instalação de Dependências:
+   - [x] Adicionar `@tiptap/react`, `@tiptap/pm`, `@tiptap/starter-kit` e outras extensões necessárias (Underline, TextAlign, TextStyle, Color, FontFamily) ao package.json.
+   - [x] 1.2. Criação do Componente TipTapEditor.tsx:
+   - [x] Criar o arquivo `src/components/ui/TipTapEditor.tsx`.
+   - [x] Implementar a lógica de estado para `isEditing`.
+   - [x] Renderizar condicionalmente a área de visualização (`dangerouslySetInnerHTML`) ou o contêiner do editor (`<EditorContent />`).
+   - [x] Adicionar um evento `onClick` na área de visualização para ativar o modo de edição.
+   - [x] 1.3. Criação da Barra de Ferramentas (Toolbar.tsx):
+   - [x] Criar o arquivo `src/components/ui/Toolbar.tsx`.
+   - [x] Implementar botões básicos (Negrito, Itálico, Riscado) usando o componente `<Toggle>` do ShadCN para refletir o estado `isActive` do editor.
+   - [x] 1.4. Criação da Barra de Ações (Actionbar.tsx):
+   - [x] Criar o arquivo `src/components/ui/Actionbar.tsx`.
+   - [x] Implementar os botões "Salvar" e "Cancelar".
+   - [x] Passar as funções `onSave` e `onCancel` como props.
+   - [/] 1.5. Integração no CardDialog.tsx:
+   - [ ] Substituir o `<textarea>` e a barra de ferramentas antiga pelo novo componente `<TipTapEditor />`.
+   - [ ] Conectar o estado `description` do CardDialog ao editor.
+   - [ ] Implementar as funções `handleSaveDescription` e `handleCancelDescription` para interagir com o TipTapEditor.
+
+   **Fase 2: Barra de Ferramentas Avançada e Estilização**  
+   Objetivo: Expandir a barra de ferramentas para incluir todas as funcionalidades do protótipo e aplicar o estilo visual desejado.
+
+   - [ ] 2.1. Aprimorar Toolbar.tsx:
+   - [ ] Adicionar um seletor (`<Select>`) para Família de Fonte.
+   - [ ] Adicionar um seletor (`<Select>`) para Tamanho de Fonte.
+   - [ ] Adicionar um seletor de cor (`<input type="color">`) para a cor do texto.
+   - [ ] Adicionar botões para alinhamento de texto (Esquerda, Centro, Direita).
+   - [ ] Adicionar botões para listas e citações (blockquote).
+   - [ ] Implementar divisórias (`<Separator />`) para organizar a barra.
+   - [ ] 2.2. Estilização do Editor e Conteúdo:
+   - [ ] Utilizar classes do Tailwind (`prose`) no TipTapEditor.tsx para estilizar o conteúdo renderizado (cabeçalhos, parágrafos, listas) conforme o protótipo.
+   - [ ] Implementar o placeholder dinâmico, visível apenas quando o editor está vazio.
+   - [ ] Estilizar o contêiner do editor para que a borda mude de cor quando ele estiver em foco, replicando o efeito de `focus-within`.
+
+   **Fase 3: Funcionalidades Complexas e Finalização**  
+   Objetivo: Implementar os recursos mais avançados e garantir que a experiência do usuário seja coesa.
+
+   - [ ] 3.1. Funcionalidade de Cópia Avançada:
+   - [ ] No Actionbar.tsx, implementar o menu suspenso para o botão "Copiar".
+   - [ ] Adicionar a biblioteca turndown para converter HTML em Markdown.
+   - [ ] Implementar as três lógicas de cópia:
+     - Copiar como HTML (`editor.getHTML()`).
+     - Copiar como Texto Simples (`editor.getText()`).
+     - Copiar como Markdown (usando turndown).
+   - [ ] 3.2. Expansão de Conteúdo (Ver mais...):
+   - [ ] Implementar uma lógica no modo de visualização para truncar descrições longas e exibir um botão "Ver mais..." que expande o conteúdo.
+   - [ ] 3.3. Paridade no SpreadsheetDialog.tsx:
+   - [ ] Replicar a integração do `<TipTapEditor />` no modal de planilhas para garantir consistência entre os componentes, conforme o item C.1 da lista de pendências.
+
+
+==========================================
+Conteúdo de package-lock.json (caminho: package-lock.json):
+==========================================
 {
   "name": "vite_react_shadcn_ts",
   "version": "0.0.0",
@@ -8841,3 +8926,339 @@
     }
   }
 }
+
+
+==========================================
+Conteúdo de package.json (caminho: package.json):
+==========================================
+{
+  "name": "vite_react_shadcn_ts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@hookform/resolvers": "^3.9.0",
+    "@radix-ui/react-accordion": "^1.2.0",
+    "@radix-ui/react-alert-dialog": "^1.1.1",
+    "@radix-ui/react-aspect-ratio": "^1.1.0",
+    "@radix-ui/react-avatar": "^1.1.0",
+    "@radix-ui/react-checkbox": "^1.1.1",
+    "@radix-ui/react-collapsible": "^1.1.0",
+    "@radix-ui/react-context-menu": "^2.2.1",
+    "@radix-ui/react-dialog": "^1.1.2",
+    "@radix-ui/react-dropdown-menu": "^2.1.1",
+    "@radix-ui/react-hover-card": "^1.1.1",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-menubar": "^1.1.1",
+    "@radix-ui/react-navigation-menu": "^1.2.0",
+    "@radix-ui/react-popover": "^1.1.1",
+    "@radix-ui/react-progress": "^1.1.0",
+    "@radix-ui/react-radio-group": "^1.2.0",
+    "@radix-ui/react-scroll-area": "^1.1.0",
+    "@radix-ui/react-select": "^2.1.1",
+    "@radix-ui/react-separator": "^1.1.0",
+    "@radix-ui/react-slider": "^1.2.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@radix-ui/react-switch": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-toast": "^1.2.1",
+    "@radix-ui/react-toggle": "^1.1.0",
+    "@radix-ui/react-toggle-group": "^1.1.0",
+    "@radix-ui/react-tooltip": "^1.1.4",
+    "@tanstack/react-query": "^5.56.2",
+    "@tiptap/extension-color": "^2.14.0",
+    "@tiptap/extension-font-family": "^2.14.0",
+    "@tiptap/extension-text-align": "^2.14.0",
+    "@tiptap/extension-text-style": "^2.14.0",
+    "@tiptap/extension-underline": "^2.14.0",
+    "@tiptap/pm": "^2.14.0",
+    "@tiptap/react": "^2.14.0",
+    "@tiptap/starter-kit": "^2.14.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cmdk": "^1.0.0",
+    "date-fns": "^3.6.0",
+    "embla-carousel-react": "^8.3.0",
+    "input-otp": "^1.2.4",
+    "lucide-react": "^0.462.0",
+    "next-themes": "^0.3.0",
+    "react": "^18.3.1",
+    "react-day-picker": "^8.10.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "react-markdown": "^8.0.7",
+    "react-resizable-panels": "^2.1.3",
+    "react-router-dom": "^6.26.2",
+    "recharts": "^2.12.7",
+    "sonner": "^1.7.4",
+    "tailwind-merge": "^2.5.2",
+    "tailwindcss-animate": "^1.0.7",
+    "vaul": "^0.9.3",
+    "vite_react_shadcn_ts": "file:",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@tailwindcss/typography": "^0.5.15",
+    "@types/node": "^22.5.5",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.9.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.9",
+    "globals": "^15.9.0",
+    "lovable-tagger": "^1.1.7",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.11",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.0.1",
+    "vite": "^5.4.1"
+  }
+}
+
+
+==========================================
+Conteúdo de Actionbar.tsx (caminho: src\components\ui\Actionbar.tsx):
+==========================================
+import React from 'react';
+import { Button } from '@/components/ui/button';
+
+// Ações que a barra pode executar, passadas como props.
+interface ActionbarProps {
+  onSave: () => void;
+  onCancel: () => void;
+  // Futuramente, podemos adicionar onCopy aqui.
+}
+
+/**
+ * Barra de Ações para o rodapé do editor TipTap.
+ * Fornece os controles para confirmar ou descartar as alterações.
+ */
+const Actionbar: React.FC<ActionbarProps> = ({ onSave, onCancel }) => {
+  return (
+    <div className="editor-actions flex justify-end items-center gap-2 p-2 border-t border-input">
+      <Button variant="ghost" onClick={onCancel}>
+        Cancelar
+      </Button>
+      <Button onClick={onSave}>
+        Salvar
+      </Button>
+    </div>
+  );
+};
+
+export default Actionbar; 
+
+==========================================
+Conteúdo de TipTapEditor.tsx (caminho: src\components\ui\TipTapEditor.tsx):
+==========================================
+import React, { useState, useEffect } from 'react';
+import { useEditor, EditorContent, Editor } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import TextStyle from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import FontFamily from '@tiptap/extension-font-family';
+
+import { cn } from "@/lib/utils";
+import Toolbar from './Toolbar';
+import Actionbar from './Actionbar';
+
+// --- Props do Componente ---
+interface TipTapEditorProps {
+  content: string;
+  onSave: (newContent: string) => void;
+  onCancel: () => void;
+  placeholder?: string;
+}
+
+/**
+ * Um editor de texto rico que alterna entre o modo de visualização e edição.
+ * Encapsula a lógica do TipTap, a renderização e as ações de salvar/cancelar.
+ */
+export default function TipTapEditor({ content, onSave, onCancel, placeholder }: TipTapEditorProps) {
+  // --- Estados do Componente ---
+  const [isEditing, setIsEditing] = useState(false);
+  const [editableContent, setEditableContent] = useState(content);
+
+  // --- Configuração do Editor TipTap ---
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      TextStyle,
+      Color,
+      FontFamily,
+    ],
+    // Conteúdo inicial
+    content: editableContent,
+    // Atualiza o estado interno sempre que o conteúdo do editor muda
+    onUpdate: ({ editor }) => {
+      setEditableContent(editor.getHTML());
+    },
+    // Propriedades para estilização do campo de edição
+    editorProps: {
+      attributes: {
+        class: 'prose dark:prose-invert prose-sm sm:prose-base focus:outline-none min-h-[150px]',
+      },
+    },
+  });
+
+  // --- Handlers de Ação ---
+  const handleSave = () => {
+    // A prop onSave é chamada, e o editor sai do modo de edição.
+    onSave(editableContent);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    // Restaura o conteúdo original e sai do modo de edição
+    setEditableContent(content);
+    editor?.commands.setContent(content, false);
+    onCancel();
+    setIsEditing(false);
+  };
+
+  const handleEnterEditMode = () => {
+    setIsEditing(true);
+    // Foca o editor quando o modo de edição é ativado
+    // Usamos um setTimeout para garantir que o editor esteja visível no DOM
+    setTimeout(() => {
+      editor?.commands.focus();
+    }, 0);
+  };
+
+  // Atualiza o conteúdo do editor se a prop externa mudar
+  useEffect(() => {
+    if (editor && content !== editableContent) {
+      editor.commands.setContent(content, false);
+    }
+  }, [content, editor]);
+  
+  // Renderização do Componente
+  if (isEditing) {
+    // --- MODO DE EDIÇÃO ---
+    return (
+      <div className="rich-text-editor-wrapper edit-mode rounded-md border border-primary ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+        {/* A Toolbar agora é renderizada aqui, passando a instância do editor */}
+        <Toolbar editor={editor} />
+        
+        {/* Área de conteúdo editável */}
+        <div className="p-4">
+            <EditorContent editor={editor} />
+        </div>
+
+        {/* A Actionbar agora é renderizada aqui, passando as funções de callback */}
+        <Actionbar onSave={handleSave} onCancel={handleCancel} />
+      </div>
+    );
+  }
+
+  // --- MODO DE VISUALIZAÇÃO ---
+  return (
+    <div
+      className="rich-text-editor-wrapper view-mode cursor-text rounded-md border border-transparent hover:border-input transition-colors"
+      onClick={handleEnterEditMode}
+    >
+      <div
+        className={cn(
+            "prose dark:prose-invert prose-sm sm:prose-base p-4 min-h-[150px]",
+            !content && "text-muted-foreground"
+        )}
+        dangerouslySetInnerHTML={{ __html: content || `<p>${placeholder || "Adicione uma descrição..."}</p>` }}
+      />
+    </div>
+  );
+} 
+
+==========================================
+Conteúdo de Toolbar.tsx (caminho: src\components\ui\Toolbar.tsx):
+==========================================
+import React from 'react';
+import { Editor } from '@tiptap/react';
+import { Bold, Italic, List, ListOrdered, Strikethrough } from 'lucide-react';
+import { Toggle } from '@/components/ui/toggle';
+
+// A barra de ferramentas precisa da instância do editor para aplicar os comandos.
+interface ToolbarProps {
+  editor: Editor | null;
+}
+
+/**
+ * A barra de ferramentas para o editor TipTap.
+ * Contém botões para aplicar formatações básicas de texto.
+ * O estado de cada botão (pressionado/não pressionado) é sincronizado
+ * com o estado atual da seleção no editor.
+ */
+const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
+  if (!editor) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center gap-1 rounded-t-md border-b border-input bg-transparent p-1">
+      {/* Botão de Negrito */}
+      <Toggle
+        size="sm"
+        pressed={editor.isActive('bold')}
+        onPressedChange={() => editor.chain().focus().toggleBold().run()}
+        aria-label="Toggle bold"
+      >
+        <Bold className="h-4 w-4" />
+      </Toggle>
+
+      {/* Botão de Itálico */}
+      <Toggle
+        size="sm"
+        pressed={editor.isActive('italic')}
+        onPressedChange={() => editor.chain().focus().toggleItalic().run()}
+        aria-label="Toggle italic"
+      >
+        <Italic className="h-4 w-4" />
+      </Toggle>
+
+      {/* Botão de Riscado */}
+      <Toggle
+        size="sm"
+        pressed={editor.isActive('strike')}
+        onPressedChange={() => editor.chain().focus().toggleStrike().run()}
+        aria-label="Toggle strikethrough"
+      >
+        <Strikethrough className="h-4 w-4" />
+      </Toggle>
+    </div>
+  );
+};
+
+export default Toolbar; 
+
+
+==========================================
+Estrutura de pastas (arquivos selecionados, relativa ao ancestral comum ou Entrada):
+==========================================
+├── x,
+├── docs
+│   └── pente_fino
+│       └── pendencia.md
+├── package-lock.json
+├── package.json
+└── src
+    └── components
+        └── ui
+            ├── Actionbar.tsx
+            ├── TipTapEditor.tsx
+            └── Toolbar.tsx

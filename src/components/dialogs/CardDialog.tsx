@@ -55,6 +55,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import EtiquetaPopupContent from "./popups/EtiquetaPopupContent";
 import DataPopupContent from "./popups/DataPopupContent";
 import CapaPopup from "./popups/CapaPopup";
+import TipTapEditor from "../ui/TipTapEditor";
+import { Editor } from "@tiptap/react";
 
 /**
  * Props necessárias para renderizar o CardDialog
@@ -109,6 +111,7 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
   const [newComment, setNewComment] = useState("");
   const [showActivityDetails, setShowActivityDetails] = useState(false);
   const [newChecklistItem, setNewChecklistItem] = useState("");
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
   
   // --- Sistema de Controle de Pop-ups Aninhados ---
   // activePopup: Armazena a string identificadora do pop-up atualmente visível
@@ -815,6 +818,21 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
     }
   };
 
+  const handleSaveDescription = (newContent: string) => {
+    if (card.description !== newContent) {
+        const updatedCard = { ...card, description: newContent, updatedAt: new Date().toISOString() };
+        updateItem(updatedCard);
+        setDescription(newContent);
+        toast.success("Descrição salva!");
+    }
+    setIsEditingDescription(false);
+  }
+
+  const handleCancelDescription = () => {
+    setDescription(card.description || "");
+    setIsEditingDescription(false);
+  }
+
   return (
     <BaseDialog
       isOpen={isOpen}
@@ -905,67 +923,12 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
             <List size={16} />
             <h3 className="font-semibold text-sm">Descrição</h3>
           </div>
-          
-          <div className="border rounded-md">
-            <div className="flex items-center gap-2 border-b px-3 py-2 text-sm">
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                Aa ▼
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-6 px-1 font-bold text-xs"
-                onClick={() => formatText('bold')}
-              >
-                <Bold size={12} />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-6 px-1 italic text-xs"
-                onClick={() => formatText('italic')}
-              >
-                <Italic size={12} />
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                <MoreHorizontal size={12} />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-6 px-1 text-xs"
-                onClick={() => formatText('list')}
-              >
-                <List size={12} />
-                ▼
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                <Link size={12} />
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                <Image size={12} />
-              </Button>
-              <Button variant="ghost" size="sm" className="h-6 px-1 text-xs">
-                <Plus size={12} />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-6 px-1 text-xs ml-auto"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Paperclip size={12} />
-              </Button>
-            </div>
-            
-            <Textarea
-              ref={descriptionRef}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Precisa de ajuda com a formatação? Digite /help."
-              className="border-0 resize-none min-h-[200px] focus-visible:ring-0"
-            />
-          </div>
+          <TipTapEditor
+            content={description}
+            onSave={handleSaveDescription}
+            onCancel={handleCancelDescription}
+            placeholder="Adicione uma descrição mais detalhada..."
+          />
         </div>
 
         {/* Anexos */}

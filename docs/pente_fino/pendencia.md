@@ -1,4 +1,3 @@
-
 6. **Editor de Texto (TipTap) - Campo de Descrição e Outros:**
    Documento de Especificação Técnica e Plano de Implementação: Editor de Texto Rico (TipTap)  
    Versão: 2.0  
@@ -28,24 +27,24 @@
    **Fase 1: Fundação do Editor e Integração Inicial**  
    Objetivo: Ter um editor funcional dentro do CardDialog que alterna entre visualização e edição, com uma barra de ferramentas básica e ações de salvar/cancelar.
 
-   - [ ] 1.1. Instalação de Dependências:
-   - [ ] Adicionar `@tiptap/react`, `@tiptap/pm`, `@tiptap/starter-kit` e outras extensões necessárias (Underline, TextAlign, TextStyle, Color, FontFamily) ao package.json.
-   - [ ] 1.2. Criação do Componente TipTapEditor.tsx:
-   - [ ] Criar o arquivo `src/components/ui/TipTapEditor.tsx`.
-   - [ ] Implementar a lógica de estado para `isEditing`.
-   - [ ] Renderizar condicionalmente a área de visualização (`dangerouslySetInnerHTML`) ou o contêiner do editor (`<EditorContent />`).
-   - [ ] Adicionar um evento `onClick` na área de visualização para ativar o modo de edição.
-   - [ ] 1.3. Criação da Barra de Ferramentas (Toolbar.tsx):
-   - [ ] Criar o arquivo `src/components/ui/Toolbar.tsx`.
-   - [ ] Implementar botões básicos (Negrito, Itálico, Riscado) usando o componente `<Toggle>` do ShadCN para refletir o estado `isActive` do editor.
-   - [ ] 1.4. Criação da Barra de Ações (Actionbar.tsx):
-   - [ ] Criar o arquivo `src/components/ui/Actionbar.tsx`.
-   - [ ] Implementar os botões "Salvar" e "Cancelar".
-   - [ ] Passar as funções `onSave` e `onCancel` como props.
-   - [ ] 1.5. Integração no CardDialog.tsx:
-   - [ ] Substituir o `<textarea>` e a barra de ferramentas antiga pelo novo componente `<TipTapEditor />`.
-   - [ ] Conectar o estado `description` do CardDialog ao editor.
-   - [ ] Implementar as funções `handleSaveDescription` e `handleCancelDescription` para interagir com o TipTapEditor.
+   - [x] 1.1. Instalação de Dependências:
+   - [x] Adicionar `@tiptap/react`, `@tiptap/pm`, `@tiptap/starter-kit` e outras extensões necessárias (Underline, TextAlign, TextStyle, Color, FontFamily) ao package.json.
+   - [x] 1.2. Criação do Componente TipTapEditor.tsx:
+   - [x] Criar o arquivo `src/components/ui/TipTapEditor.tsx`.
+   - [x] Implementar a lógica de estado para `isEditing`.
+   - [x] Renderizar condicionalmente a área de visualização (`dangerouslySetInnerHTML`) ou o contêiner do editor (`<EditorContent />`).
+   - [x] Adicionar um evento `onClick` na área de visualização para ativar o modo de edição.
+   - [x] 1.3. Criação da Barra de Ferramentas (Toolbar.tsx):
+   - [x] Criar o arquivo `src/components/ui/Toolbar.tsx`.
+   - [x] Implementar botões básicos (Negrito, Itálico, Riscado) usando o componente `<Toggle>` do ShadCN para refletir o estado `isActive` do editor.
+   - [x] 1.4. Criação da Barra de Ações (Actionbar.tsx):
+   - [x] Criar o arquivo `src/components/ui/Actionbar.tsx`.
+   - [x] Implementar os botões "Salvar" e "Cancelar".
+   - [x] Passar as funções `onSave` e `onCancel` como props.
+   - [x] 1.5. Integração no CardDialog.tsx:
+   - [x] Substituir o `<textarea>` e a barra de ferramentas antiga pelo novo componente `<TipTapEditor />`.
+   - [x] Conectar o estado `description` do CardDialog ao editor.
+   - [x] Implementar as funções `handleSaveDescription` e `handleCancelDescription` para interagir com o TipTapEditor.
 
    **Fase 2: Barra de Ferramentas Avançada e Estilização**  
    Objetivo: Expandir a barra de ferramentas para incluir todas as funcionalidades do protótipo e aplicar o estilo visual desejado.
@@ -76,3 +75,9 @@
    - [ ] Implementar uma lógica no modo de visualização para truncar descrições longas e exibir um botão "Ver mais..." que expande o conteúdo.
    - [ ] 3.3. Paridade no SpreadsheetDialog.tsx:
    - [ ] Replicar a integração do `<TipTapEditor />` no modal de planilhas para garantir consistência entre os componentes, conforme o item C.1 da lista de pendências.
+
+   **Comentários Adicionais:**
+   * A Fase 1 foi concluída com sucesso, com todas as funcionalidades básicas implementadas conforme especificado.
+   * O editor já está funcionando com formatação básica (negrito, itálico, riscado) e alternância entre modos de visualização e edição.
+   * A integração com o CardDialog.tsx foi realizada com sucesso, mantendo a consistência do estado e a persistência dos dados.
+   * Próximos passos focarão na Fase 2, expandindo as funcionalidades da barra de ferramentas e melhorando a estilização.
