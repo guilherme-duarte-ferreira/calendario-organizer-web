@@ -49,17 +49,17 @@
    **Fase 2: Barra de Ferramentas Avançada e Estilização**  
    Objetivo: Expandir a barra de ferramentas para incluir todas as funcionalidades do protótipo e aplicar o estilo visual desejado.
 
-   - [ ] 2.1. Aprimorar Toolbar.tsx:
-   - [ ] Adicionar um seletor (`<Select>`) para Família de Fonte.
-   - [ ] Adicionar um seletor (`<Select>`) para Tamanho de Fonte.
-   - [ ] Adicionar um seletor de cor (`<input type="color">`) para a cor do texto.
-   - [ ] Adicionar botões para alinhamento de texto (Esquerda, Centro, Direita).
-   - [ ] Adicionar botões para listas e citações (blockquote).
-   - [ ] Implementar divisórias (`<Separator />`) para organizar a barra.
-   - [ ] 2.2. Estilização do Editor e Conteúdo:
-   - [ ] Utilizar classes do Tailwind (`prose`) no TipTapEditor.tsx para estilizar o conteúdo renderizado (cabeçalhos, parágrafos, listas) conforme o protótipo.
-   - [ ] Implementar o placeholder dinâmico, visível apenas quando o editor está vazio.
-   - [ ] Estilizar o contêiner do editor para que a borda mude de cor quando ele estiver em foco, replicando o efeito de `focus-within`.
+   - [x] 2.1. Aprimorar Toolbar.tsx:
+   - [x] Adicionar um seletor (`<Select>`) para Família de Fonte.
+   - [x] Adicionar um seletor (`<Select>`) para Tamanho de Fonte.
+   - [x] Adicionar um seletor de cor (`<input type="color">`) para a cor do texto.
+   - [x] Adicionar botões para alinhamento de texto (Esquerda, Centro, Direita).
+   - [x] Adicionar botões para listas e citações (blockquote).
+   - [x] Implementar divisórias (`<Separator />`) para organizar a barra.
+   - [x] 2.2. Estilização do Editor e Conteúdo:
+   - [x] Utilizar classes do Tailwind (`prose`) no TipTapEditor.tsx para estilizar o conteúdo renderizado (cabeçalhos, parágrafos, listas) conforme o protótipo.
+   - [x] Implementar o placeholder dinâmico, visível apenas quando o editor está vazio.
+   - [x] Estilizar o contêiner do editor para que a borda mude de cor quando ele estiver em foco, replicando o efeito de `focus-within`.
 
    **Fase 3: Funcionalidades Complexas e Finalização**  
    Objetivo: Implementar os recursos mais avançados e garantir que a experiência do usuário seja coesa.
@@ -78,6 +78,7 @@
 
    **Comentários Adicionais:**
    * A Fase 1 foi concluída com sucesso, com todas as funcionalidades básicas implementadas conforme especificado.
-   * O editor já está funcionando com formatação básica (negrito, itálico, riscado) e alternância entre modos de visualização e edição.
-   * A integração com o CardDialog.tsx foi realizada com sucesso, mantendo a consistência do estado e a persistência dos dados.
-   * Próximos passos focarão na Fase 2, expandindo as funcionalidades da barra de ferramentas e melhorando a estilização.
+   * A Fase 2 foi concluída com sucesso, implementando todas as funcionalidades avançadas da barra de ferramentas e melhorando a estilização.
+   * O editor agora possui todas as funcionalidades de formatação (fonte, tamanho, cor, alinhamento, listas, citações) e uma interface visual aprimorada.
+   * A extensão de placeholder foi adicionada para melhorar a experiência do usuário quando o editor está vazio.
+   * Próximos passos focarão na Fase 3, implementando as funcionalidades complexas de cópia e expansão de conteúdo.

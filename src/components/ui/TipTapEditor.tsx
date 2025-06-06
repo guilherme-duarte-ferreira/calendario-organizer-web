@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useEditor, EditorContent, Editor } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import TextStyle from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import FontFamily from '@tiptap/extension-font-family';
+import Placeholder from '@tiptap/extension-placeholder';
+import FontSize from '@tiptap/extension-font-size';
 
 import { cn } from "@/lib/utils";
 import Toolbar from './Toolbar';
@@ -37,6 +39,10 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
       TextStyle,
       Color,
       FontFamily,
+      FontSize,
+      Placeholder.configure({
+        placeholder: placeholder || 'Comece a escrever...',
+      }),
     ],
     // Conteúdo inicial
     content: editableContent,
@@ -47,7 +53,7 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
     // Propriedades para estilização do campo de edição
     editorProps: {
       attributes: {
-        class: 'prose dark:prose-invert prose-sm sm:prose-base focus:outline-none min-h-[150px]',
+        class: 'prose dark:prose-invert prose-sm sm:prose-base focus:outline-none min-h-[150px] w-full',
       },
     },
   });
@@ -72,7 +78,7 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
     // Foca o editor quando o modo de edição é ativado
     // Usamos um setTimeout para garantir que o editor esteja visível no DOM
     setTimeout(() => {
-      editor?.commands.focus();
+      editor?.commands.focus('end');
     }, 0);
   };
 
