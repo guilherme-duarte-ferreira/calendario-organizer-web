@@ -1,4 +1,5 @@
 
+
 6. **Editor de Texto (TipTap) - Campo de Descrição e Outros:**
    Documento de Especificação Técnica e Plano de Implementação: Editor de Texto Rico (TipTap)  
    Versão: 2.0  
@@ -29,20 +30,25 @@
    Objetivo: Ter um editor funcional dentro do CardDialog que alterna entre visualização e edição, com uma barra de ferramentas básica e ações de salvar/cancelar.
 
    - [ ] 1.1. Instalação de Dependências:
+     * Comentário: Dependências não instaladas no projeto. Precisam ser adicionadas: @tiptap/react, @tiptap/pm, @tiptap/starter-kit, @tiptap/extension-underline, @tiptap/extension-text-align, @tiptap/extension-text-style, @tiptap/extension-color, @tiptap/extension-font-family
    - [ ] Adicionar `@tiptap/react`, `@tiptap/pm`, `@tiptap/starter-kit` e outras extensões necessárias (Underline, TextAlign, TextStyle, Color, FontFamily) ao package.json.
    - [ ] 1.2. Criação do Componente TipTapEditor.tsx:
+     * Comentário: Arquivo não existe no projeto atual. Precisa ser criado conforme especificação.
    - [ ] Criar o arquivo `src/components/ui/TipTapEditor.tsx`.
    - [ ] Implementar a lógica de estado para `isEditing`.
    - [ ] Renderizar condicionalmente a área de visualização (`dangerouslySetInnerHTML`) ou o contêiner do editor (`<EditorContent />`).
    - [ ] Adicionar um evento `onClick` na área de visualização para ativar o modo de edição.
    - [ ] 1.3. Criação da Barra de Ferramentas (Toolbar.tsx):
+     * Comentário: Arquivo não existe no projeto atual. Precisa ser criado conforme especificação.
    - [ ] Criar o arquivo `src/components/ui/Toolbar.tsx`.
    - [ ] Implementar botões básicos (Negrito, Itálico, Riscado) usando o componente `<Toggle>` do ShadCN para refletir o estado `isActive` do editor.
    - [ ] 1.4. Criação da Barra de Ações (Actionbar.tsx):
+     * Comentário: Arquivo não existe no projeto atual. Precisa ser criado conforme especificação.
    - [ ] Criar o arquivo `src/components/ui/Actionbar.tsx`.
    - [ ] Implementar os botões "Salvar" e "Cancelar".
    - [ ] Passar as funções `onSave` e `onCancel` como props.
    - [ ] 1.5. Integração no CardDialog.tsx:
+     * Comentário: CardDialog.tsx ainda utiliza textarea tradicional. Integração com TipTap não implementada.
    - [ ] Substituir o `<textarea>` e a barra de ferramentas antiga pelo novo componente `<TipTapEditor />`.
    - [ ] Conectar o estado `description` do CardDialog ao editor.
    - [ ] Implementar as funções `handleSaveDescription` e `handleCancelDescription` para interagir com o TipTapEditor.
@@ -51,6 +57,7 @@
    Objetivo: Expandir a barra de ferramentas para incluir todas as funcionalidades do protótipo e aplicar o estilo visual desejado.
 
    - [ ] 2.1. Aprimorar Toolbar.tsx:
+     * Comentário: Dependente da conclusão da Fase 1.
    - [ ] Adicionar um seletor (`<Select>`) para Família de Fonte.
    - [ ] Adicionar um seletor (`<Select>`) para Tamanho de Fonte.
    - [ ] Adicionar um seletor de cor (`<input type="color">`) para a cor do texto.
@@ -58,6 +65,7 @@
    - [ ] Adicionar botões para listas e citações (blockquote).
    - [ ] Implementar divisórias (`<Separator />`) para organizar a barra.
    - [ ] 2.2. Estilização do Editor e Conteúdo:
+     * Comentário: Dependente da conclusão da Fase 1.
    - [ ] Utilizar classes do Tailwind (`prose`) no TipTapEditor.tsx para estilizar o conteúdo renderizado (cabeçalhos, parágrafos, listas) conforme o protótipo.
    - [ ] Implementar o placeholder dinâmico, visível apenas quando o editor está vazio.
    - [ ] Estilizar o contêiner do editor para que a borda mude de cor quando ele estiver em foco, replicando o efeito de `focus-within`.
@@ -66,6 +74,7 @@
    Objetivo: Implementar os recursos mais avançados e garantir que a experiência do usuário seja coesa.
 
    - [ ] 3.1. Funcionalidade de Cópia Avançada:
+     * Comentário: Dependente da conclusão das Fases 1 e 2.
    - [ ] No Actionbar.tsx, implementar o menu suspenso para o botão "Copiar".
    - [ ] Adicionar a biblioteca turndown para converter HTML em Markdown.
    - [ ] Implementar as três lógicas de cópia:
@@ -73,6 +82,9 @@
      - Copiar como Texto Simples (`editor.getText()`).
      - Copiar como Markdown (usando turndown).
    - [ ] 3.2. Expansão de Conteúdo (Ver mais...):
+     * Comentário: Dependente da conclusão das Fases 1 e 2.
    - [ ] Implementar uma lógica no modo de visualização para truncar descrições longas e exibir um botão "Ver mais..." que expande o conteúdo.
    - [ ] 3.3. Paridade no SpreadsheetDialog.tsx:
+     * Comentário: Dependente da conclusão da implementação no CardDialog.tsx.
    - [ ] Replicar a integração do `<TipTapEditor />` no modal de planilhas para garantir consistência entre os componentes, conforme o item C.1 da lista de pendências.
+
