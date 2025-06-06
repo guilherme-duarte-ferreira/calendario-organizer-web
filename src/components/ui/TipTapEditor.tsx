@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
@@ -7,7 +7,6 @@ import TextStyle from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import FontFamily from '@tiptap/extension-font-family';
 import Placeholder from '@tiptap/extension-placeholder';
-import FontSize from '@tiptap/extension-font-size';
 
 import { cn } from "@/lib/utils";
 import Toolbar from './Toolbar';
@@ -39,7 +38,6 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
       TextStyle,
       Color,
       FontFamily,
-      FontSize,
       Placeholder.configure({
         placeholder: placeholder || 'Comece a escrever...',
       }),
