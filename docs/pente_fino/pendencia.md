@@ -75,12 +75,12 @@
    2.2 Implementação da Inserção de Objetos (Funcionalidade Essencial)
        - **Descrição:** Adicionar à interface do editor os controles primários para que o usuário possa inserir os tipos de conteúdo mais complexos: imagens e tabelas.
        - **Checklist de Implementação:**
-         - [ ] **Instalação das Dependências:** Os pacotes `@tiptap/extension-image` e `@tiptap/extension-table` (com suas sub-dependências) foram adicionados ao `package.json` e instalados.
-         - [ ] **Configuração do Editor:** O arquivo `TipTapEditor.tsx` foi atualizado para carregar e configurar as novas extensões de Imagem e Tabela, habilitando as funcionalidades no núcleo do editor.
-         - [ ] **Botão "Inserir Imagem":** Um botão com o ícone de imagem foi adicionado à `Toolbar.tsx`.
+         - [x] **Instalação das Dependências:** Os pacotes `@tiptap/extension-image` e `@tiptap/extension-table` (com suas sub-dependências) foram adicionados ao `package.json` e instalados.
+         - [x] **Configuração do Editor:** O arquivo `TipTapEditor.tsx` foi atualizado para carregar e configurar as novas extensões de Imagem e Tabela, habilitando as funcionalidades no núcleo do editor.
+         - [x] **Botão "Inserir Imagem":** Um botão com o ícone de imagem foi adicionado à `Toolbar.tsx`.
                - *Comentário:* A funcionalidade básica atual abre um `window.prompt()` para inserir a URL da imagem. A interface avançada (com opções de URL e upload local) será desenvolvida na Fase 3.
-         - [ ] **Botão "Inserir Tabela":** Um botão com o ícone de tabela foi adicionado à `Toolbar.tsx`.
-               - *Comentário:* A funcionalidade básica atual insere uma tabela padrão de 3x3. A interface avançada (seletor de grade estilo Word) será desenvolvida na Fase 3.
+         - [x] **Botão "Inserir Tabela":** Um botão com o ícone de tabela foi adicionado à `Toolbar.tsx`.
+               - *Comentário:* A funcionalidade básica atual insere uma tabela padrão de 3x3. A interface avançada (seletor de grade estilo Word) será desenvolvida na Fase 2.3.
 
    2.3. Visão para a Fase 3: Módulos Avançados de Imagem e Planilha
        - **Descrição:** O trabalho realizado na Fase 2 - Parte 2 é a fundação para os seguintes requisitos avançados, que agora formam o escopo claro da **Fase 3**.
