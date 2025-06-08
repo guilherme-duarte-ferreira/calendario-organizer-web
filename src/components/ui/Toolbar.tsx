@@ -39,11 +39,19 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
   };
 
   const handleFontSizeChange = (size: string) => {
+    if (!editor) return;
+    
     if (size === 'default') {
-      editor.chain().focus().unsetMark('textStyle').run();
+      editor.chain().focus().unsetFontSize().run();
     } else {
-      editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
+      editor.chain().focus().setFontSize(`${size}px`).run();
     }
+  };
+
+  const getCurrentFontSize = () => {
+    if (!editor) return 'default';
+    const fontSize = editor.getAttributes('textStyle').fontSize;
+    return fontSize ? fontSize.replace('px', '') : 'default';
   };
 
   const handleColorChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +75,10 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
         </SelectContent>
       </Select>
 
-      <Select onValueChange={handleFontSizeChange} defaultValue="default">
+      <Select 
+        onValueChange={handleFontSizeChange} 
+        value={getCurrentFontSize()}
+      >
         <SelectTrigger className="w-[80px] h-8 text-xs">
           <SelectValue placeholder="Tamanho" />
         </SelectTrigger>
@@ -77,7 +88,10 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
           <SelectItem value="14">14px</SelectItem>
           <SelectItem value="16">16px</SelectItem>
           <SelectItem value="18">18px</SelectItem>
+          <SelectItem value="20">20px</SelectItem>
           <SelectItem value="24">24px</SelectItem>
+          <SelectItem value="28">28px</SelectItem>
+          <SelectItem value="32">32px</SelectItem>
         </SelectContent>
       </Select>
       

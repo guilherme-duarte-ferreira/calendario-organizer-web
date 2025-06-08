@@ -68,8 +68,8 @@
    2.1 Correção de Bugs Críticos
        - **Descrição:** Resolução de todas as falhas que impediam o funcionamento correto da barra de ferramentas, garantindo a estabilidade do editor.
        - **Checklist de Implementação:**
-         - [ ] **Correção do Tamanho da Fonte:** O erro crítico `editor.setFontSize is not a function` foi resolvido. A implementação foi corrigida para usar o método `setMark('textStyle', { fontSize: ... })`, que é o correto para a extensão `@tiptap/extension-text-style`.
-         - [ ] **Reativação dos Botões de Estrutura:** A funcionalidade dos botões de "Lista com Marcadores", "Lista Numerada" e "Citação" foi validada e está operante, utilizando as extensões do `StarterKit`.
+         - [x] **Correção do Tamanho da Fonte:** O erro crítico `editor.setFontSize is not a function` foi resolvido. A implementação foi corrigida para usar o método `setMark('textStyle', { fontSize: ... })`, que é o correto para a extensão `@tiptap/extension-text-style`.
+         - [x] **Reativação dos Botões de Estrutura:** A funcionalidade dos botões de "Lista com Marcadores", "Lista Numerada" e "Citação" foi validada e está operante, utilizando as extensões do `StarterKit`.
          - [x] **Adição do Alinhamento "Justificar":** O botão para `setTextAlign('justify')` foi adicionado à `Toolbar.tsx`, completando as opções de alinhamento de parágrafo.
 
    2.2 Implementação da Inserção de Objetos (Funcionalidade Essencial)

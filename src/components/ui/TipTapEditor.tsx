@@ -8,6 +8,7 @@ import { Color } from '@tiptap/extension-color';
 import FontFamily from '@tiptap/extension-font-family';
 import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
+import { FontSize } from './FontSize';
 
 import { cn } from "@/lib/utils";
 import Toolbar from './Toolbar';
@@ -33,6 +34,8 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
   // --- Configuração do Editor TipTap ---
   const editor = useEditor({
     extensions: [
+      TextStyle,
+      FontSize,
       StarterKit.configure({
         blockquote: {
           HTMLAttributes: {
@@ -56,7 +59,6 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
         alignments: ['left', 'center', 'right', 'justify'],
         defaultAlignment: 'left',
       }),
-      TextStyle.configure(),
       FontFamily.configure({
         types: ['textStyle'],
       }),
