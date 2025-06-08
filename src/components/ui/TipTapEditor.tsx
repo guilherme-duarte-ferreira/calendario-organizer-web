@@ -10,9 +10,17 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import { FontSize } from './FontSize';
 
+// Novas importações para Imagem e Tabela
+import Image from '@tiptap/extension-image';
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+
 import { cn } from "@/lib/utils";
 import Toolbar from './Toolbar';
 import { Button } from './button';
+import { toast } from "sonner";
 
 // --- Props do Componente ---
 interface TipTapEditorProps {
@@ -74,6 +82,15 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
           class: 'text-primary underline underline-offset-4',
         },
       }),
+      
+      // Novas extensões
+      Image,
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     // Conteúdo inicial
     content: editableContent,
@@ -109,6 +126,31 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
     onCancel();
   };
 
+  // Handlers para os novos botões
+  const handleAddImage = () => {
+    toast.info("Em breve!", { description: "A interface avançada para adicionar imagens será implementada na Fase 3." });
+  };
+
+  const handleAddTable = () => {
+    editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+  };
+
+  const handleAddLink = () => {
+    const url = window.prompt('URL do link:');
+    if (url) {
+      editor?.chain().focus().setLink({ href: url }).run();
+    }
+  };
+
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(isEditing);
+      if(isEditing) {
+        editor.commands.focus('end');
+      }
+    }
+  }, [isEditing, editor]);
+
   // Atualiza o conteúdo do editor se a prop externa mudar
   useEffect(() => {
     setEditableContent(content);
@@ -123,7 +165,12 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
     return (
       <div className="rich-text-editor-wrapper edit-mode rounded-md border border-primary ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
         {/* A Toolbar agora é renderizada aqui, passando a instância do editor */}
-        <Toolbar editor={editor} />
+        <Toolbar
+          editor={editor}
+          onAddLink={handleAddLink}
+          onAddImage={handleAddImage}
+          onAddTable={handleAddTable}
+        />
         
         {/* Área de conteúdo editável */}
         <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)'}}>

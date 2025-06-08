@@ -2,7 +2,8 @@ import React from 'react';
 import { Editor } from '@tiptap/react';
 import {
   Bold, Italic, Strikethrough, Underline, List, ListOrdered,
-  Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify
+  Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  Link, Image, Table
 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { Separator } from '@/components/ui/separator';
@@ -17,6 +18,9 @@ import {
 // A barra de ferramentas precisa da instância do editor para aplicar os comandos.
 interface ToolbarProps {
   editor: Editor | null;
+  onAddLink: () => void;
+  onAddImage: () => void;
+  onAddTable: () => void;
 }
 
 /**
@@ -25,7 +29,7 @@ interface ToolbarProps {
  * O estado de cada botão (pressionado/não pressionado) é sincronizado
  * com o estado atual da seleção no editor.
  */
-const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ editor, onAddLink, onAddImage, onAddTable }) => {
   if (!editor) {
     return null;
   }
@@ -145,6 +149,19 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
       </Toggle>
       <Toggle size="sm" pressed={editor.isActive('blockquote')} onPressedChange={() => editor.chain().focus().toggleBlockquote().run()} aria-label="Citação">
         <Quote className="h-4 w-4" />
+      </Toggle>
+
+      <Separator orientation="vertical" className="h-6 mx-1" />
+
+      {/* Grupo de Inserção de Objetos */}
+      <Toggle size="sm" onClick={onAddLink} aria-label="Inserir Link">
+        <Link className="h-4 w-4" />
+      </Toggle>
+      <Toggle size="sm" onClick={onAddImage} aria-label="Inserir Imagem">
+        <Image className="h-4 w-4" />
+      </Toggle>
+      <Toggle size="sm" onClick={onAddTable} aria-label="Inserir Tabela">
+        <Table className="h-4 w-4" />
       </Toggle>
     </div>
   );
