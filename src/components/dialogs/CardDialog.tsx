@@ -819,19 +819,18 @@ export default function CardDialog({ card, isOpen, onClose, blockName: initialBl
   };
 
   const handleSaveDescription = (newContent: string) => {
-    if (card.description !== newContent) {
-        const updatedCard = { ...card, description: newContent, updatedAt: new Date().toISOString() };
-        updateItem(updatedCard);
-        setDescription(newContent);
-        toast.success("Descrição salva!");
-    }
+    setDescription(newContent);
     setIsEditingDescription(false);
-  }
+    updateItem({
+      ...card,
+      description: newContent,
+      updatedAt: new Date().toISOString()
+    });
+  };
 
   const handleCancelDescription = () => {
-    setDescription(card.description || "");
     setIsEditingDescription(false);
-  }
+  };
 
   return (
     <BaseDialog

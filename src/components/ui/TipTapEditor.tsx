@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -7,10 +7,11 @@ import TextStyle from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
 import FontFamily from '@tiptap/extension-font-family';
 import Placeholder from '@tiptap/extension-placeholder';
+import Link from '@tiptap/extension-link';
 
 import { cn } from "@/lib/utils";
 import Toolbar from './Toolbar';
-import Actionbar from './Actionbar';
+import { Button } from './button';
 
 // --- Props do Componente ---
 interface TipTapEditorProps {
@@ -32,15 +33,18 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
   // --- Configuração do Editor TipTap ---
   const editor = useEditor({
     extensions: [
-      StarterKit,
-      Underline,
-      TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      TextStyle,
-      Color,
-      FontFamily,
-      Placeholder.configure({
-        placeholder: placeholder || 'Comece a escrever...',
+      StarterKit.configure({
+        blockquote: {},
+        bulletList: {},
+        orderedList: {},
       }),
+      Underline,
+      TextAlign.configure({ types: ['heading', 'paragraph', 'list_item'] }),
+      TextStyle,
+      FontFamily,
+      Color,
+      Placeholder.configure({ placeholder: placeholder || 'Adicione uma descrição mais detalhada...' }),
+      Link.configure({ openOnClick: false, autolink: true }),
     ],
     // Conteúdo inicial
     content: editableContent,
@@ -51,12 +55,18 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
     // Propriedades para estilização do campo de edição
     editorProps: {
       attributes: {
-        class: 'prose dark:prose-invert prose-sm sm:prose-base focus:outline-none min-h-[150px] w-full',
+        class: 'prose dark:prose-invert max-w-none prose-sm sm:prose-base focus:outline-none min-h-[150px] w-full',
       },
     },
   });
 
   // --- Handlers de Ação ---
+  const handleEnterEditMode = useCallback(() => {
+    setIsEditing(true);
+    editor?.commands.setContent(editableContent, false);
+    setTimeout(() => editor?.commands.focus('end'), 100);
+  }, [editor, editableContent]);
+
   const handleSave = () => {
     // A prop onSave é chamada, e o editor sai do modo de edição.
     onSave(editableContent);
@@ -66,23 +76,14 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
   const handleCancel = () => {
     // Restaura o conteúdo original e sai do modo de edição
     setEditableContent(content);
-    editor?.commands.setContent(content, false);
-    onCancel();
     setIsEditing(false);
-  };
-
-  const handleEnterEditMode = () => {
-    setIsEditing(true);
-    // Foca o editor quando o modo de edição é ativado
-    // Usamos um setTimeout para garantir que o editor esteja visível no DOM
-    setTimeout(() => {
-      editor?.commands.focus('end');
-    }, 0);
+    onCancel();
   };
 
   // Atualiza o conteúdo do editor se a prop externa mudar
   useEffect(() => {
-    if (editor && content !== editableContent) {
+    setEditableContent(content);
+    if(editor && !editor.isDestroyed) {
       editor.commands.setContent(content, false);
     }
   }, [content, editor]);
@@ -96,12 +97,14 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
         <Toolbar editor={editor} />
         
         {/* Área de conteúdo editável */}
-        <div className="p-4">
-            <EditorContent editor={editor} />
+        <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)'}}>
+          <EditorContent editor={editor} />
         </div>
 
-        {/* A Actionbar agora é renderizada aqui, passando as funções de callback */}
-        <Actionbar onSave={handleSave} onCancel={handleCancel} />
+        <div className="editor-actions flex justify-end items-center gap-2 p-2 border-t border-input">
+          <Button variant="ghost" onClick={handleCancel}>Cancelar</Button>
+          <Button onClick={handleSave}>Salvar</Button>
+        </div>
       </div>
     );
   }
@@ -114,7 +117,7 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
     >
       <div
         className={cn(
-            "prose dark:prose-invert prose-sm sm:prose-base p-4 min-h-[150px]",
+            "prose dark:prose-invert max-w-none prose-sm sm:prose-base p-4 min-h-[150px]",
             !content && "text-muted-foreground"
         )}
         dangerouslySetInnerHTML={{ __html: content || `<p>${placeholder || "Adicione uma descrição..."}</p>` }}

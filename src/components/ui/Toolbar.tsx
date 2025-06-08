@@ -2,7 +2,7 @@ import React from 'react';
 import { Editor } from '@tiptap/react';
 import {
   Bold, Italic, Strikethrough, Underline, List, ListOrdered,
-  Quote, AlignLeft, AlignCenter, AlignRight
+  Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify
 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { Separator } from '@/components/ui/separator';
@@ -40,9 +40,9 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
 
   const handleFontSizeChange = (size: string) => {
     if (size === 'default') {
-      editor.chain().focus().unsetFontSize().run();
+      editor.chain().focus().unsetMark('textStyle').run();
     } else {
-      editor.chain().focus().setFontSize(`${size}px`).run();
+      editor.chain().focus().setMark('textStyle', { fontSize: `${size}px` }).run();
     }
   };
 
@@ -115,6 +115,9 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor }) => {
       </Toggle>
       <Toggle size="sm" pressed={editor.isActive({ textAlign: 'right' })} onPressedChange={() => editor.chain().focus().setTextAlign('right').run()} aria-label="Alinhar à direita">
         <AlignRight className="h-4 w-4" />
+      </Toggle>
+      <Toggle size="sm" pressed={editor.isActive({ textAlign: 'justify' })} onPressedChange={() => editor.chain().focus().setTextAlign('justify').run()} aria-label="Justificar">
+        <AlignJustify className="h-4 w-4" />
       </Toggle>
 
       <Separator orientation="vertical" className="h-6 mx-1" />
