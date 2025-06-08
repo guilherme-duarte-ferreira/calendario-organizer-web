@@ -61,41 +61,56 @@
    - [x] Implementar o placeholder dinâmico, visível apenas quando o editor está vazio.
    - [x] Estilizar o contêiner do editor para que a borda mude de cor quando ele estiver em foco, replicando o efeito de `focus-within`.
 ---------------------
-   Fase 2.1 Refinamento e Implementação de Funcionalidades Essenciais do Editor
+Fase 2.1 Refinamento e Implementação de Funcionalidades Essenciais do Editor
 
-   **Objetivo:** Corrigir todos os bugs da implementação inicial do TipTap, estabilizar o componente, e implementar os pontos de entrada fundamentais para as funcionalidades de imagem e tabela, deixando o editor pronto para os aprimoramentos avançados da Fase 3.
+**Objetivo:** 
+Corrigir todos os bugs da implementação inicial do TipTap, estabilizar o componente, e implementar os pontos de entrada fundamentais para as funcionalidades de imagem e tabela, deixando o editor pronto para os aprimoramentos avançados da Fase 3.
 
-   2.1 Correção de Bugs Críticos
-       - **Descrição:** Resolução de todas as falhas que impediam o funcionamento correto da barra de ferramentas, garantindo a estabilidade do editor.
-       - **Checklist de Implementação:**
-         - [x] **Correção do Tamanho da Fonte:** O erro crítico `editor.setFontSize is not a function` foi resolvido. A implementação foi corrigida para usar o método `setMark('textStyle', { fontSize: ... })`, que é o correto para a extensão `@tiptap/extension-text-style`.
-         - [x] **Reativação dos Botões de Estrutura:** A funcionalidade dos botões de "Lista com Marcadores", "Lista Numerada" e "Citação" foi validada e está operante, utilizando as extensões do `StarterKit`.
-         - [x] **Adição do Alinhamento "Justificar":** O botão para `setTextAlign('justify')` foi adicionado à `Toolbar.tsx`, completando as opções de alinhamento de parágrafo.
+### 2.1 Correção de Bugs Críticos
+**Descrição:** 
+Resolução de todas as falhas que impediam o funcionamento correto da barra de ferramentas, garantindo a estabilidade do editor.
 
-   2.2 Implementação da Inserção de Objetos (Funcionalidade Essencial)
-       - **Descrição:** Adicionar à interface do editor os controles primários para que o usuário possa inserir os tipos de conteúdo mais complexos: imagens e tabelas.
-       - **Checklist de Implementação:**
-         - [x] **Instalação das Dependências:** Os pacotes `@tiptap/extension-image` e `@tiptap/extension-table` (com suas sub-dependências) foram adicionados ao `package.json` e instalados.
-         - [x] **Configuração do Editor:** O arquivo `TipTapEditor.tsx` foi atualizado para carregar e configurar as novas extensões de Imagem e Tabela, habilitando as funcionalidades no núcleo do editor.
-         - [x] **Botão "Inserir Imagem":** Um botão com o ícone de imagem foi adicionado à `Toolbar.tsx`.
-               - *Comentário:* A funcionalidade básica atual abre um `window.prompt()` para inserir a URL da imagem. A interface avançada (com opções de URL e upload local) será desenvolvida na Fase 3.
-         - [x] **Botão "Inserir Tabela":** Um botão com o ícone de tabela foi adicionado à `Toolbar.tsx`.
-               - *Comentário:* A funcionalidade básica atual insere uma tabela padrão de 3x3. A interface avançada (seletor de grade estilo Word) será desenvolvida na Fase 2.3.
+**Checklist de Implementação:**
+- [x] **Correção do Tamanho da Fonte:** 
+  O erro crítico `editor.setFontSize is not a function` foi resolvido. A implementação foi corrigida para usar o método `setMark('textStyle', { fontSize: ... })`, que é o correto para a extensão `@tiptap/extension-text-style`.
+- [x] **Reativação dos Botões de Estrutura:** 
+  A funcionalidade dos botões de "Lista com Marcadores", "Lista Numerada" e "Citação" foi validada e está operante, utilizando as extensões do `StarterKit`.
+- [x] **Adição do Alinhamento "Justificar":** 
+  O botão para `setTextAlign('justify')` foi adicionado à `Toolbar.tsx`, completando as opções de alinhamento de parágrafo.
 
-   2.3. Visão para a Fase 3: Módulos Avançados de Imagem e Planilha
-       - **Descrição:** O trabalho realizado na Fase 2 - Parte 2 é a fundação para os seguintes requisitos avançados, que agora formam o escopo claro da **Fase 3**.
-       - **Checklist de Planejamento (Fase 3):**
-         - [ ] **Módulo de Imagem Avançado:**
-               - [ ] Criar um modal para inserção de imagem com abas para "URL" e "Upload do Computador".
-               - [ ] Implementar a lógica de upload de arquivo e conversão para base64 ou URL de objeto.
-               - [ ] Habilitar a seleção da imagem dentro do editor, exibindo alças de redimensionamento.
-               - [ ] Implementar a lógica de redimensionamento (proporcional e não proporcional).
-               - [ ] Implementar a lógica de arrastar e soltar (drag-and-drop) para posicionamento livre.
-         - [ ] **Módulo de Tabela Avançado:**
-               - [ ] Substituir a inserção padrão por um menu suspenso com seletor de grade (estilo Word).
-               - [ ] Implementar a adição dinâmica de linhas e colunas através de botões `+` flutuantes nas bordas.
-               - [ ] Habilitar o redimensionamento de colunas e linhas arrastando suas bordas.
-               - [ ] Implementar a funcionalidade de colorir o fundo de células selecionadas.
+### 2.2 Implementação da Inserção de Objetos (Funcionalidade Essencial)
+**Descrição:** 
+Adicionar à interface do editor os controles primários para que o usuário possa inserir os tipos de conteúdo mais complexos: imagens e tabelas.
+
+**Checklist de Implementação:**
+- [x] **Instalação das Dependências:** 
+  Os pacotes `@tiptap/extension-image` e `@tiptap/extension-table` (com suas sub-dependências) foram adicionados ao `package.json` e instalados.
+- [x] **Configuração do Editor:** 
+  O arquivo `TipTapEditor.tsx` foi atualizado para carregar e configurar as novas extensões de Imagem e Tabela, habilitando as funcionalidades no núcleo do editor.
+- [x] **Botão "Inserir Imagem":** 
+  Um botão com o ícone de imagem foi adicionado à `Toolbar.tsx`.
+  *Comentário:* A funcionalidade básica atual abre um `window.prompt()` para inserir a URL da imagem. A interface avançada (com opções de URL e upload local) será desenvolvida na Fase 3.
+- [x] **Botão "Inserir Tabela":** 
+  Um botão com o ícone de tabela foi adicionado à `Toolbar.tsx`.
+  *Comentário:* A funcionalidade básica atual insere uma tabela padrão de 3x3. A interface avançada (seletor de grade estilo Word) será desenvolvida na Fase 3.
+
+### 2.3. Visão para a Fase 3: Módulos Avançados de Imagem e Planilha
+**Descrição:** 
+O trabalho realizado na Fase 2 - Parte 2.2 é a fundação para os seguintes requisitos avançados, que agora formam o escopo claro da **Fase 3**.
+
+**Checklist de Planejamento (Fase 3):**
+### Módulo de Imagem Avançado:
+- [ ] Criar um modal para inserção de imagem com abas para "URL" e "Upload do Computador".
+- [ ] Implementar a lógica de upload de arquivo e conversão para base64 ou URL de objeto.
+- [ ] Habilitar a seleção da imagem dentro do editor, exibindo alças de redimensionamento.
+- [ ] Implementar a lógica de redimensionamento (proporcional e não proporcional).
+- [ ] Implementar a lógica de arrastar e soltar (drag-and-drop) para posicionamento livre.
+
+### Módulo de Tabela Avançado:
+- [ ] Substituir a inserção padrão por um menu suspenso com seletor de grade (estilo Word).
+- [ ] Implementar a adição dinâmica de linhas e colunas através de botões `+` flutuantes nas bordas.
+- [ ] Habilitar o redimensionamento de colunas e linhas arrastando suas bordas.
+- [ ] Implementar a funcionalidade de colorir o fundo de células selecionadas.
 
 
 ---------------------

@@ -21,6 +21,8 @@ import { cn } from "@/lib/utils";
 import Toolbar from './Toolbar';
 import { Button } from './button';
 import { toast } from "sonner";
+import ImageUploadDialog from '../dialogs/popups/ImageUploadDialog';
+import { ResizableImageExtension } from './ResizableImageNode';
 
 // --- Props do Componente ---
 interface TipTapEditorProps {
@@ -38,6 +40,7 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
   // --- Estados do Componente ---
   const [isEditing, setIsEditing] = useState(false);
   const [editableContent, setEditableContent] = useState(content);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   // --- Configuração do Editor TipTap ---
   const editor = useEditor({
@@ -83,8 +86,12 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
         },
       }),
       
-      // Novas extensões
-      Image,
+      // Configuração da extensão de Imagem com suporte a redimensionamento
+      ResizableImageExtension(Image).configure({
+        inline: true,
+        allowBase64: true,
+      }),
+
       Table.configure({
         resizable: true,
       }),
@@ -128,7 +135,13 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
 
   // Handlers para os novos botões
   const handleAddImage = () => {
-    toast.info("Em breve!", { description: "A interface avançada para adicionar imagens será implementada na Fase 3." });
+    setIsImageModalOpen(true);
+  };
+
+  const handleInsertImageFromModal = (url: string) => {
+    if (url) {
+      editor?.chain().focus().setImage({ src: url }).run();
+    }
   };
 
   const handleAddTable = () => {
@@ -163,25 +176,31 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
   if (isEditing) {
     // --- MODO DE EDIÇÃO ---
     return (
-      <div className="rich-text-editor-wrapper edit-mode rounded-md border border-primary ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-        {/* A Toolbar agora é renderizada aqui, passando a instância do editor */}
-        <Toolbar
-          editor={editor}
-          onAddLink={handleAddLink}
-          onAddImage={handleAddImage}
-          onAddTable={handleAddTable}
-        />
-        
-        {/* Área de conteúdo editável */}
-        <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)'}}>
-          <EditorContent editor={editor} />
+      <>
+        <div className="rich-text-editor-wrapper edit-mode rounded-md border border-primary ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+          <Toolbar
+            editor={editor}
+            onAddLink={handleAddLink}
+            onAddImage={handleAddImage}
+            onAddTable={handleAddTable}
+          />
+          
+          <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)'}}>
+            <EditorContent editor={editor} />
+          </div>
+
+          <div className="editor-actions flex justify-end items-center gap-2 p-2 border-t border-input">
+            <Button variant="ghost" onClick={handleCancel}>Cancelar</Button>
+            <Button onClick={handleSave}>Salvar</Button>
+          </div>
         </div>
 
-        <div className="editor-actions flex justify-end items-center gap-2 p-2 border-t border-input">
-          <Button variant="ghost" onClick={handleCancel}>Cancelar</Button>
-          <Button onClick={handleSave}>Salvar</Button>
-        </div>
-      </div>
+        <ImageUploadDialog
+          isOpen={isImageModalOpen}
+          onClose={() => setIsImageModalOpen(false)}
+          onInsertImage={handleInsertImageFromModal}
+        />
+      </>
     );
   }
 

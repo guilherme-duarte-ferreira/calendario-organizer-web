@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, Maximize2, Minimize2, Archive, Trash2 } from "lucide-react";
@@ -16,6 +17,7 @@ interface BaseDialogProps {
   onClose: () => void;
   onInteractOutside?: (event: Event) => void;
   title: string;
+  description?: string;
   location?: string;
   onLocationClick?: () => void;
   children: React.ReactNode;
@@ -48,6 +50,7 @@ export default function BaseDialog({
   onClose,
   onInteractOutside,
   title,
+  description,
   location,
   onLocationClick,
   children,
@@ -122,9 +125,16 @@ export default function BaseDialog({
         {/* Header Fixo */}
         <div className="flex items-center p-4 border-b bg-background shrink-0 relative">
           <div className="flex-1 min-w-0">
-            <DialogTitle className="text-lg font-semibold truncate">
-              {title}
-            </DialogTitle>
+            <DialogHeader>
+              <DialogTitle className="text-lg font-semibold truncate">
+                {title}
+              </DialogTitle>
+              {description && (
+                <DialogDescription className="text-xs text-muted-foreground text-left">
+                  {description}
+                </DialogDescription>
+              )}
+            </DialogHeader>
             {location && (
               <div className="text-xs mt-1">
                 <span className="text-muted-foreground">
