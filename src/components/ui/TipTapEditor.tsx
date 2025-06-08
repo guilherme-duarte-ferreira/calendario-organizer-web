@@ -34,17 +34,44 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        blockquote: {},
-        bulletList: {},
-        orderedList: {},
+        blockquote: {
+          HTMLAttributes: {
+            class: 'border-l-4 border-gray-300 pl-4 my-4',
+          },
+        },
+        bulletList: {
+          HTMLAttributes: {
+            class: 'list-disc pl-4 my-2',
+          },
+        },
+        orderedList: {
+          HTMLAttributes: {
+            class: 'list-decimal pl-4 my-2',
+          },
+        },
       }),
       Underline,
-      TextAlign.configure({ types: ['heading', 'paragraph', 'list_item'] }),
-      TextStyle,
-      FontFamily,
-      Color,
-      Placeholder.configure({ placeholder: placeholder || 'Adicione uma descrição mais detalhada...' }),
-      Link.configure({ openOnClick: false, autolink: true }),
+      TextAlign.configure({ 
+        types: ['heading', 'paragraph', 'list_item'],
+        alignments: ['left', 'center', 'right', 'justify'],
+        defaultAlignment: 'left',
+      }),
+      TextStyle.configure(),
+      FontFamily.configure({
+        types: ['textStyle'],
+      }),
+      Color.configure({ types: ['textStyle'] }),
+      Placeholder.configure({ 
+        placeholder: placeholder || 'Adicione uma descrição mais detalhada...',
+        emptyEditorClass: 'cursor-text before:content-[attr(data-placeholder)] before:absolute before:opacity-50 before:pointer-events-none',
+      }),
+      Link.configure({ 
+        openOnClick: false, 
+        autolink: true,
+        HTMLAttributes: {
+          class: 'text-primary underline underline-offset-4',
+        },
+      }),
     ],
     // Conteúdo inicial
     content: editableContent,
