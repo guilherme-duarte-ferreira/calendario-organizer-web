@@ -96,9 +96,9 @@ Adicionar à interface do editor os controles primários para que o usuário pos
 
 ### 2.3. Visão para a Fase 3: Módulos Avançados de Imagem e Planilha
 **Descrição:** 
-O trabalho realizado na Fase 2 - Parte 2.2 é a fundação para os seguintes requisitos avançados, que agora formam o escopo claro da **Fase 3**.
+O trabalho realizado na Fase 2 - Parte 2.2 é a fundação para os seguintes requisitos avançados, que agora formam o escopo claro da **Fase 2.3**.
 
-**Checklist de Planejamento (Fase 3):**
+**Checklist de Planejamento**
 ### Módulo de Imagem Avançado:
 - [ ] Criar um modal para inserção de imagem com abas para "URL" e "Upload do Computador".
 - [ ] Implementar a lógica de upload de arquivo e conversão para base64 ou URL de objeto.
