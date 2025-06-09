@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -97,22 +98,4 @@
 .card-cover-modal {
   border-radius: 8px 8px 0 0;
   margin: -24px -24px 16px -24px;
-}
-
-/* --- Estilos Adicionais para TipTap --- */
-@layer base {
-  /* Estilo para quando um nó (como nossa imagem) é selecionado no TipTap */
-  .ProseMirror-selectednode {
-    @apply outline outline-2 outline-offset-2 outline-primary;
-  }
-
-  /* Estilos para o wrapper da imagem redimensionável */
-  .resizable-image-wrapper {
-    @apply inline-block relative;
-  }
-
-  /* Estilo para a alça de redimensionamento */
-  .resizable-image-wrapper .resize-handle {
-    @apply absolute bottom-0 right-0 w-4 h-4 bg-primary rounded-full cursor-nwse-resize border-2 border-white;
-  }
 }

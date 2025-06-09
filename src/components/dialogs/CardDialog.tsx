@@ -66,20 +66,6 @@ interface CardDialogProps {
   isOpen: boolean;         // Controla a visibilidade do modal
   onClose: () => void;     // Função chamada ao fechar o modal
   blockName?: string;      // Nome do bloco onde o cartão está localizado
-  onSave: (card: Card) => void;
-  onCancel: () => void;
-  onArchive: () => void;
-  onDelete: () => void;
-  onLocationClick: () => void;
-  isMaximized: boolean;
-  onToggleMaximize: () => void;
-  isSaving: boolean;
-  onCardChange: (card: Card) => void;
-  onInteractOutside: (event: Event) => void;
-  showLocationPopover: boolean;
-  isLocationPopoverOpen: boolean;
-  onLocationPopoverOpenChange: (open: boolean) => void;
-  locationPopoverContent: React.ReactNode;
 }
 
 /**
@@ -109,26 +95,7 @@ interface ChecklistLocal {
   items: ChecklistItemLocal[]; // Lista de itens da checklist
 }
 
-export default function CardDialog({
-  card,
-  isOpen,
-  onClose,
-  blockName: initialBlockName,
-  onSave,
-  onCancel,
-  onArchive,
-  onDelete,
-  onLocationClick,
-  isMaximized,
-  onToggleMaximize,
-  isSaving,
-  onCardChange,
-  onInteractOutside,
-  showLocationPopover,
-  isLocationPopoverOpen,
-  onLocationPopoverOpenChange,
-  locationPopoverContent,
-}: CardDialogProps) {
+export default function CardDialog({ card, isOpen, onClose, blockName: initialBlockName }: CardDialogProps) {
   const { updateItem, deleteItem, boards, updateBlocksOrder } = useCalendario();
   
   // === ESTADOS DO COMPONENTE ===
@@ -139,6 +106,8 @@ export default function CardDialog({
   const [checklistItems, setChecklistItems] = useState(card.checklist || []);
   const [checklists, setChecklists] = useState<ChecklistLocal[]>([]);
   const [attachments, setAttachments] = useState(card.attachments || []);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [showActivityDetails, setShowActivityDetails] = useState(false);
   const [newChecklistItem, setNewChecklistItem] = useState("");
@@ -303,12 +272,17 @@ export default function CardDialog({
    * Salva as alterações do cartão no estado global
    */
   const handleSave = async () => {
-    if (!title.trim()) return toast.error("O título é obrigatório");
+    if (!title.trim()) {
+      toast.error("O título é obrigatório");
+      return;
+    }
+
+    setIsSaving(true);
     try {
       const updatedCard: Card = {
         ...card,
         title: title.trim(),
-        description: description,
+        description: description.trim(),
         status,
         checklist: checklistItems,
         attachments,
@@ -319,11 +293,14 @@ export default function CardDialog({
         capaColor: capaColor,
         updatedAt: new Date().toISOString(),
       };
-      onSave(updatedCard);
+
+      updateItem(updatedCard);
       toast.success("Cartão salvo com sucesso!");
       onClose();
-    } catch (error) { 
-      toast.error("Erro ao salvar cartão"); 
+    } catch (error) {
+      toast.error("Erro ao salvar cartão");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -861,23 +838,18 @@ export default function CardDialog({
       onClose={handleModalClose}
       onInteractOutside={handleDialogInteractOutside}
       title={title || "Novo Cartão"}
-      description="Edite os detalhes do seu card. Você pode adicionar título, descrição, tags e muito mais."
       location={currentBlockName}
       onSave={handleSave}
       onArchive={handleArchive}
       onDelete={handleDelete}
       isMaximized={isMaximized}
-      onToggleMaximize={onToggleMaximize}
+      onToggleMaximize={() => setIsMaximized(!isMaximized)}
       showMaximize={true}
       isSaving={isSaving}
       sidebarContent={sidebarContent}
       capa={capa}
       capaColor={capaColor}
       onLocationClick={handleLocationClick}
-      showLocationPopover={showLocationPopover}
-      isLocationPopoverOpen={isLocationPopoverOpen}
-      onLocationPopoverOpenChange={onLocationPopoverOpenChange}
-      locationPopoverContent={locationPopoverContent}
     >
       <div className="space-y-6" onClick={handleModalClick}>
         <input
