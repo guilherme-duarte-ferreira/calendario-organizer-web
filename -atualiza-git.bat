@@ -70,7 +70,7 @@ goto menu
 :log
 echo Diretorio atual: %cd%
 echo Mostrando log de commits...
-git log
+git log --oneline
 pause
 goto menu
 
@@ -88,12 +88,13 @@ echo ========================================================
 echo 1. Restaurar arquivos deletados (git checkout -- .)
 echo 2. Sincronizar com repositorio (git fetch origin)
 echo 3. Fazer fetch do repositorio (git fetch)
-echo 4. Fazer merge de branches (git merge <branch>)
+echo 4. Fazer merge de branches (git merge ^<branch^>)
 echo 5. Inicializar um novo repositorio (git init)
 echo 6. Desfazer alteracoes (git reset)
 echo 7. Descartar todas as alteracoes (git checkout .)
 echo 8. Listar branches (git branch)
-echo 9. Voltar ao menu principal
+echo 9. Voltar para um commit especifico (git checkout ^<hash^>)
+echo 10. Voltar ao menu principal
 echo ========================================================
 set /p escolha_outras="Escolha uma opcao: "
 
@@ -105,7 +106,8 @@ if %escolha_outras%==5 goto init
 if %escolha_outras%==6 goto reset
 if %escolha_outras%==7 goto descartar
 if %escolha_outras%==8 goto branch
-if %escolha_outras%==9 goto menu
+if %escolha_outras%==9 goto checkout_commit
+if %escolha_outras%==10 goto menu
 goto outras_opcoes
 
 :restaurar
@@ -155,6 +157,19 @@ goto outras_opcoes
 :branch
 echo Listando todas as branches...
 git branch -a
+pause
+goto outras_opcoes
+
+:checkout_commit
+cls
+echo Voltando para um commit especifico...
+set /p commit_hash="Digite o hash do commit: "
+if not defined commit_hash (
+    echo Nenhuma hash de commit foi inserida. Operacao cancelada.
+) else (
+    echo Executando: git checkout %commit_hash%
+    git checkout %commit_hash%
+)
 pause
 goto outras_opcoes
 
