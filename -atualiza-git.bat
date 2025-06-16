@@ -7,29 +7,31 @@ cd /d %~dp0
 cls
 echo Diretorio atual: %cd%
 echo =====================================
-echo     GIT AUTOMATION MENU
+echo      GIT AUTOMATION MENU
 echo =====================================
 echo 1. Verificar status do repositorio (git status)
 echo 2. Adicionar todas as alteracoes (git add .)
-echo 3. Fazer commit (git commit -m "...")
-echo 4. Fazer push para o GitHub (git push)
-echo 5. Fazer pull do repositorio (git pull)
-echo 6. Mostrar log de commits (git log)
-echo 7. Obter link do projeto (git remote -v)
-echo 8. Outras opcoes
-echo 9. Sair
+echo 3. Adicionar e Comitar (git add . ^&^& git commit -m "...")
+echo 4. Fazer commit (git commit)
+echo 5. Fazer push para o GitHub (git push)
+echo 6. Fazer pull do repositorio (git pull)
+echo 7. Mostrar log de commits (git log)
+echo 8. Obter link do projeto (git remote -v)
+echo 9. Outras opcoes
+echo 0. Sair
 echo =====================================
 set /p escolha="Escolha uma opcao: "
 
 if %escolha%==1 goto status
 if %escolha%==2 goto add
-if %escolha%==3 goto commit
-if %escolha%==4 goto push
-if %escolha%==5 goto pull
-if %escolha%==6 goto log
-if %escolha%==7 goto link
-if %escolha%==8 goto outras_opcoes
-if %escolha%==9 goto fim
+if %escolha%==3 goto add_commit
+if %escolha%==4 goto commit
+if %escolha%==5 goto push
+if %escolha%==6 goto pull
+if %escolha%==7 goto log
+if %escolha%==8 goto link
+if %escolha%==9 goto outras_opcoes
+if %escolha%==0 goto fim
 goto menu
 
 :status
@@ -46,10 +48,20 @@ git add .
 pause
 goto menu
 
-:commit
-set /p comentario="Digite o comentario do commit: "
+:add_commit
 echo Diretorio atual: %cd%
+set /p comentario="Digite a mensagem rapida do commit: "
+echo Adicionando todas as alteracoes...
+git add .
+echo Comitando com a mensagem: "%comentario%"
 git commit -m "%comentario%"
+pause
+goto menu
+
+:commit
+echo Diretorio atual: %cd%
+echo Abrindo o editor de texto para a mensagem de commit...
+git commit
 pause
 goto menu
 
