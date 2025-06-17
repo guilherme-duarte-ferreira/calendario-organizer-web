@@ -102,19 +102,110 @@
    - [x] Implementar o placeholder dinâmico, visível apenas quando o editor está vazio.
    - [x] Estilizar o contêiner do editor para que a borda mude de cor quando ele estiver em foco, replicando o efeito de `focus-within`.
 
-   **Fase 6.2.3: [ ] remover: Módulos Avançados de Imagem e Planilha**
-    - remover botoes de imagem e planilhas
-    - remover o codigo da logica de imagem e planilhas
+**Fase 6.2.3: Simplificação do Editor e Preparação para o Módulo de Imagem Avançado**
 
+### 1. Remoção de Funcionalidades de Tabela
+- [x] Remover dependências relacionadas a tabelas do `package.json`
+- [x] Simplificar o `TipTapEditor.tsx` removendo extensões de tabela
+- [x] Atualizar o `Toolbar.tsx` removendo botões de tabela
+- [x] Executar `npm install` para atualizar dependências
+- [x] Verificar se todas as funcionalidades de tabela foram removidas corretamente
 
-   **Fase 6.3: Funcionalidades Complexas e Finalização**  
-   Objetivo: Implementar os recursos mais avançados e garantir que a experiência do usuário seja coesa.
+### 2. Implementação do Módulo de Imagem Avançado
+#### 2.1 Modal de Upload
+- [x] Criar componente `ImageUploadDialog.tsx`
+  - [x] Estrutura básica do modal
+  - [x] Importações necessárias
+  - [x] Props e tipos
+  - [x] Lógica de upload
+  - [x] Interface de usuário
+  - [x] Feedback visual
+  - [x] Tratamento de erros
+  - [x] Validações
+  - [x] Integração com o editor
 
-   - [ ] 6.3.1. Funcionalidade de Cópia Avançada:
-   - [ ] No Actionbar.tsx, implementar o menu suspenso para o botão "Copiar".
-   - [ ] Adicionar a biblioteca turndown para converter HTML em Markdown.
-   - [ ] 6.3.2. Expansão de Conteúdo (Ver mais...):
-   - [ ] Implementar uma lógica no modo de visualização para truncar descrições longas e exibir um botão "Ver mais..." que expande o conteúdo.
+#### 2.2 Extensão de Imagem Customizada
+- [x] Criar componente `ResizableImageNode.tsx`
+  - [x] Estrutura básica do componente
+  - [x] Lógica de redimensionamento
+  - [x] Handlers de eventos
+  - [x] Estilização
+  - [x] Integração com o editor
+- [x] Criar extensão `CustomImage.ts`
+  - [x] Configuração da extensão
+  - [x] Integração com o ResizableImageNode
+  - [x] Atributos customizados
+  - [x] Comandos personalizados
+- [x] Integrar extensão no TipTapEditor
+  - [x] Importar extensão
+  - [x] Configurar extensão
+  - [x] Testar funcionalidades
+
+#### 2.3 Funcionalidades de Imagem
+- [x] Implementar redimensionamento de imagens
+  - [x] Adicionar handles de redimensionamento
+  - [x] Implementar lógica de redimensionamento
+  - [x] Manter proporção da imagem
+  - [x] Limites de tamanho
+- [x] Implementar alinhamento de imagens
+  - [x] Adicionar opções de alinhamento
+  - [x] Implementar lógica de alinhamento
+  - [x] Atualizar estilos
+- [x] Implementar legendas
+  - [x] Adicionar campo de legenda
+  - [x] Implementar lógica de legendas
+  - [x] Estilizar legendas
+- [x] Implementar opções de imagem
+  - [x] Adicionar menu de opções
+  - [x] Implementar edição de atributos
+  - [x] Implementar remoção de imagem
+  - [x] Implementar substituição de imagem
+
+### 3. Testes e Validação
+- [ ] Testar upload de imagens
+  - [ ] Testar diferentes formatos
+  - [ ] Testar diferentes tamanhos
+  - [ ] Testar limites de upload
+- [ ] Testar redimensionamento
+  - [ ] Testar diferentes proporções
+  - [ ] Testar limites de tamanho
+  - [ ] Testar responsividade
+- [ ] Testar alinhamento
+  - [ ] Testar todas as opções de alinhamento
+  - [ ] Testar responsividade
+- [ ] Testar legendas
+  - [ ] Testar adição de legendas
+  - [ ] Testar edição de legendas
+  - [ ] Testar remoção de legendas
+- [ ] Testar opções de imagem
+  - [ ] Testar edição de atributos
+  - [ ] Testar remoção de imagem
+  - [ ] Testar substituição de imagem
+
+### 4. Documentação
+- [ ] Atualizar documentação do editor
+  - [ ] Documentar novas funcionalidades
+  - [ ] Atualizar exemplos
+  - [ ] Adicionar screenshots
+- [ ] Atualizar README
+  - [ ] Documentar módulo de imagem
+  - [ ] Atualizar instruções de uso
+  - [ ] Adicionar exemplos
+
+### 5. Limpeza e Otimização
+- [ ] Remover código não utilizado
+- [ ] Otimizar imports
+- [ ] Verificar performance
+- [ ] Aplicar boas práticas de código
+
+**Fase 6.3: Funcionalidades Complexas e Finalização**  
+Objetivo: Implementar os recursos mais avançados e garantir que a experiência do usuário seja coesa.
+
+- [ ] 6.3.1. Funcionalidade de Cópia Avançada:
+- [ ] No Actionbar.tsx, implementar o menu suspenso para o botão "Copiar".
+- [ ] Adicionar a biblioteca turndown para converter HTML em Markdown.
+- [ ] 6.3.2. Expansão de Conteúdo (Ver mais...):
+- [ ] Implementar uma lógica no modo de visualização para truncar descrições longas e exibir um botão "Ver mais..." que expande o conteúdo.
 ----------------------------------------------------------------------------------------------
 ### B. Funcionalidades do `CardDialog.tsx` (Checklist, Comentários, Datas):
 

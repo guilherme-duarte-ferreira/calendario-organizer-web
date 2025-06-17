@@ -10,17 +10,14 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Link from '@tiptap/extension-link';
 import { FontSize } from './FontSize';
 
-// Novas importações para Imagem e Tabela
-import Image from '@tiptap/extension-image';
-import Table from '@tiptap/extension-table';
-import TableRow from '@tiptap/extension-table-row';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
+// Importação da extensão de imagem customizada
+import { CustomImage } from './CustomImage';
 
 import { cn } from "@/lib/utils";
 import Toolbar from './Toolbar';
 import { Button } from './button';
 import { toast } from "sonner";
+import ImageUploadDialog from '../dialogs/popups/ImageUploadDialog';
 
 // --- Props do Componente ---
 interface TipTapEditorProps {
@@ -38,6 +35,7 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
   // --- Estados do Componente ---
   const [isEditing, setIsEditing] = useState(false);
   const [editableContent, setEditableContent] = useState(content);
+  const [isImageUploadDialogOpen, setIsImageUploadDialogOpen] = useState(false);
 
   // --- Configuração do Editor TipTap ---
   const editor = useEditor({
@@ -83,14 +81,8 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
         },
       }),
       
-      // Novas extensões
-      Image,
-      Table.configure({
-        resizable: true,
-      }),
-      TableRow,
-      TableHeader,
-      TableCell,
+      // Extensão de imagem customizada
+      CustomImage,
     ],
     // Conteúdo inicial
     content: editableContent,
@@ -128,12 +120,17 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
 
   // Handlers para os novos botões
   const handleAddImage = () => {
-    toast.info("Em breve!", { description: "A interface avançada para adicionar imagens será implementada na Fase 3." });
+    setIsImageUploadDialogOpen(true);
   };
 
-  const handleAddTable = () => {
-    editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-  };
+  /**
+   * Recebe os atributos da imagem do modal e a insere no editor.
+   */
+  const handleInsertImage = useCallback((attrs: { src: string }) => {
+    if (attrs.src) {
+      editor?.chain().focus().setImage({ src: attrs.src }).run();
+    }
+  }, [editor]);
 
   const handleAddLink = () => {
     const url = window.prompt('URL do link:');
@@ -169,7 +166,6 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
           editor={editor}
           onAddLink={handleAddLink}
           onAddImage={handleAddImage}
-          onAddTable={handleAddTable}
         />
         
         {/* Área de conteúdo editável */}
@@ -181,6 +177,13 @@ export default function TipTapEditor({ content, onSave, onCancel, placeholder }:
           <Button variant="ghost" onClick={handleCancel}>Cancelar</Button>
           <Button onClick={handleSave}>Salvar</Button>
         </div>
+
+        {/* --- Renderização do Modal de Upload --- */}
+        <ImageUploadDialog
+          isOpen={isImageUploadDialogOpen}
+          onClose={() => setIsImageUploadDialogOpen(false)}
+          onInsertImage={handleInsertImage}
+        />
       </div>
     );
   }

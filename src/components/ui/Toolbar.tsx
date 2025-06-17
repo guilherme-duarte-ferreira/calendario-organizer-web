@@ -3,7 +3,7 @@ import { Editor } from '@tiptap/react';
 import {
   Bold, Italic, Strikethrough, Underline, List, ListOrdered,
   Quote, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Link, Image, Table
+  Link, Image
 } from 'lucide-react';
 import { Toggle } from '@/components/ui/toggle';
 import { Separator } from '@/components/ui/separator';
@@ -20,7 +20,6 @@ interface ToolbarProps {
   editor: Editor | null;
   onAddLink: () => void;
   onAddImage: () => void;
-  onAddTable: () => void;
 }
 
 /**
@@ -29,7 +28,7 @@ interface ToolbarProps {
  * O estado de cada botão (pressionado/não pressionado) é sincronizado
  * com o estado atual da seleção no editor.
  */
-const Toolbar: React.FC<ToolbarProps> = ({ editor, onAddLink, onAddImage, onAddTable }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ editor, onAddLink, onAddImage }) => {
   if (!editor) {
     return null;
   }
@@ -159,9 +158,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ editor, onAddLink, onAddImage, onAddT
       </Toggle>
       <Toggle size="sm" onClick={onAddImage} aria-label="Inserir Imagem">
         <Image className="h-4 w-4" />
-      </Toggle>
-      <Toggle size="sm" onClick={onAddTable} aria-label="Inserir Tabela">
-        <Table className="h-4 w-4" />
       </Toggle>
     </div>
   );
